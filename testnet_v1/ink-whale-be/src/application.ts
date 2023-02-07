@@ -7,6 +7,7 @@ import {
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
+import {CronComponent} from '@loopback/cron';
 import path from 'path';
 import {MySequence} from './sequence';
 import * as dotenv from 'dotenv';
@@ -36,6 +37,7 @@ export class InkWhaleBeApplication extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
+    this.component(CronComponent);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here

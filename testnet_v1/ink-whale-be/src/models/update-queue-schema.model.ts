@@ -9,6 +9,7 @@ export class UpdateQueueSchema extends Entity {
   })
   id?: string;
 
+  // lp nft pool
   @property({
     type: 'string',
   })

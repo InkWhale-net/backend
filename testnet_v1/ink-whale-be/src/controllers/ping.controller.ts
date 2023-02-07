@@ -32,6 +32,6 @@ export const PING_RESPONSE: ResponseObject = {
 /**
  * A simple controller to bounce back http requests
  */
-export class PingController {
+class PingController {
   constructor() {}
 }
