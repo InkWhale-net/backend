@@ -3,6 +3,27 @@ let { hexToU8a, isHex } = require("@polkadot/util");
 const toStream = require('it-to-stream');
 let FileType = require('file-type');
 let axios = require("axios");
+let { BN, BN_ONE } = require('@polkadot/util');
+
+const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
+
+module.exports.send_telegram_message = async (message) => {
+
+    const { data } = await axios({
+      baseURL: "https://api.telegram.org/bot5345932208:AAHTgUrXV3TBDsJpASGRzh5_NxRpt1RV4ws",
+      url: "/sendMessage",
+      method: "post",
+      data: {
+        "chat_id": -646752258,
+        "text": message
+      },
+      headers: {
+        "Content-Type": "application/json",
+        "cache-control": "no-cache",
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+}
 
 module.exports.splitFileName = function (path) {
     return str.split('\\').pop().split('/').pop();
@@ -52,4 +73,13 @@ module.exports.todayFolder = function () {
   var hour = dateObj.getHours();
 
   return year + "/" + month + "/" + day + "/" + hour;
+}
+
+// For read-only queries we don't need the exact gas limit
+// as the account will not be charged for making the call.
+module.exports.readOnlyGasLimit = function (api) {
+  return api.registry.createType('WeightV2', {
+    refTime: new BN(1_000_000_000_000),
+    proofSize: MAX_CALL_WEIGHT,
+  });
 }
