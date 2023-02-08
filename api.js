@@ -4,13 +4,10 @@ let database = require('./database.js');
 const cors = require('cors') ;
 const bodyParser = require('body-parser');
 const express = require('express');
-let MobileDetect = require('mobile-detect');
 
 let fs = require('fs');
-let https = require('https');
-let privateKey  = fs.readFileSync('./private.key', 'utf8');
-let certificate = fs.readFileSync('./certificate.crt', 'utf8');
-let credentials = {key: privateKey, cert: certificate};
+
+require('dotenv').config();
 
 const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
@@ -195,19 +192,12 @@ app.post('/getNFTPoolByOwner', async (req, res) => {
 });
 
 const connectDb = () => {
-  return mongoose.connect("mongodb://127.0.0.1:27017/inkwhale-dev", {useNewUrlParser: true});
+  return mongoose.connect(process.env.DB, {useNewUrlParser: true});
 };
 
-connectDb().then(async () => {
-  let httpsServer = https.createServer(credentials, app);
-  /*
-  httpsServer.listen(443, () => {
-    console.log(`INKWHALE.NET DEV API listening on port 443!`);
-  });
-  */
-  
-  app.listen(3412, () => {
-    console.log(`INKWHALE.NET API listening on port 3412!`);
+connectDb().then(async () => { 
+  app.listen(process.env.API_PORT, () => {
+    console.log(`INKWHALE.NET API listening on ${process.env.API_PORT}!`);
   });
   
 });

@@ -1,2 +1,7 @@
-.env
+build
 node_modules
+._*
+yarn.lock
+.env
+certificate.crt
+private.key

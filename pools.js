@@ -5,6 +5,7 @@ let BN = require("bn.js");
 let { ApiPromise, WsProvider } = require("@polkadot/api");
 let { ContractPromise,Abi } = require("@polkadot/api-contract");
 let jsonrpc = require("@polkadot/types/interfaces/jsonrpc");
+let {readOnlyGasLimit} = require("./utils.js");
 let {pool_contract} = require('./contracts/pool');
 let {psp22_contract} = require('./contracts/psp22');
 let {pool_generator_contract} = require ('./contracts/pool_generator');
@@ -14,8 +15,10 @@ let {lp_pool_contract} = require('./contracts/lp_pool');
 let {lp_pool_generator_contract} = require ('./contracts/lp_pool_generator');
 let {token_generator_contract} = require ('./contracts/token_generator');
 
+require('dotenv').config();
+
 const connectDb = () => {
-  return mongoose.connect("mongodb://127.0.0.1:27017/inkwhale-dev", {useNewUrlParser: true});
+  return mongoose.connect(process.env.DB, {useNewUrlParser: true});
 };
 
 let pool_generator_calls = null;
@@ -296,7 +299,7 @@ const ProcessTokens = async (index) =>{
     index
   );
   tokenInfo.index = index;
-  console.log(tokenInfo);
+  //console.log(tokenInfo);
   let token = await database.Tokens.findOne({contractAddress:tokenInfo.contractAddress});
 
   tokenInfo.totalSupply = tokenInfo.totalSupply.replace(/\,/g, "") / (10 ** parseInt(tokenInfo.decimal));
@@ -385,7 +388,7 @@ const checkNewLPPools = async () => {
   try{
     is_running_lp = true;
     let poolCount = await getPoolCount(lp_pool_generator_calls);
-    console.log('LP poolCount',poolCount);
+    // console.log('LP poolCount',poolCount);
     let pools = [];
     for (let index = poolCount; index > 0; index--) {
       // console.log(index);
@@ -414,8 +417,9 @@ const checkNewTokens = async () =>{
   }
   try{
     is_running_tokens = true;
+    
     let tokenCount = await getTokenCount(token_generator_calls,null);
-    // console.log(tokenCount);
+    //console.log('Token count', tokenCount);
     let tokens = [];
     for (let index = tokenCount; index > 0 ; index--) {
       let token = await database.Tokens.findOne({index});
@@ -447,7 +451,7 @@ const getTokenInfo = async (contract_to_call,caller_account, index) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["tokenManagerTrait::getTokenInfo"](
@@ -456,7 +460,7 @@ const getTokenInfo = async (contract_to_call,caller_account, index) => {
       index
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -475,16 +479,18 @@ const getTokenCount = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
+  
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["tokenManagerTrait::getTokenCount"](
       caller_account,
       { value: azero_value, gasLimit }
     );
+ 
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log("output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a;
     }
   } catch (e) {
@@ -505,7 +511,7 @@ const getPoolCount = async (contract_to_call,caller_account) => {
     caller_account = '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc';
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolGeneratorTrait::getPoolCount"](
@@ -513,8 +519,8 @@ const getPoolCount = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, '');
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, '');
       return a;
     }
   } catch (e) {
@@ -533,7 +539,7 @@ const getPool = async (contract_to_call,caller_account, index) => {
     caller_account = '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc';
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolGeneratorTrait::getPool"](
@@ -542,7 +548,7 @@ const getPool = async (contract_to_call,caller_account, index) => {
       index
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -562,7 +568,7 @@ const apy = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query.apy(
@@ -570,8 +576,8 @@ const apy = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a;
     }
   } catch (e) {
@@ -590,7 +596,7 @@ const multiplier = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::multiplier"](
@@ -598,8 +604,8 @@ const multiplier = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a;
     }
   } catch (e) {
@@ -619,7 +625,7 @@ const rewardPool = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::rewardPool"](
@@ -627,8 +633,8 @@ const rewardPool = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a / 10 ** 12;
     }
   } catch (e) {
@@ -648,7 +654,7 @@ const totalStaked = async (contract_to_call,caller_account, is_nft) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::totalStaked"](
@@ -656,8 +662,8 @@ const totalStaked = async (contract_to_call,caller_account, is_nft) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       if (is_nft) return a / 1;
       return a / 10 ** 12;
     }
@@ -678,7 +684,7 @@ const getStakeInfo = async (contract_to_call,caller_account, staker) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::getStakeInfo"](
@@ -687,9 +693,9 @@ const getStakeInfo = async (contract_to_call,caller_account, staker) => {
       staker
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      //const a = output.toHuman().replace(/\,/g, "");
-      return output.toHuman();
+      // console.log(output.toHuman().Ok);
+      //const a = output.toHuman().Ok.replace(/\,/g, "");
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -708,7 +714,7 @@ const psp22ContractAddress = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::psp22ContractAddress"](
@@ -716,7 +722,7 @@ const psp22ContractAddress = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -735,7 +741,7 @@ const lpContractAddress = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query.lpContractAddress(
@@ -743,7 +749,7 @@ const lpContractAddress = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -762,7 +768,7 @@ const psp34ContractAddress = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query.psp34ContractAddress(
@@ -770,7 +776,7 @@ const psp34ContractAddress = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -789,7 +795,7 @@ const duration = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::duration"](
@@ -797,8 +803,8 @@ const duration = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a/1000;
     }
   } catch (e) {
@@ -818,7 +824,7 @@ const startTime = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::startTime"](
@@ -826,8 +832,8 @@ const startTime = async (contract_to_call,caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a/1;
     }
   } catch (e) {
@@ -847,7 +853,7 @@ const owner = async (contract_to_call,caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const value = 0;
 
   const { result, output } = await contract_to_call.query["ownable::owner"](caller_account, {
@@ -855,7 +861,7 @@ const owner = async (contract_to_call,caller_account) => {
     gasLimit,
   });
   if (result.isOk) {
-    return output.toHuman();
+    return output.toHuman().Ok;
   }
   return null;
 }
@@ -870,7 +876,7 @@ const balanceOf = async (caller_account,account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
 
   try {
@@ -880,8 +886,8 @@ const balanceOf = async (caller_account,account) => {
       account
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a / 10 ** 12;
     }
   } catch (e) {
@@ -900,7 +906,7 @@ const totalSupply = async (caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
     const { result, output } = await psp22_contract_calls.query["psp22::totalSupply"](
@@ -908,8 +914,8 @@ const totalSupply = async (caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      // console.log(output.toHuman());
-      const a = output.toHuman().replace(/\,/g, "");
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
       return a / 10 ** 12;
     }
   } catch (e) {
@@ -929,7 +935,7 @@ const tokenName = async (caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
 
   try {
@@ -938,7 +944,7 @@ const tokenName = async (caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -957,7 +963,7 @@ const tokenSymbol = async (caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
 
   try {
@@ -966,7 +972,7 @@ const tokenSymbol = async (caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -985,7 +991,7 @@ const tokenDecimals = async (caller_account) => {
     caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
   }
 
-  const gasLimit = -1;
+  const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
 
   try {
@@ -994,7 +1000,7 @@ const tokenDecimals = async (caller_account) => {
       { value: azero_value, gasLimit }
     );
     if (result.isOk) {
-      return output.toHuman();
+      return output.toHuman().Ok;
     }
   } catch (e) {
     console.log(e);
@@ -1006,7 +1012,7 @@ const tokenDecimals = async (caller_account) => {
 
 connectDb().then(async () => {
 
-    const provider = new WsProvider("wss://ws-smartnet.test.azero.dev");
+    const provider = new WsProvider(process.env.PROVIDER);
     api = new ApiPromise({
       provider,
       rpc: jsonrpc,
