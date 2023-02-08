@@ -8,10 +8,10 @@ export const EACH_15_SECONDS = '*/15 * * * * *';               // Every 15 secon
 export const EACH_30_SECONDS = '*/30 * * * * *';               // Every 30 seconds
 
 export const CRONJOB_TIME = {
-    POOL: EACH_MINUTE
+    POOL: EACH_5_MINUTES
 };
 
-export const IS_DEBUG = true; // set TRUE for debugging at the localhost by REST api, FALSE for run on the server
+export const IS_DEBUG = false; // set TRUE for debugging at the localhost by REST api, FALSE for run on the server
 export const CRONJOB_ENABLE = {
     POOL: !IS_DEBUG
 };
