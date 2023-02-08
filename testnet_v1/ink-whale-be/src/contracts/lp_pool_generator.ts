@@ -1,4 +1,4 @@
-const lp_pool_generator_contract = {
+export const lp_pool_generator_contract = {
 	CONTRACT_ADDRESS: "5HhjqGzZNvZGYf8aJ6ygnJm95eRv3JbHvTgB7vBoSp2HvByv",
 	CONTRACT_ABI: {
 		"source": {
@@ -1929,8 +1929,4 @@ const lp_pool_generator_contract = {
 		],
 		"version": "4"
 	}
-};
-
-module.exports = {
-	lp_pool_generator_contract:lp_pool_generator_contract
 };

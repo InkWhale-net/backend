@@ -1,4 +1,4 @@
-const nft_pool_contract = {
+export const nft_pool_contract = {
 	CONTRACT_ADDRESS: "5DLNKUA9DhVS8WVbiWGrykA3WU2mGzPdeAf4BB9Q3RCksvJg",
 	CONTRACT_ABI: {
 		"source": {
@@ -2159,8 +2159,4 @@ const nft_pool_contract = {
 		],
 		"version": "4"
 	}
-};
-
-module.exports = {
-	nft_pool_contract:nft_pool_contract
 };

@@ -1,4 +1,4 @@
-const psp22_contract = {
+export const psp22_contract = {
 	CONTRACT_ADDRESS: "5EUB5uRR754QzqPWkCMk1tzAztDoRqikhCEDTpm7QE8oN9tg",
 	CONTRACT_ABI: {
 		"source": {
@@ -2024,8 +2024,4 @@ const psp22_contract = {
 		],
 		"version": "4"
 	}
-};
-
-module.exports = {
-	psp22_contract:psp22_contract
 };

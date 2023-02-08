@@ -1,4 +1,4 @@
-const token_generator_contract = {
+export const token_generator_contract = {
 	CONTRACT_ADDRESS: "5HesiTaAEspLo2FchoShKniiLhZZDDUwpiFGYnmMfvWm9Qid",
 	CONTRACT_ABI: {
 		"source": {
@@ -1853,8 +1853,4 @@ const token_generator_contract = {
 		],
 		"version": "4"
 	}
-};
-
-module.exports = {
-	token_generator_contract:token_generator_contract
 };

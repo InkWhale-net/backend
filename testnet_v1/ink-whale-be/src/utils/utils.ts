@@ -1,6 +1,7 @@
 import {BN, BN_ONE, hexToU8a, isHex} from "@polkadot/util";
 import {decodeAddress, encodeAddress} from "@polkadot/keyring";
 import {ApiPromise} from "@polkadot/api";
+import {WeightV2} from "@polkadot/types/interfaces";
 
 
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
@@ -48,9 +49,9 @@ export function todayFolder(): string {
     return year + "/" + month + "/" + day + "/" + hour;
 }
 
-export function readOnlyGasLimit(api: ApiPromise) {
+export function readOnlyGasLimit(api: ApiPromise):WeightV2 {
     return api.registry.createType('WeightV2', {
         refTime: new BN(1_000_000_000_000),
         proofSize: MAX_CALL_WEIGHT,
-    }).toString();
+    });
 }

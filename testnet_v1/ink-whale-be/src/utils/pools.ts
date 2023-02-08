@@ -8,6 +8,10 @@ import {
     UpdateQueueSchemaRepository
 } from "../repositories";
 import {readOnlyGasLimit} from "./utils";
+import {lp_pool_contract} from "../contracts/lp_pool";
+import {psp22_contract} from "../contracts/psp22";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 let is_running = false;
 let is_running_nft = false;
@@ -23,6 +27,7 @@ export const checkQueue = async (
     token_generator_calls: ContractPromise,
     nft_pool_contract_calls: ContractPromise,
     lp_pool_contract_calls: ContractPromise,
+    pool_contract_calls: ContractPromise,
     updateQueueSchemaRepository: UpdateQueueSchemaRepository,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository,
     tokensSchemaRepository: TokensSchemaRepository,
@@ -45,7 +50,7 @@ export const checkQueue = async (
                 else if (requestType == "lp")
                     await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
                 else if (requestType == "pool")
-                    await checkNewPools(api, pool_generator_calls, poolsSchemaRepository);
+                    await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
                 else if (requestType == "token")
                     await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
             } else {
@@ -54,7 +59,7 @@ export const checkQueue = async (
                 else if (requestType == "lp")
                     await ProcessLP(poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
                 else if (requestType == "pool")
-                    await ProcessPool(poolContract, api, poolsSchemaRepository);
+                    await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
             }
 
             await updateQueueSchemaRepository.deleteAll({
@@ -75,11 +80,11 @@ const ProcessNFT = async (
     nft_pool_contract_calls: ContractPromise,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository
 ) => {
-    nft_pool_contract_calls = new ContractPromise(
-        api,
-        nft_pool_contract.CONTRACT_ABI,
-        poolContract,
-    );
+    // nft_pool_contract_calls = new ContractPromise(
+    //     api,
+    //     nft_pool_contract.CONTRACT_ABI,
+    //     poolContract,
+    // );
     //console.log(pool_contract);
     let _multiplier = await multiplier(api, nft_pool_contract_calls, '');
     let _rewardPool = await rewardPool(api, nft_pool_contract_calls, '');
@@ -174,13 +179,14 @@ const ProcessNFT = async (
 const ProcessPool = async (
     poolContract: string,
     api: ApiPromise,
+    pool_contract_calls: ContractPromise,
     poolsSchemaRepository : PoolsSchemaRepository,
 ) => {
-    let pool_contract_calls = new ContractPromise(
-        api,
-        pool_contract.CONTRACT_ABI,
-        poolContract,
-    );
+    // let pool_contract_calls = new ContractPromise(
+    //     api,
+    //     pool_contract.CONTRACT_ABI,
+    //     poolContract,
+    // );
     //console.log(pool_contract);
     let _apy = await apy(api, pool_contract_calls, '');
     let _rewardPool = await rewardPool(api, pool_contract_calls, '');
@@ -204,77 +210,84 @@ const ProcessPool = async (
     let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
 
     // let collection = await database.Pools.findOne({poolContract});
-    let collection = await poolsSchemaRepository.findOne({
-        where: {
-            poolContract: poolContract
-        }
-    });
+    // console.log({poolsSchemaRepository: poolsSchemaRepository});
+    console.log({poolContract: poolContract});
 
-    if (collection) {
-        //console.log('Already Exists, update',poolContract,_rewardPool);
-        // await database.Pools.updateOne({poolContract}, {
-        //     tokenContract: _tokenContract,
-        //     tokenName: _tokenName,
-        //     tokenSymbol: _tokenSymbol,
-        //     tokenDecimal: _tokenDecimal,
-        //     duration: _duration,
-        //     startTime: _startTime,
-        //     tokenTotalSupply: _tokenTotalSupply,
-        //     rewardPool: _rewardPool,
-        //     totalStaked: _totalStaked,
-        //     apy: _apy,
-        //     owner: _owner
-        // });
-        await poolsSchemaRepository.updateAll(
-            {
-                tokenContract: _tokenContract,
-                tokenName: _tokenName,
-                tokenSymbol: _tokenSymbol,
-                tokenDecimal: _tokenDecimal,
-                duration: _duration ? _duration : 0,
-                startTime: _startTime ? _startTime : 0,
-                tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
-                rewardPool: _rewardPool ? _rewardPool : 0,
-                totalStaked: _totalStaked ? _totalStaked : 0,
-                apy: _apy,
-                owner: _owner
-            },
-            {
+    try {
+        let collection = await poolsSchemaRepository.findOne({
+            where: {
                 poolContract: poolContract
             }
-        )
-    } else {
-        // let create_collection = await database.Pools.create({
-        //     poolContract,
-        //     tokenContract: _tokenContract,
-        //     tokenName: _tokenName,
-        //     tokenSymbol: _tokenSymbol,
-        //     tokenDecimal: _tokenDecimal,
-        //     duration: _duration,
-        //     startTime: _startTime,
-        //     tokenTotalSupply: _tokenTotalSupply,
-        //     rewardPool: _rewardPool,
-        //     totalStaked: _totalStaked,
-        //     apy: _apy,
-        //     owner: _owner
-        // });
-        let create_collection = await poolsSchemaRepository.create(
-            {
-                poolContract,
-                tokenContract: _tokenContract,
-                tokenName: _tokenName,
-                tokenSymbol: _tokenSymbol,
-                tokenDecimal: _tokenDecimal,
-                duration: _duration ? _duration : 0,
-                startTime: _startTime ? _startTime : 0,
-                tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
-                rewardPool: _rewardPool ? _rewardPool : 0,
-                totalStaked: _totalStaked ? _totalStaked : 0,
-                apy: _apy,
-                owner: _owner
-            }
-        );
-
+        });
+        console.log({collection: collection});
+        if (collection) {
+            //console.log('Already Exists, update',poolContract,_rewardPool);
+            // await database.Pools.updateOne({poolContract}, {
+            //     tokenContract: _tokenContract,
+            //     tokenName: _tokenName,
+            //     tokenSymbol: _tokenSymbol,
+            //     tokenDecimal: _tokenDecimal,
+            //     duration: _duration,
+            //     startTime: _startTime,
+            //     tokenTotalSupply: _tokenTotalSupply,
+            //     rewardPool: _rewardPool,
+            //     totalStaked: _totalStaked,
+            //     apy: _apy,
+            //     owner: _owner
+            // });
+            await poolsSchemaRepository.updateAll(
+                {
+                    tokenContract: _tokenContract,
+                    tokenName: _tokenName,
+                    tokenSymbol: _tokenSymbol,
+                    tokenDecimal: _tokenDecimal,
+                    duration: _duration ? _duration : 0,
+                    startTime: _startTime ? _startTime : 0,
+                    tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                    rewardPool: _rewardPool ? _rewardPool : 0,
+                    totalStaked: _totalStaked ? _totalStaked : 0,
+                    apy: _apy,
+                    owner: _owner
+                },
+                {
+                    poolContract: poolContract
+                }
+            )
+        } else {
+            // let create_collection = await database.Pools.create({
+            //     poolContract,
+            //     tokenContract: _tokenContract,
+            //     tokenName: _tokenName,
+            //     tokenSymbol: _tokenSymbol,
+            //     tokenDecimal: _tokenDecimal,
+            //     duration: _duration,
+            //     startTime: _startTime,
+            //     tokenTotalSupply: _tokenTotalSupply,
+            //     rewardPool: _rewardPool,
+            //     totalStaked: _totalStaked,
+            //     apy: _apy,
+            //     owner: _owner
+            // });
+            let create_collection = await poolsSchemaRepository.create(
+                {
+                    poolContract,
+                    tokenContract: _tokenContract,
+                    tokenName: _tokenName,
+                    tokenSymbol: _tokenSymbol,
+                    tokenDecimal: _tokenDecimal,
+                    duration: _duration ? _duration : 0,
+                    startTime: _startTime ? _startTime : 0,
+                    tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                    rewardPool: _rewardPool ? _rewardPool : 0,
+                    totalStaked: _totalStaked ? _totalStaked : 0,
+                    apy: _apy,
+                    owner: _owner
+                }
+            );
+        }
+    } catch (e){
+        console.log(e);
+        return;
     }
 }
 const ProcessLP = async (
@@ -506,6 +519,7 @@ const checkNewNFTPools = async (
 const checkNewPools = async (
     api: ApiPromise,
     pool_generator_calls: ContractPromise,
+    pool_contract_calls: ContractPromise,
     poolsSchemaRepository: PoolsSchemaRepository
 ) => {
     if (is_running) {
@@ -515,7 +529,7 @@ const checkNewPools = async (
     try {
         is_running = true;
         let poolCount = await getPoolCount(api, pool_generator_calls, '');
-        //console.log('poolCount',poolCount);
+        console.log('poolCount', poolCount);
         let pools = [];
         for (let index = poolCount; index > 0; index--) {
             // console.log(index);
@@ -525,14 +539,14 @@ const checkNewPools = async (
                 '',
                 index
             );
-            //console.log('poolContract', poolContract);
+            console.log('poolContract', poolContract);
             if (!poolContract) continue;
-            await ProcessPool(poolContract, api, poolsSchemaRepository);
+            await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
         }
         is_running = false;
     } catch (e) {
         is_running = false;
-        console.log(e.message);
+        console.log({checkNewPools: e.message});
     }
 
 }
@@ -609,6 +623,7 @@ const checkNewTokens = async (
 export const checkAll = async (
     api: ApiPromise,
     pool_generator_calls: ContractPromise,
+    pool_contract_calls: ContractPromise,
     nft_pool_generator_calls: ContractPromise,
     nft_pool_contract_calls: ContractPromise,
     lp_pool_generator_calls: ContractPromise,
@@ -619,7 +634,7 @@ export const checkAll = async (
     lpPoolsSchemaRepository: LpPoolsSchemaRepository,
     tokensSchemaRepository: TokensSchemaRepository
 ) => {
-    await checkNewPools(api, pool_generator_calls, poolsSchemaRepository);
+    await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
     await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
     await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
     await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
@@ -636,7 +651,7 @@ const getTokenInfo = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -669,16 +684,16 @@ const getTokenCount = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
     const gasLimit = readOnlyGasLimit(api);
-    const azero_value = 0;
+    const azeroValue = 0;
     try {
         const {result, output} = await contract_to_call.query["tokenManagerTrait::getTokenCount"](
             caller_account,
-            {value: azero_value, gasLimit: gasLimit}
+            {value: azeroValue, gasLimit: gasLimit}
         );
         if (result.isOk && output) {
             // @ts-ignore
@@ -702,16 +717,16 @@ const getPoolCount = async (
         console.log('invalid', contract_to_call);
         return null;
     }
-    if (!caller_account) {
-        caller_account = '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc';
+    if (!caller_account || caller_account?.length == 0) {
+        caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
     const gasLimit = readOnlyGasLimit(api);
-    const azero_value = 0;
+    const azeroValue = 0;
     try {
         const {result, output} = await contract_to_call.query["genericPoolGeneratorTrait::getPoolCount"](
             caller_account,
-            {value: azero_value, gasLimit: gasLimit}
+            {value: azeroValue, gasLimit: gasLimit}
         );
         if (result.isOk && output) {
             // console.log(output.toHuman());
@@ -735,16 +750,16 @@ const getPool = async (
         console.log('invalid', contract_to_call);
         return null;
     }
-    if (!caller_account) {
-        caller_account = '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc';
+    if (!caller_account || caller_account?.length == 0) {
+        caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
     const gasLimit = readOnlyGasLimit(api);
-    const azero_value = 0;
+    const azeroValue = 0;
     try {
         const {result, output} = await contract_to_call.query["genericPoolGeneratorTrait::getPool"](
             caller_account,
-            {value: azero_value, gasLimit: gasLimit},
+            {value: azeroValue, gasLimit: gasLimit},
             index
         );
         if (result.isOk && output) {
@@ -769,7 +784,7 @@ const apy = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -801,7 +816,7 @@ const multiplier = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -834,7 +849,7 @@ const rewardPool = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -869,7 +884,7 @@ const totalStaked = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -904,7 +919,7 @@ const getStakeInfo = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -940,7 +955,7 @@ const psp22ContractAddress = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -972,7 +987,7 @@ const lpContractAddress = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1004,7 +1019,7 @@ const psp34ContractAddress = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1036,7 +1051,7 @@ const duration = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1070,7 +1085,7 @@ const startTime = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1104,7 +1119,7 @@ const owner = async (
         console.log("invalid", contract_to_call);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1133,7 +1148,7 @@ const balanceOf = async (
         console.log("invalid", psp22_contract_calls);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1168,7 +1183,7 @@ const totalSupply = async (
         console.log("invalid", psp22_contract_calls);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1202,7 +1217,7 @@ const tokenName = async (
         console.log("invalid", psp22_contract_calls);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1235,7 +1250,7 @@ const tokenSymbol = async (
         console.log("invalid", psp22_contract_calls);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 
@@ -1268,7 +1283,7 @@ const tokenDecimals = async (
         console.log("invalid", psp22_contract_calls);
         return null;
     }
-    if (!caller_account) {
+    if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
 

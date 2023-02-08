@@ -6,7 +6,7 @@ import { Provider} from '@loopback/core';
 import {CronJob, cronJob} from '@loopback/cron';
 import {convertToUTCTime} from "../utils/Tools";
 import {repository} from "@loopback/repository";
-import axios from "axios";
+import {pool_generator_contract} from "../contracts/pool_generator";
 import {ApiPromise, WsProvider} from "@polkadot/api";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import {ContractPromise} from "@polkadot/api-contract";
@@ -17,6 +17,13 @@ import {
     UpdateQueueSchemaRepository
 } from "../repositories";
 import {checkAll, checkQueue} from "../utils/pools";
+import { pool_contract } from "../contracts/pool";
+import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
+import { lp_pool_contract } from "../contracts/lp_pool";
+import { nft_pool_generator_contract } from "../contracts/nft_pool_generator";
+import { nft_pool_contract } from "../contracts/nft_pool";
+import { psp22_contract } from "../contracts/psp22";
+import { token_generator_contract } from "../contracts/token_generator";
 
 @cronJob()
 export class CronJobUpdatePools implements Provider<CronJob> {
@@ -114,9 +121,21 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 token_generator_contract.CONTRACT_ABI,
                                 token_generator_contract.CONTRACT_ADDRESS
                             );
+                            // console.log({data: {
+                            //         token_generator_calls: token_generator_calls,
+                            //         psp22_contract_calls: psp22_contract_calls,
+                            //         nft_pool_contract_calls: nft_pool_contract_calls,
+                            //         nft_pool_generator_calls: nft_pool_generator_calls,
+                            //         lp_pool_contract_calls: lp_pool_contract_calls,
+                            //         lp_pool_generator_calls: lp_pool_generator_calls,
+                            //         pool_contract_calls: pool_contract_calls,
+                            //         pool_generator_calls: pool_generator_calls,
+                            //     }});
+
                             await checkAll(
                                 api,
                                 pool_generator_calls,
+                                pool_contract_calls,
                                 nft_pool_generator_calls,
                                 nft_pool_contract_calls,
                                 lp_pool_generator_calls,
@@ -127,6 +146,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 lpPoolsRepo,
                                 tokensRepo
                             );
+
                             await checkQueue(
                                 api,
                                 pool_generator_calls,
@@ -135,6 +155,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 token_generator_calls,
                                 nft_pool_contract_calls,
                                 lp_pool_contract_calls,
+                                pool_contract_calls,
                                 updateQueueRepo,
                                 nftPoolsRepo,
                                 tokensRepo,
