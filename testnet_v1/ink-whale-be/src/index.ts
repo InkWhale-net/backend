@@ -3,14 +3,14 @@ import { createBindingFromClass } from '@loopback/core';
 export * from './application';
 import fs from "fs";
 import dotenv from "dotenv";
-import {CronJobMonitor} from "./cronjob/monitor";
+import {CronJobUpdatePools} from "./cronjob/PoolsJob";
 dotenv.config();
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new InkWhaleBeApplication(options);
-  const cronJobMonitor = createBindingFromClass(CronJobMonitor);
-  app.add(cronJobMonitor);
-  app.configure(cronJobMonitor.key);
+  const cronJobPool = createBindingFromClass(CronJobUpdatePools);
+  app.add(cronJobPool);
+  app.configure(cronJobPool.key);
 
   await app.boot();
   await app.start();
