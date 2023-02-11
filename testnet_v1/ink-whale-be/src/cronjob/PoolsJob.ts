@@ -135,7 +135,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 nftPoolsRepo,
                                 lpPoolsRepo,
                                 tokensRepo
-                            ), 15 * 1000);
+                            ), 60 * 1000);
 
                             setInterval(() => checkQueue(
                                 api,
