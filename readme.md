@@ -9,3 +9,15 @@ The main purpose of this file is to cache smart contract data and save them to l
 ## api.js
 
 To read more about api used in this repo, check [API Document](docs/apis.md)
+
+## Run the script locally
+- Make sure you have MongoDB and Node (v10.19.0 or later) installed
+- Run **npm install** to install all required libraries
+- Create .env file in the root folder
+```
+API_PORT = 3413
+DB = "mongodb://127.0.0.1:27017/inkwhale-ink4"
+PROVIDER = "wss://ws.test.azero.dev"
+```
+- Run **node api** to start API service
+- Run **node pools** to start Pool Caching service
