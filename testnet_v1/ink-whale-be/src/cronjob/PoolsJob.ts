@@ -121,18 +121,8 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 token_generator_contract.CONTRACT_ABI,
                                 token_generator_contract.CONTRACT_ADDRESS
                             );
-                            // console.log({data: {
-                            //         token_generator_calls: token_generator_calls,
-                            //         psp22_contract_calls: psp22_contract_calls,
-                            //         nft_pool_contract_calls: nft_pool_contract_calls,
-                            //         nft_pool_generator_calls: nft_pool_generator_calls,
-                            //         lp_pool_contract_calls: lp_pool_contract_calls,
-                            //         lp_pool_generator_calls: lp_pool_generator_calls,
-                            //         pool_contract_calls: pool_contract_calls,
-                            //         pool_generator_calls: pool_generator_calls,
-                            //     }});
 
-                            await checkAll(
+                            setInterval(() => checkAll(
                                 api,
                                 pool_generator_calls,
                                 pool_contract_calls,
@@ -145,9 +135,9 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 nftPoolsRepo,
                                 lpPoolsRepo,
                                 tokensRepo
-                            );
+                            ), 15 * 1000);
 
-                            await checkQueue(
+                            setInterval(() => checkQueue(
                                 api,
                                 pool_generator_calls,
                                 nft_pool_generator_calls,
@@ -161,7 +151,8 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 tokensRepo,
                                 poolsRepo,
                                 lpPoolsRepo
-                            );
+                            ),1000);
+
                         });
                     }
                 }catch (e) {
