@@ -21,3 +21,4 @@ PROVIDER = "wss://ws.test.azero.dev"
 ```
 - Run **node api** to start API service
 - Run **node pools** to start Pool Caching service
+- Note: If you are running Frontend locally, you need to modify the .env of the frontend **REACT_APP_API_BASE_URL=http://localhost:3413**
