@@ -15,10 +15,10 @@ To read more about api used in this repo, check [API Document](docs/apis.md)
 - Run **npm install** to install all required libraries
 - Create .env file in the root folder
 ```
-API_PORT = 3413
-DB = "mongodb://127.0.0.1:27017/inkwhale-ink4"
+API_PORT = 3412
+DB = "mongodb://127.0.0.1:27017/inkwhale-dev"
 PROVIDER = "wss://ws.test.azero.dev"
 ```
 - Run **node api** to start API service
 - Run **node pools** to start Pool Caching service
-- Note: If you are running Frontend locally, you need to modify the .env of the frontend **REACT_APP_API_BASE_URL=http://localhost:3413**
+- Note: If you are running Frontend locally, you need to modify the .env of the frontend **REACT_APP_API_BASE_URL=http://localhost:3412**
