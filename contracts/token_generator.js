@@ -1,13 +1,13 @@
 const token_generator_contract = {
-  CONTRACT_ADDRESS: "5Gf9jZ6bSTU27QwLgZUZdEcRXWjUR5HiFe7mSMvJvAmxgrV1",
+  CONTRACT_ADDRESS: "5Fc5WyMw4uvg3f3TPSDRvC5yyoTjrtNMDEM5MkyFeo7baUwh",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0xe0a75783d73ae373a55ca8772f13a84f8372c7d2f796372c25217cee601c5637",
-		"language": "ink! 4.0.0-beta",
-		"compiler": "rustc 1.68.0-nightly",
+		"hash": "0x419eabe4f11473ebecf963755c44ff19287ec2dea8a2e7962f6a6ec0df18c60f",
+		"language": "ink! 4.1.0",
+		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {
-		  "build_mode": "Debug",
-		  "cargo_contract_version": "2.0.0-rc",
+		  "build_mode": "Release",
+		  "cargo_contract_version": "2.0.2",
 		  "rust_toolchain": "nightly-x86_64-unknown-linux-gnu",
 		  "wasm_opt_settings": {
 			"keep_debug_symbols": false,
@@ -17,9 +17,9 @@ const token_generator_contract = {
 	  },
 	  "contract": {
 		"name": "token_generator",
-		"version": "0.1.0",
+		"version": "1.0.0",
 		"authors": [
-		  "Support <contact@artzero.io>"
+		  "InkWhale <admin@artzero.io>"
 		]
 	  },
 	  "spec": {
@@ -36,7 +36,7 @@ const token_generator_contract = {
 				}
 			  },
 			  {
-				"label": "wal_contract",
+				"label": "inw_contract",
 				"type": {
 				  "displayName": [
 					"AccountId"
@@ -71,7 +71,7 @@ const token_generator_contract = {
 				"ink_primitives",
 				"ConstructorResult"
 			  ],
-			  "type": 8
+			  "type": 7
 			},
 			"selector": "0x9bae9d5e"
 		  }
@@ -83,7 +83,7 @@ const token_generator_contract = {
 			"ink",
 			"LangError"
 		  ],
-		  "type": 9
+		  "type": 8
 		},
 		"messages": [
 		  {
@@ -98,7 +98,7 @@ const token_generator_contract = {
 				}
 			  },
 			  {
-				"label": "wal_contract",
+				"label": "inw_contract",
 				"type": {
 				  "displayName": [
 					"AccountId"
@@ -125,7 +125,7 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 9
 			},
 			"selector": "0xf2f6dba3"
 		  },
@@ -141,7 +141,7 @@ const token_generator_contract = {
 				}
 			  },
 			  {
-				"label": "total_supply",
+				"label": "cap",
 				"type": {
 				  "displayName": [
 					"Balance"
@@ -155,7 +155,7 @@ const token_generator_contract = {
 				  "displayName": [
 					"String"
 				  ],
-				  "type": 7
+				  "type": 15
 				}
 			  },
 			  {
@@ -164,7 +164,7 @@ const token_generator_contract = {
 				  "displayName": [
 					"String"
 				  ],
-				  "type": 7
+				  "type": 15
 				}
 			  },
 			  {
@@ -186,7 +186,7 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 9
 			},
 			"selector": "0x7d97ec7b"
 		  },
@@ -216,23 +216,6 @@ const token_generator_contract = {
 			  "type": 16
 			},
 			"selector": "0x5e228753"
-		  },
-		  {
-			"args": [],
-			"docs": [
-			  " Returns the address of the current owner."
-			],
-			"label": "Ownable::owner",
-			"mutates": false,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 18
-			},
-			"selector": "0x4fa43c8c"
 		  },
 		  {
 			"args": [
@@ -273,8 +256,36 @@ const token_generator_contract = {
 		  },
 		  {
 			"args": [],
+			"docs": [
+			  " Returns the address of the current owner."
+			],
+			"label": "Ownable::owner",
+			"mutates": false,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 18
+			},
+			"selector": "0x4fa43c8c"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "index",
+				"type": {
+				  "displayName": [
+					"tokenmanagertrait_external",
+					"GetTokenContractAddressInput1"
+				  ],
+				  "type": 5
+				}
+			  }
+			],
 			"docs": [],
-			"label": "TokenManagerTrait::get_token_count",
+			"label": "TokenManagerTrait::get_token_contract_address",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -284,22 +295,33 @@ const token_generator_contract = {
 			  ],
 			  "type": 19
 			},
-			"selector": "0xebabc233"
+			"selector": "0xf1cfb0f6"
 		  },
 		  {
-			"args": [],
+			"args": [
+			  {
+				"label": "value",
+				"type": {
+				  "displayName": [
+					"tokenmanagertrait_external",
+					"WithdrawInwInput1"
+				  ],
+				  "type": 6
+				}
+			  }
+			],
 			"docs": [],
-			"label": "TokenManagerTrait::get_contract_hash",
-			"mutates": false,
+			"label": "TokenManagerTrait::withdraw_inw",
+			"mutates": true,
 			"payable": false,
 			"returnType": {
 			  "displayName": [
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 20
+			  "type": 9
 			},
-			"selector": "0xf39b5876"
+			"selector": "0xceb024c7"
 		  },
 		  {
 			"args": [],
@@ -319,7 +341,7 @@ const token_generator_contract = {
 		  {
 			"args": [],
 			"docs": [],
-			"label": "TokenManagerTrait::get_wal_contract",
+			"label": "TokenManagerTrait::get_contract_hash",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -327,9 +349,9 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 18
+			  "type": 22
 			},
-			"selector": "0x23887774"
+			"selector": "0xf39b5876"
 		  },
 		  {
 			"args": [
@@ -353,27 +375,25 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 9
 			},
 			"selector": "0xf38784b8"
 		  },
 		  {
 			"args": [
 			  {
-				"label": "value",
+				"label": "creation_fee",
 				"type": {
 				  "displayName": [
 					"tokenmanagertrait_external",
-					"WithdrawFeeInput1"
+					"SetCreationFeeInput1"
 				  ],
 				  "type": 6
 				}
 			  }
 			],
-			"docs": [
-			  " Withdraw Fees - only Owner"
-			],
-			"label": "TokenManagerTrait::withdraw_fee",
+			"docs": [],
+			"label": "TokenManagerTrait::set_creation_fee",
 			"mutates": true,
 			"payable": false,
 			"returnType": {
@@ -381,25 +401,25 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 9
 			},
-			"selector": "0xf8bc0c3d"
+			"selector": "0xa82ecdff"
 		  },
 		  {
 			"args": [
 			  {
-				"label": "wal_contract",
+				"label": "inw_contract",
 				"type": {
 				  "displayName": [
 					"tokenmanagertrait_external",
-					"SetWalContractInput1"
+					"SetInwContractInput1"
 				  ],
 				  "type": 0
 				}
 			  }
 			],
 			"docs": [],
-			"label": "TokenManagerTrait::set_wal_contract",
+			"label": "TokenManagerTrait::set_inw_contract",
 			"mutates": true,
 			"payable": false,
 			"returnType": {
@@ -407,25 +427,14 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 9
 			},
-			"selector": "0x929ea02e"
+			"selector": "0x55f43bf5"
 		  },
 		  {
-			"args": [
-			  {
-				"label": "index",
-				"type": {
-				  "displayName": [
-					"tokenmanagertrait_external",
-					"GetTokenInfoInput1"
-				  ],
-				  "type": 5
-				}
-			  }
-			],
+			"args": [],
 			"docs": [],
-			"label": "TokenManagerTrait::get_token_info",
+			"label": "TokenManagerTrait::get_token_count",
 			"mutates": false,
 			"payable": false,
 			"returnType": {
@@ -433,121 +442,24 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 22
+			  "type": 23
 			},
-			"selector": "0x3453024b"
+			"selector": "0xebabc233"
 		  },
 		  {
-			"args": [
-			  {
-				"label": "value",
-				"type": {
-				  "displayName": [
-					"tokenmanagertrait_external",
-					"WithdrawWalInput1"
-				  ],
-				  "type": 6
-				}
-			  }
-			],
+			"args": [],
 			"docs": [],
-			"label": "TokenManagerTrait::withdraw_wal",
-			"mutates": true,
+			"label": "TokenManagerTrait::get_inw_contract",
+			"mutates": false,
 			"payable": false,
 			"returnType": {
 			  "displayName": [
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 18
 			},
-			"selector": "0x4e807631"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "nft_contract_address",
-				"type": {
-				  "displayName": [
-					"admintrait_external",
-					"TranferNftInput1"
-				  ],
-				  "type": 0
-				}
-			  },
-			  {
-				"label": "token_id",
-				"type": {
-				  "displayName": [
-					"admintrait_external",
-					"TranferNftInput2"
-				  ],
-				  "type": 25
-				}
-			  },
-			  {
-				"label": "receiver",
-				"type": {
-				  "displayName": [
-					"admintrait_external",
-					"TranferNftInput3"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"docs": [
-			  " This function allow contract owner withdraw NFT to an account in case there is any NFT sent to contract by mistake"
-			],
-			"label": "AdminTrait::tranfer_nft",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 10
-			},
-			"selector": "0xed1e1dfa"
-		  },
-		  {
-			"args": [
-			  {
-				"label": "value",
-				"type": {
-				  "displayName": [
-					"admintrait_external",
-					"WithdrawFeeInput1"
-				  ],
-				  "type": 6
-				}
-			  },
-			  {
-				"label": "receiver",
-				"type": {
-				  "displayName": [
-					"admintrait_external",
-					"WithdrawFeeInput2"
-				  ],
-				  "type": 0
-				}
-			  }
-			],
-			"docs": [
-			  " This function allows contract owner to withdraw contract balance to his account."
-			],
-			"label": "AdminTrait::withdraw_fee",
-			"mutates": true,
-			"payable": false,
-			"returnType": {
-			  "displayName": [
-				"ink",
-				"MessageResult"
-			  ],
-			  "type": 10
-			},
-			"selector": "0x07573e99"
+			"selector": "0x7d2a84a9"
 		  },
 		  {
 			"args": [
@@ -593,9 +505,47 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 9
 			},
 			"selector": "0xd9aad284"
+		  },
+		  {
+			"args": [
+			  {
+				"label": "value",
+				"type": {
+				  "displayName": [
+					"admintrait_external",
+					"WithdrawFeeInput1"
+				  ],
+				  "type": 6
+				}
+			  },
+			  {
+				"label": "receiver",
+				"type": {
+				  "displayName": [
+					"admintrait_external",
+					"WithdrawFeeInput2"
+				  ],
+				  "type": 0
+				}
+			  }
+			],
+			"docs": [
+			  " This function allows contract owner to withdraw contract balance to his account."
+			],
+			"label": "AdminTrait::withdraw_fee",
+			"mutates": true,
+			"payable": false,
+			"returnType": {
+			  "displayName": [
+				"ink",
+				"MessageResult"
+			  ],
+			  "type": 9
+			},
+			"selector": "0x07573e99"
 		  },
 		  {
 			"args": [
@@ -621,7 +571,7 @@ const token_generator_contract = {
 				"ink",
 				"MessageResult"
 			  ],
-			  "type": 10
+			  "type": 9
 			},
 			"selector": "0x9e32fab2"
 		  }
@@ -697,15 +647,6 @@ const token_generator_contract = {
 						  "layout": {
 							"leaf": {
 							  "key": "0x00000000",
-							  "ty": 0
-							}
-						  },
-						  "name": "admin_address"
-						},
-						{
-						  "layout": {
-							"leaf": {
-							  "key": "0x00000000",
 							  "ty": 5
 							}
 						  },
@@ -718,7 +659,7 @@ const token_generator_contract = {
 							  "ty": 0
 							}
 						  },
-						  "name": "wal_contract"
+						  "name": "inw_contract"
 						},
 						{
 						  "layout": {
@@ -733,73 +674,9 @@ const token_generator_contract = {
 						  "layout": {
 							"root": {
 							  "layout": {
-								"struct": {
-								  "fields": [
-									{
-									  "layout": {
-										"leaf": {
-										  "key": "0x2dbd96e9",
-										  "ty": 7
-										}
-									  },
-									  "name": "name"
-									},
-									{
-									  "layout": {
-										"leaf": {
-										  "key": "0x2dbd96e9",
-										  "ty": 7
-										}
-									  },
-									  "name": "symbol"
-									},
-									{
-									  "layout": {
-										"leaf": {
-										  "key": "0x2dbd96e9",
-										  "ty": 2
-										}
-									  },
-									  "name": "decimal"
-									},
-									{
-									  "layout": {
-										"leaf": {
-										  "key": "0x2dbd96e9",
-										  "ty": 0
-										}
-									  },
-									  "name": "contract_address"
-									},
-									{
-									  "layout": {
-										"leaf": {
-										  "key": "0x2dbd96e9",
-										  "ty": 0
-										}
-									  },
-									  "name": "creator"
-									},
-									{
-									  "layout": {
-										"leaf": {
-										  "key": "0x2dbd96e9",
-										  "ty": 0
-										}
-									  },
-									  "name": "mint_to"
-									},
-									{
-									  "layout": {
-										"leaf": {
-										  "key": "0x2dbd96e9",
-										  "ty": 6
-										}
-									  },
-									  "name": "total_supply"
-									}
-								  ],
-								  "name": "Token"
+								"leaf": {
+								  "key": "0x2dbd96e9",
+								  "ty": 0
 								}
 							  },
 							  "root_key": "0x2dbd96e9"
@@ -1015,16 +892,6 @@ const token_generator_contract = {
 		  "id": 7,
 		  "type": {
 			"def": {
-			  "sequence": {
-				"type": 2
-			  }
-			}
-		  }
-		},
-		{
-		  "id": 8,
-		  "type": {
-			"def": {
 			  "variant": {
 				"variants": [
 				  {
@@ -1039,7 +906,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 8
 					  }
 					],
 					"index": 1,
@@ -1055,7 +922,7 @@ const token_generator_contract = {
 			  },
 			  {
 				"name": "E",
-				"type": 9
+				"type": 8
 			  }
 			],
 			"path": [
@@ -1064,7 +931,7 @@ const token_generator_contract = {
 		  }
 		},
 		{
-		  "id": 9,
+		  "id": 8,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1083,7 +950,7 @@ const token_generator_contract = {
 		  }
 		},
 		{
-		  "id": 10,
+		  "id": 9,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1091,7 +958,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 11
+						"type": 10
 					  }
 					],
 					"index": 0,
@@ -1100,7 +967,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 8
 					  }
 					],
 					"index": 1,
@@ -1112,11 +979,11 @@ const token_generator_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 11
+				"type": 10
 			  },
 			  {
 				"name": "E",
-				"type": 9
+				"type": 8
 			  }
 			],
 			"path": [
@@ -1125,7 +992,7 @@ const token_generator_contract = {
 		  }
 		},
 		{
-		  "id": 11,
+		  "id": 10,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1142,7 +1009,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 12
+						"type": 11
 					  }
 					],
 					"index": 1,
@@ -1158,7 +1025,7 @@ const token_generator_contract = {
 			  },
 			  {
 				"name": "E",
-				"type": 12
+				"type": 11
 			  }
 			],
 			"path": [
@@ -1167,7 +1034,7 @@ const token_generator_contract = {
 		  }
 		},
 		{
-		  "id": 12,
+		  "id": 11,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1175,7 +1042,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 7,
+						"type": 12,
 						"typeName": "String"
 					  }
 					],
@@ -1186,51 +1053,117 @@ const token_generator_contract = {
 					"fields": [
 					  {
 						"type": 13,
-						"typeName": "PSP22Error"
+						"typeName": "OwnableError"
 					  }
 					],
 					"index": 1,
-					"name": "PSP22Error"
+					"name": "OwnableError"
 				  },
 				  {
 					"fields": [
 					  {
 						"type": 14,
-						"typeName": "PSP34Error"
+						"typeName": "PSP22Error"
 					  }
 					],
 					"index": 2,
-					"name": "PSP34Error"
+					"name": "PSP22Error"
 				  },
 				  {
-					"fields": [
-					  {
-						"type": 15,
-						"typeName": "OwnableError"
-					  }
-					],
 					"index": 3,
-					"name": "OwnableError"
-				  },
-				  {
-					"index": 4,
-					"name": "CannotTransfer"
-				  },
-				  {
-					"index": 5,
 					"name": "NotEnoughBalance"
 				  },
 				  {
-					"index": 6,
+					"index": 4,
 					"name": "WithdrawFeeError"
 				  },
 				  {
+					"index": 5,
+					"name": "NotCallable"
+				  },
+				  {
+					"index": 6,
+					"name": "CannotTransfer"
+				  },
+				  {
 					"index": 7,
-					"name": "WithdrawNFTError"
+					"name": "CannotBurn"
 				  },
 				  {
 					"index": 8,
-					"name": "WithdrawPSP22Error"
+					"name": "CheckedOperations"
+				  },
+				  {
+					"index": 9,
+					"name": "InvalidBalanceAndAllowance"
+				  },
+				  {
+					"index": 10,
+					"name": "AlreadyInit"
+				  },
+				  {
+					"index": 11,
+					"name": "InvalidBuyAmount"
+				  },
+				  {
+					"index": 12,
+					"name": "InvalidTransferAmount"
+				  },
+				  {
+					"index": 13,
+					"name": "CannotCreatePool"
+				  },
+				  {
+					"index": 14,
+					"name": "NotTimeToStake"
+				  },
+				  {
+					"index": 15,
+					"name": "NoStakerFound"
+				  },
+				  {
+					"index": 16,
+					"name": "InvalidUnstakedAmount"
+				  },
+				  {
+					"index": 17,
+					"name": "NotEnoughReward"
+				  },
+				  {
+					"index": 18,
+					"name": "NotTokenOwner"
+				  },
+				  {
+					"index": 19,
+					"name": "AllowanceNotSet"
+				  },
+				  {
+					"index": 20,
+					"name": "TokenNotFound"
+				  },
+				  {
+					"index": 21,
+					"name": "UserNotStake"
+				  },
+				  {
+					"index": 22,
+					"name": "NoTokenOwner"
+				  },
+				  {
+					"index": 23,
+					"name": "ExceedTotalStakingAmount"
+				  },
+				  {
+					"index": 24,
+					"name": "NoClaimAmount"
+				  },
+				  {
+					"index": 25,
+					"name": "NotTimeToWithdraw"
+				  },
+				  {
+					"index": 26,
+					"name": "NotEnoughRewardToWithdraw"
 				  }
 				]
 			  }
@@ -1244,115 +1177,15 @@ const token_generator_contract = {
 		  }
 		},
 		{
+		  "id": 12,
+		  "type": {
+			"def": {
+			  "primitive": "str"
+			}
+		  }
+		},
+		{
 		  "id": 13,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 7,
-						"typeName": "String"
-					  }
-					],
-					"index": 0,
-					"name": "Custom"
-				  },
-				  {
-					"index": 1,
-					"name": "InsufficientBalance"
-				  },
-				  {
-					"index": 2,
-					"name": "InsufficientAllowance"
-				  },
-				  {
-					"index": 3,
-					"name": "ZeroRecipientAddress"
-				  },
-				  {
-					"index": 4,
-					"name": "ZeroSenderAddress"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 7,
-						"typeName": "String"
-					  }
-					],
-					"index": 5,
-					"name": "SafeTransferCheckFailed"
-				  }
-				]
-			  }
-			},
-			"path": [
-			  "openbrush_contracts",
-			  "traits",
-			  "errors",
-			  "psp22",
-			  "PSP22Error"
-			]
-		  }
-		},
-		{
-		  "id": 14,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 7,
-						"typeName": "String"
-					  }
-					],
-					"index": 0,
-					"name": "Custom"
-				  },
-				  {
-					"index": 1,
-					"name": "SelfApprove"
-				  },
-				  {
-					"index": 2,
-					"name": "NotApproved"
-				  },
-				  {
-					"index": 3,
-					"name": "TokenExists"
-				  },
-				  {
-					"index": 4,
-					"name": "TokenNotExists"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 7,
-						"typeName": "String"
-					  }
-					],
-					"index": 5,
-					"name": "SafeTransferCheckFailed"
-				  }
-				]
-			  }
-			},
-			"path": [
-			  "openbrush_contracts",
-			  "traits",
-			  "errors",
-			  "psp34",
-			  "PSP34Error"
-			]
-		  }
-		},
-		{
-		  "id": 15,
 		  "type": {
 			"def": {
 			  "variant": {
@@ -1378,6 +1211,70 @@ const token_generator_contract = {
 		  }
 		},
 		{
+		  "id": 14,
+		  "type": {
+			"def": {
+			  "variant": {
+				"variants": [
+				  {
+					"fields": [
+					  {
+						"type": 15,
+						"typeName": "String"
+					  }
+					],
+					"index": 0,
+					"name": "Custom"
+				  },
+				  {
+					"index": 1,
+					"name": "InsufficientBalance"
+				  },
+				  {
+					"index": 2,
+					"name": "InsufficientAllowance"
+				  },
+				  {
+					"index": 3,
+					"name": "ZeroRecipientAddress"
+				  },
+				  {
+					"index": 4,
+					"name": "ZeroSenderAddress"
+				  },
+				  {
+					"fields": [
+					  {
+						"type": 15,
+						"typeName": "String"
+					  }
+					],
+					"index": 5,
+					"name": "SafeTransferCheckFailed"
+				  }
+				]
+			  }
+			},
+			"path": [
+			  "openbrush_contracts",
+			  "traits",
+			  "errors",
+			  "psp22",
+			  "PSP22Error"
+			]
+		  }
+		},
+		{
+		  "id": 15,
+		  "type": {
+			"def": {
+			  "sequence": {
+				"type": 2
+			  }
+			}
+		  }
+		},
+		{
 		  "id": 16,
 		  "type": {
 			"def": {
@@ -1395,7 +1292,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 8
 					  }
 					],
 					"index": 1,
@@ -1411,7 +1308,7 @@ const token_generator_contract = {
 			  },
 			  {
 				"name": "E",
-				"type": 9
+				"type": 8
 			  }
 			],
 			"path": [
@@ -1437,7 +1334,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 15
+						"type": 13
 					  }
 					],
 					"index": 1,
@@ -1453,7 +1350,7 @@ const token_generator_contract = {
 			  },
 			  {
 				"name": "E",
-				"type": 15
+				"type": 13
 			  }
 			],
 			"path": [
@@ -1479,7 +1376,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 8
 					  }
 					],
 					"index": 1,
@@ -1495,7 +1392,7 @@ const token_generator_contract = {
 			  },
 			  {
 				"name": "E",
-				"type": 9
+				"type": 8
 			  }
 			],
 			"path": [
@@ -1512,7 +1409,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 5
+						"type": 20
 					  }
 					],
 					"index": 0,
@@ -1521,7 +1418,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 8
 					  }
 					],
 					"index": 1,
@@ -1533,11 +1430,11 @@ const token_generator_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 5
+				"type": 20
 			  },
 			  {
 				"name": "E",
-				"type": 9
+				"type": 8
 			  }
 			],
 			"path": [
@@ -1552,22 +1449,17 @@ const token_generator_contract = {
 			  "variant": {
 				"variants": [
 				  {
-					"fields": [
-					  {
-						"type": 4
-					  }
-					],
 					"index": 0,
-					"name": "Ok"
+					"name": "None"
 				  },
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 0
 					  }
 					],
 					"index": 1,
-					"name": "Err"
+					"name": "Some"
 				  }
 				]
 			  }
@@ -1575,15 +1467,11 @@ const token_generator_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 4
-			  },
-			  {
-				"name": "E",
-				"type": 9
+				"type": 0
 			  }
 			],
 			"path": [
-			  "Result"
+			  "Option"
 			]
 		  }
 		},
@@ -1605,7 +1493,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 8
 					  }
 					],
 					"index": 1,
@@ -1621,7 +1509,7 @@ const token_generator_contract = {
 			  },
 			  {
 				"name": "E",
-				"type": 9
+				"type": 8
 			  }
 			],
 			"path": [
@@ -1638,7 +1526,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 23
+						"type": 4
 					  }
 					],
 					"index": 0,
@@ -1647,7 +1535,7 @@ const token_generator_contract = {
 				  {
 					"fields": [
 					  {
-						"type": 9
+						"type": 8
 					  }
 					],
 					"index": 1,
@@ -1659,11 +1547,11 @@ const token_generator_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 23
+				"type": 4
 			  },
 			  {
 				"name": "E",
-				"type": 9
+				"type": 8
 			  }
 			],
 			"path": [
@@ -1678,17 +1566,22 @@ const token_generator_contract = {
 			  "variant": {
 				"variants": [
 				  {
+					"fields": [
+					  {
+						"type": 5
+					  }
+					],
 					"index": 0,
-					"name": "None"
+					"name": "Ok"
 				  },
 				  {
 					"fields": [
 					  {
-						"type": 24
+						"type": 8
 					  }
 					],
 					"index": 1,
-					"name": "Some"
+					"name": "Err"
 				  }
 				]
 			  }
@@ -1696,158 +1589,16 @@ const token_generator_contract = {
 			"params": [
 			  {
 				"name": "T",
-				"type": 24
+				"type": 5
+			  },
+			  {
+				"name": "E",
+				"type": 8
 			  }
 			],
 			"path": [
-			  "Option"
+			  "Result"
 			]
-		  }
-		},
-		{
-		  "id": 24,
-		  "type": {
-			"def": {
-			  "composite": {
-				"fields": [
-				  {
-					"name": "name",
-					"type": 7,
-					"typeName": "String"
-				  },
-				  {
-					"name": "symbol",
-					"type": 7,
-					"typeName": "String"
-				  },
-				  {
-					"name": "decimal",
-					"type": 2,
-					"typeName": "u8"
-				  },
-				  {
-					"name": "contract_address",
-					"type": 0,
-					"typeName": "AccountId"
-				  },
-				  {
-					"name": "creator",
-					"type": 0,
-					"typeName": "AccountId"
-				  },
-				  {
-					"name": "mint_to",
-					"type": 0,
-					"typeName": "AccountId"
-				  },
-				  {
-					"name": "total_supply",
-					"type": 6,
-					"typeName": "Balance"
-				  }
-				]
-			  }
-			},
-			"path": [
-			  "inkwhale_project",
-			  "impls",
-			  "token_manager",
-			  "data",
-			  "Token"
-			]
-		  }
-		},
-		{
-		  "id": 25,
-		  "type": {
-			"def": {
-			  "variant": {
-				"variants": [
-				  {
-					"fields": [
-					  {
-						"type": 2,
-						"typeName": "u8"
-					  }
-					],
-					"index": 0,
-					"name": "U8"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 26,
-						"typeName": "u16"
-					  }
-					],
-					"index": 1,
-					"name": "U16"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 27,
-						"typeName": "u32"
-					  }
-					],
-					"index": 2,
-					"name": "U32"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 5,
-						"typeName": "u64"
-					  }
-					],
-					"index": 3,
-					"name": "U64"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 6,
-						"typeName": "u128"
-					  }
-					],
-					"index": 4,
-					"name": "U128"
-				  },
-				  {
-					"fields": [
-					  {
-						"type": 7,
-						"typeName": "Vec<u8>"
-					  }
-					],
-					"index": 5,
-					"name": "Bytes"
-				  }
-				]
-			  }
-			},
-			"path": [
-			  "openbrush_contracts",
-			  "traits",
-			  "types",
-			  "Id"
-			]
-		  }
-		},
-		{
-		  "id": 26,
-		  "type": {
-			"def": {
-			  "primitive": "u16"
-			}
-		  }
-		},
-		{
-		  "id": 27,
-		  "type": {
-			"def": {
-			  "primitive": "u32"
-			}
 		  }
 		}
 	  ],
