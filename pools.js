@@ -293,20 +293,18 @@ const ProcessLP = async (poolContract) => {
 }
 const ProcessTokens = async (index) =>{
   //console.log(index);
-  let tokenInfo = await getTokenInfo(
+  let contractAddress = await getTokenInfo(
     token_generator_calls,
     null,
     index
   );
-  tokenInfo.index = index;
   //console.log(tokenInfo);
-  let tokenAdress = await database.Tokens.findOne({contractAddress:tokenInfo.contractAddress});
-
-  if (token){
+  // let tokenAdress = await database.Tokens.findOne({contractAddress:tokenInfo.contractAddress});
+  if (contractAddress){
     psp22_contract_calls = new ContractPromise(
       api,
       psp22_contract.CONTRACT_ABI,
-      tokenAdress,
+      contractAddress,
     );
     let _owner = await owner(psp22_contract_calls);
     let _tokenName = await tokenName();
@@ -314,7 +312,7 @@ const ProcessTokens = async (index) =>{
     let _tokenDecimal = await tokenDecimals();
     let _tokenTotalSupply = await totalSupply();
     //console.log('Already Exists, update',poolContract,_rewardPool);
-    await database.Tokens.updateOne({contractAddress:tokenInfo.contractAddress},{
+    await database.Tokens.findOneAndUpdate({contractAddress:contractAddress},{
       name: _tokenName,
       symbol: _tokenSymbol,
       decimal: _tokenDecimal,
@@ -322,12 +320,12 @@ const ProcessTokens = async (index) =>{
       mintTo: _owner,
       totalSupply: _tokenTotalSupply,
       index: index
-    });
+    },{
+      new: true,
+      upsert: true, // Make this update into an upsert
+});
   }
-  else
-  {
-    await database.Tokens.create(tokenInfo)
-  }
+
 }
 
 const checkNewNFTPools = async () => {
@@ -462,7 +460,7 @@ const getTokenInfo = async (contract_to_call,caller_account, index) => {
   const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
-    const { result, output } = await contract_to_call.query["TokenManagerTrait::get_token_contract_address"](
+    const { result, output } = await contract_to_call.query["tokenManagerTrait::getTokenContractAddress"](
       caller_account,
       { value: azero_value, gasLimit },
       index
@@ -917,12 +915,11 @@ const totalSupply = async (caller_account) => {
   const gasLimit = readOnlyGasLimit(api);
   const azero_value = 0;
   try {
-    const { result, output } = await psp22_contract_calls.query["psp22::cap"](
+    const { result, output } = await psp22_contract_calls.query["psp22Capped::cap"](
       caller_account,
       { value: azero_value, gasLimit }
     );
-    if (result.isOk) {
-      // console.log(output.toHuman().Ok);
+    if (output?.toHuman()?.Ok) {
       const a = output.toHuman().Ok.replace(/\,/g, "");
       return a / 10 ** 12;
     }
@@ -1085,7 +1082,7 @@ connectDb().then(async () => {
         token_generator_contract.CONTRACT_ABI,
         token_generator_contract.CONTRACT_ADDRESS
       );
-
+      checkAll()
       setInterval(checkAll, 60 * 1000);
       setInterval(checkQueue, 1000);
     });
