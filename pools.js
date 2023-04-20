@@ -90,6 +90,7 @@ const ProcessNFT = async (poolContract) =>{
   let _multiplier = await multiplier(nft_pool_contract_calls);
   let _rewardPool = await rewardPool(nft_pool_contract_calls);
   let _totalStaked = await totalStaked(nft_pool_contract_calls,null,true);
+  let _maxStaking = await maxStakingAmount(nft_pool_contract_calls,null,true);
   let _startTime = await startTime(nft_pool_contract_calls);
   let _duration = await duration(nft_pool_contract_calls);
   let _tokenContract = await psp22ContractAddress(nft_pool_contract_calls);
@@ -124,6 +125,7 @@ const ProcessNFT = async (poolContract) =>{
       tokenTotalSupply: _tokenTotalSupply,
       rewardPool: _rewardPool,
       totalStaked: _totalStaked,
+      maxStakingAmount: _maxStaking,
       multiplier: _multiplier,
       owner: _owner
     });
@@ -140,6 +142,7 @@ const ProcessNFT = async (poolContract) =>{
       tokenTotalSupply: _tokenTotalSupply,
       rewardPool: _rewardPool,
       totalStaked: _totalStaked,
+      maxStakingAmount: _maxStaking,
       multiplier: _multiplier,
     });
   }
@@ -154,6 +157,7 @@ const ProcessPool = async (poolContract) => {
   let _apy = await apy(pool_contract_calls);
   let _rewardPool = await rewardPool(pool_contract_calls);
   let _totalStaked = await totalStaked(pool_contract_calls,null,false);
+  let _maxStaking = await maxStakingAmount(pool_contract_calls,null,false);
   let _startTime = await startTime(pool_contract_calls);
   let _duration = await duration(pool_contract_calls);
   let _tokenContract = await psp22ContractAddress(pool_contract_calls);
@@ -186,6 +190,7 @@ const ProcessPool = async (poolContract) => {
       tokenTotalSupply: _tokenTotalSupply,
       rewardPool: _rewardPool,
       totalStaked: _totalStaked,
+      maxStakingAmount: _maxStaking, 
       apy: _apy,
       owner: _owner
     });
@@ -202,6 +207,7 @@ const ProcessPool = async (poolContract) => {
       tokenTotalSupply: _tokenTotalSupply,
       rewardPool: _rewardPool,
       totalStaked: _totalStaked,
+      maxStakingAmount: _maxStaking,
       apy: _apy,
       owner: _owner
     });
@@ -217,6 +223,7 @@ const ProcessLP = async (poolContract) => {
   let _multiplier = await multiplier(lp_pool_contract_calls);
   let _rewardPool = await rewardPool(lp_pool_contract_calls);
   let _totalStaked = await totalStaked(lp_pool_contract_calls,null,false);
+  let _maxStaking = await maxStakingAmount(lp_pool_contract_calls,null,false);
   let _startTime = await startTime(lp_pool_contract_calls);
   let _duration = await duration(lp_pool_contract_calls);
   let _tokenContract = await psp22ContractAddress(lp_pool_contract_calls);
@@ -266,6 +273,7 @@ const ProcessLP = async (poolContract) => {
       lptokenTotalSupply: _lptokenTotalSupply,
       rewardPool: _rewardPool,
       totalStaked: _totalStaked,
+      maxStakingAmount: _maxStaking,
       multiplier: _multiplier,
       owner: _owner
     });
@@ -286,6 +294,7 @@ const ProcessLP = async (poolContract) => {
       tokenTotalSupply: _tokenTotalSupply,
       rewardPool: _rewardPool,
       totalStaked: _totalStaked,
+      maxStakingAmount: _maxStaking,
       multiplier: _multiplier,
       owner: _owner
     });
@@ -443,7 +452,7 @@ const checkNewTokens = async () =>{
 const checkAll = async () =>{
   await checkNewPools();
   await checkNewNFTPools();
-  await checkNewLPPools();
+  // await checkNewLPPools();
   await checkNewTokens();
 }
 
@@ -664,6 +673,36 @@ const totalStaked = async (contract_to_call,caller_account, is_nft) => {
   const azero_value = 0;
   try {
     const { result, output } = await contract_to_call.query["genericPoolContractTrait::totalStaked"](
+      caller_account,
+      { value: azero_value, gasLimit }
+    );
+    if (result.isOk) {
+      // console.log(output.toHuman().Ok);
+      const a = output.toHuman().Ok.replace(/\,/g, "");
+      if (is_nft) return a / 1;
+      return a / 10 ** 12;
+    }
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+
+  return null;
+}
+
+const maxStakingAmount = async (contract_to_call,caller_account, is_nft) => {
+  if (!contract_to_call) {
+    console.log("invalid",contract_to_call);
+    return null;
+  }
+  if (!caller_account) {
+    caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
+  }
+
+  const gasLimit = readOnlyGasLimit(api);
+  const azero_value = 0;
+  try {
+    const { result, output } = await contract_to_call.query["genericPoolContractTrait::maxStakingAmount"](
       caller_account,
       { value: azero_value, gasLimit }
     );

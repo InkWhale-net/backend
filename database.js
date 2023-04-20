@@ -35,6 +35,9 @@ const PoolsSchema = new mongoose.Schema({
   },
   apy: {
     type: Number,
+  },
+  maxStakingAmount: {
+    type: Number,
   }
 });
 const LPPoolsSchema = new mongoose.Schema({
@@ -88,6 +91,9 @@ const LPPoolsSchema = new mongoose.Schema({
   },
   multiplier: {
     type: Number,
+  },
+  maxStakingAmount: {
+    type: Number,
   }
 });
 const NFTPoolsSchema = new mongoose.Schema({
@@ -128,6 +134,9 @@ const NFTPoolsSchema = new mongoose.Schema({
     type: Number,
   },
   multiplier: {
+    type: Number,
+  },
+  maxStakingAmount: {
     type: Number,
   }
 });
