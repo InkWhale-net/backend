@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class UpdateQueueSchema extends Entity {
+export class UpdateQueue extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -26,7 +26,7 @@ export class UpdateQueueSchema extends Entity {
   timeStamp?: number;
 
 
-  constructor(data?: Partial<UpdateQueueSchema>) {
+  constructor(data?: Partial<UpdateQueue>) {
     super(data);
   }
 }
@@ -35,4 +35,4 @@ export interface UpdateQueueSchemaRelations {
   // describe navigational properties here
 }
 
-export type UpdateQueueSchemaWithRelations = UpdateQueueSchema & UpdateQueueSchemaRelations;
+export type UpdateQueueSchemaWithRelations = UpdateQueue & UpdateQueueSchemaRelations;

@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class PoolsSchema extends Entity {
+export class NftPools extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -18,6 +18,11 @@ export class PoolsSchema extends Entity {
     type: 'string',
   })
   poolContract?: string;
+
+  @property({
+    type: 'string',
+  })
+  NFTtokenContract?: string;
 
   @property({
     type: 'string',
@@ -67,16 +72,16 @@ export class PoolsSchema extends Entity {
   @property({
     type: 'number',
   })
-  apy?: number;
+  multiplier?: number;
 
 
-  constructor(data?: Partial<PoolsSchema>) {
+  constructor(data?: Partial<NftPools>) {
     super(data);
   }
 }
 
-export interface PoolsSchemaRelations {
+export interface NftPoolsSchemaRelations {
   // describe navigational properties here
 }
 
-export type PoolsSchemaWithRelations = PoolsSchema & PoolsSchemaRelations;
+export type NftPoolsSchemaWithRelations = NftPools & NftPoolsSchemaRelations;

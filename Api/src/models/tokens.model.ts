@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class TokensSchema extends Entity {
+export class Tokens extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -50,7 +50,7 @@ export class TokensSchema extends Entity {
   index?: number;
 
 
-  constructor(data?: Partial<TokensSchema>) {
+  constructor(data?: Partial<Tokens>) {
     super(data);
   }
 }
@@ -59,4 +59,4 @@ export interface TokensSchemaRelations {
   // describe navigational properties here
 }
 
-export type TokensSchemaWithRelations = TokensSchema & TokensSchemaRelations;
+export type TokensSchemaWithRelations = Tokens & TokensSchemaRelations;

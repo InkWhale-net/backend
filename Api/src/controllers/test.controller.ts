@@ -17,7 +17,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {TokensSchema} from '../models';
+import {Tokens} from '../models';
 import {TokensSchemaRepository} from '../repositories';
 
 class TestController {
@@ -29,21 +29,21 @@ class TestController {
   @post('/tokens-schemas')
   @response(200, {
     description: 'TokensSchema model instance',
-    content: {'application/json': {schema: getModelSchemaRef(TokensSchema)}},
+    content: {'application/json': {schema: getModelSchemaRef(Tokens)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(TokensSchema, {
+          schema: getModelSchemaRef(Tokens, {
             title: 'NewTokensSchema',
             exclude: ['id'],
           }),
         },
       },
     })
-    tokensSchema: Omit<TokensSchema, 'id'>,
-  ): Promise<TokensSchema> {
+    tokensSchema: Omit<Tokens, 'id'>,
+  ): Promise<Tokens> {
     return this.tokensSchemaRepository.create(tokensSchema);
   }
 
@@ -53,7 +53,7 @@ class TestController {
     content: {'application/json': {schema: CountSchema}},
   })
   async count(
-    @param.where(TokensSchema) where?: Where<TokensSchema>,
+    @param.where(Tokens) where?: Where<Tokens>,
   ): Promise<Count> {
     return this.tokensSchemaRepository.count(where);
   }
@@ -65,14 +65,14 @@ class TestController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(TokensSchema, {includeRelations: true}),
+          items: getModelSchemaRef(Tokens, {includeRelations: true}),
         },
       },
     },
   })
   async find(
-    @param.filter(TokensSchema) filter?: Filter<TokensSchema>,
-  ): Promise<TokensSchema[]> {
+    @param.filter(Tokens) filter?: Filter<Tokens>,
+  ): Promise<Tokens[]> {
     return this.tokensSchemaRepository.find(filter);
   }
 
@@ -85,12 +85,12 @@ class TestController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(TokensSchema, {partial: true}),
+          schema: getModelSchemaRef(Tokens, {partial: true}),
         },
       },
     })
-    tokensSchema: TokensSchema,
-    @param.where(TokensSchema) where?: Where<TokensSchema>,
+    tokensSchema: Tokens,
+    @param.where(Tokens) where?: Where<Tokens>,
   ): Promise<Count> {
     return this.tokensSchemaRepository.updateAll(tokensSchema, where);
   }
@@ -100,14 +100,14 @@ class TestController {
     description: 'TokensSchema model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(TokensSchema, {includeRelations: true}),
+        schema: getModelSchemaRef(Tokens, {includeRelations: true}),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(TokensSchema, {exclude: 'where'}) filter?: FilterExcludingWhere<TokensSchema>
-  ): Promise<TokensSchema> {
+    @param.filter(Tokens, {exclude: 'where'}) filter?: FilterExcludingWhere<Tokens>
+  ): Promise<Tokens> {
     return this.tokensSchemaRepository.findById(id, filter);
   }
 
@@ -120,11 +120,11 @@ class TestController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(TokensSchema, {partial: true}),
+          schema: getModelSchemaRef(Tokens, {partial: true}),
         },
       },
     })
-    tokensSchema: TokensSchema,
+    tokensSchema: Tokens,
   ): Promise<void> {
     await this.tokensSchemaRepository.updateById(id, tokensSchema);
   }
@@ -135,7 +135,7 @@ class TestController {
   })
   async replaceById(
     @param.path.string('id') id: string,
-    @requestBody() tokensSchema: TokensSchema,
+    @requestBody() tokensSchema: Tokens,
   ): Promise<void> {
     await this.tokensSchemaRepository.replaceById(id, tokensSchema);
   }

@@ -26,11 +26,11 @@ if (require.main === module) {
   // Run the application
   const config = {
     rest: {
-      port: +(process.env.PORT ?? 3000),
+      port: +(process.env.PORT ?? 3007),
       host: process.env.HOST,
       protocol: 'https',
-      key: fs.readFileSync(`${process.env.SSL_KEY}`),
-      cert: fs.readFileSync(`${process.env.SSL_PEM}`),
+      // key: fs.readFileSync(`${process.env.SSL_KEY}`),
+      // cert: fs.readFileSync(`${process.env.SS`L_PEM}`),
       // The `gracePeriodForClose` provides a graceful close for http/https
       // servers with keep-alive clients. The default value is `Infinity`
       // (don't force-close). If you want to immediately destroy all sockets

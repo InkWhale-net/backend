@@ -17,7 +17,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {NftPoolsSchema} from '../models';
+import {NftPools} from '../models';
 import {NftPoolsSchemaRepository} from '../repositories';
 
 class TestNftPoolController {
@@ -29,21 +29,21 @@ class TestNftPoolController {
   @post('/nft-pools-schemas')
   @response(200, {
     description: 'NftPoolsSchema model instance',
-    content: {'application/json': {schema: getModelSchemaRef(NftPoolsSchema)}},
+    content: {'application/json': {schema: getModelSchemaRef(NftPools)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(NftPoolsSchema, {
+          schema: getModelSchemaRef(NftPools, {
             title: 'NewNftPoolsSchema',
             exclude: ['id'],
           }),
         },
       },
     })
-    nftPoolsSchema: Omit<NftPoolsSchema, 'id'>,
-  ): Promise<NftPoolsSchema> {
+    nftPoolsSchema: Omit<NftPools, 'id'>,
+  ): Promise<NftPools> {
     return this.nftPoolsSchemaRepository.create(nftPoolsSchema);
   }
 
@@ -53,7 +53,7 @@ class TestNftPoolController {
     content: {'application/json': {schema: CountSchema}},
   })
   async count(
-    @param.where(NftPoolsSchema) where?: Where<NftPoolsSchema>,
+    @param.where(NftPools) where?: Where<NftPools>,
   ): Promise<Count> {
     return this.nftPoolsSchemaRepository.count(where);
   }
@@ -65,14 +65,14 @@ class TestNftPoolController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(NftPoolsSchema, {includeRelations: true}),
+          items: getModelSchemaRef(NftPools, {includeRelations: true}),
         },
       },
     },
   })
   async find(
-    @param.filter(NftPoolsSchema) filter?: Filter<NftPoolsSchema>,
-  ): Promise<NftPoolsSchema[]> {
+    @param.filter(NftPools) filter?: Filter<NftPools>,
+  ): Promise<NftPools[]> {
     return this.nftPoolsSchemaRepository.find(filter);
   }
 
@@ -85,12 +85,12 @@ class TestNftPoolController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(NftPoolsSchema, {partial: true}),
+          schema: getModelSchemaRef(NftPools, {partial: true}),
         },
       },
     })
-    nftPoolsSchema: NftPoolsSchema,
-    @param.where(NftPoolsSchema) where?: Where<NftPoolsSchema>,
+    nftPoolsSchema: NftPools,
+    @param.where(NftPools) where?: Where<NftPools>,
   ): Promise<Count> {
     return this.nftPoolsSchemaRepository.updateAll(nftPoolsSchema, where);
   }
@@ -100,14 +100,14 @@ class TestNftPoolController {
     description: 'NftPoolsSchema model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(NftPoolsSchema, {includeRelations: true}),
+        schema: getModelSchemaRef(NftPools, {includeRelations: true}),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(NftPoolsSchema, {exclude: 'where'}) filter?: FilterExcludingWhere<NftPoolsSchema>
-  ): Promise<NftPoolsSchema> {
+    @param.filter(NftPools, {exclude: 'where'}) filter?: FilterExcludingWhere<NftPools>
+  ): Promise<NftPools> {
     return this.nftPoolsSchemaRepository.findById(id, filter);
   }
 
@@ -120,11 +120,11 @@ class TestNftPoolController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(NftPoolsSchema, {partial: true}),
+          schema: getModelSchemaRef(NftPools, {partial: true}),
         },
       },
     })
-    nftPoolsSchema: NftPoolsSchema,
+    nftPoolsSchema: NftPools,
   ): Promise<void> {
     await this.nftPoolsSchemaRepository.updateById(id, nftPoolsSchema);
   }
@@ -135,7 +135,7 @@ class TestNftPoolController {
   })
   async replaceById(
     @param.path.string('id') id: string,
-    @requestBody() nftPoolsSchema: NftPoolsSchema,
+    @requestBody() nftPoolsSchema: NftPools,
   ): Promise<void> {
     await this.nftPoolsSchemaRepository.replaceById(id, nftPoolsSchema);
   }

@@ -17,7 +17,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {LpPoolsSchema} from '../models';
+import {LpPools} from '../models';
 import {LpPoolsSchemaRepository} from '../repositories';
 
 class TestRewardsPoolsController {
@@ -29,21 +29,21 @@ class TestRewardsPoolsController {
   @post('/lp-pools-schemas')
   @response(200, {
     description: 'LpPoolsSchema model instance',
-    content: {'application/json': {schema: getModelSchemaRef(LpPoolsSchema)}},
+    content: {'application/json': {schema: getModelSchemaRef(LpPools)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(LpPoolsSchema, {
+          schema: getModelSchemaRef(LpPools, {
             title: 'NewLpPoolsSchema',
             exclude: ['id'],
           }),
         },
       },
     })
-    lpPoolsSchema: Omit<LpPoolsSchema, 'id'>,
-  ): Promise<LpPoolsSchema> {
+    lpPoolsSchema: Omit<LpPools, 'id'>,
+  ): Promise<LpPools> {
     return this.lpPoolsSchemaRepository.create(lpPoolsSchema);
   }
 
@@ -53,7 +53,7 @@ class TestRewardsPoolsController {
     content: {'application/json': {schema: CountSchema}},
   })
   async count(
-    @param.where(LpPoolsSchema) where?: Where<LpPoolsSchema>,
+    @param.where(LpPools) where?: Where<LpPools>,
   ): Promise<Count> {
     return this.lpPoolsSchemaRepository.count(where);
   }
@@ -65,14 +65,14 @@ class TestRewardsPoolsController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(LpPoolsSchema, {includeRelations: true}),
+          items: getModelSchemaRef(LpPools, {includeRelations: true}),
         },
       },
     },
   })
   async find(
-    @param.filter(LpPoolsSchema) filter?: Filter<LpPoolsSchema>,
-  ): Promise<LpPoolsSchema[]> {
+    @param.filter(LpPools) filter?: Filter<LpPools>,
+  ): Promise<LpPools[]> {
     return this.lpPoolsSchemaRepository.find(filter);
   }
 
@@ -85,12 +85,12 @@ class TestRewardsPoolsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(LpPoolsSchema, {partial: true}),
+          schema: getModelSchemaRef(LpPools, {partial: true}),
         },
       },
     })
-    lpPoolsSchema: LpPoolsSchema,
-    @param.where(LpPoolsSchema) where?: Where<LpPoolsSchema>,
+    lpPoolsSchema: LpPools,
+    @param.where(LpPools) where?: Where<LpPools>,
   ): Promise<Count> {
     return this.lpPoolsSchemaRepository.updateAll(lpPoolsSchema, where);
   }
@@ -100,14 +100,14 @@ class TestRewardsPoolsController {
     description: 'LpPoolsSchema model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(LpPoolsSchema, {includeRelations: true}),
+        schema: getModelSchemaRef(LpPools, {includeRelations: true}),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(LpPoolsSchema, {exclude: 'where'}) filter?: FilterExcludingWhere<LpPoolsSchema>
-  ): Promise<LpPoolsSchema> {
+    @param.filter(LpPools, {exclude: 'where'}) filter?: FilterExcludingWhere<LpPools>
+  ): Promise<LpPools> {
     return this.lpPoolsSchemaRepository.findById(id, filter);
   }
 
@@ -120,11 +120,11 @@ class TestRewardsPoolsController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(LpPoolsSchema, {partial: true}),
+          schema: getModelSchemaRef(LpPools, {partial: true}),
         },
       },
     })
-    lpPoolsSchema: LpPoolsSchema,
+    lpPoolsSchema: LpPools,
   ): Promise<void> {
     await this.lpPoolsSchemaRepository.updateById(id, lpPoolsSchema);
   }
@@ -135,7 +135,7 @@ class TestRewardsPoolsController {
   })
   async replaceById(
     @param.path.string('id') id: string,
-    @requestBody() lpPoolsSchema: LpPoolsSchema,
+    @requestBody() lpPoolsSchema: LpPools,
   ): Promise<void> {
     await this.lpPoolsSchemaRepository.replaceById(id, lpPoolsSchema);
   }

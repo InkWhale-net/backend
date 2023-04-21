@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class LpPoolsSchema extends Entity {
+export class Pools extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -18,26 +18,6 @@ export class LpPoolsSchema extends Entity {
     type: 'string',
   })
   poolContract?: string;
-
-  @property({
-    type: 'string',
-  })
-  lptokenContract?: string;
-
-  @property({
-    type: 'string',
-  })
-  lptokenName?: string;
-
-  @property({
-    type: 'string',
-  })
-  lptokenSymbol?: string;
-
-  @property({
-    type: 'number',
-  })
-  lptokenDecimal?: number;
 
   @property({
     type: 'string',
@@ -77,11 +57,6 @@ export class LpPoolsSchema extends Entity {
   @property({
     type: 'number',
   })
-  lptokenTotalSupply?: number;
-
-  @property({
-    type: 'number',
-  })
   rewardPool?: number;
 
   @property({
@@ -92,16 +67,16 @@ export class LpPoolsSchema extends Entity {
   @property({
     type: 'number',
   })
-  multiplier?: number;
+  apy?: number;
 
 
-  constructor(data?: Partial<LpPoolsSchema>) {
+  constructor(data?: Partial<Pools>) {
     super(data);
   }
 }
 
-export interface LpPoolsSchemaRelations {
+export interface PoolsSchemaRelations {
   // describe navigational properties here
 }
 
-export type LpPoolsSchemaWithRelations = LpPoolsSchema & LpPoolsSchemaRelations;
+export type PoolsSchemaWithRelations = Pools & PoolsSchemaRelations;
