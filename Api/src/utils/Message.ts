@@ -30,6 +30,7 @@ export const RequestUpdateBody = {
     required: true,
     content: {
         'application/json': {schema: ReqUpdateSchema},
+        'application/x-www-form-urlencoded': {schema: ReqUpdateSchema},
     },
 };
 
@@ -58,6 +59,7 @@ export const RequestGetTokensBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetTokensSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetTokensSchema},
     },
 };
 
@@ -90,6 +92,7 @@ export const RequestGetLpPoolsBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetLpPoolsSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetLpPoolsSchema},
     },
 };
 
@@ -111,6 +114,7 @@ export const RequestLpPoolsByAddressBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetLpPoolsByAddressSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetLpPoolsByAddressSchema},
     },
 };
 
@@ -132,6 +136,7 @@ export const RequestLpPoolsByOwnerBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetLpPoolsByOwnerSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetLpPoolsByOwnerSchema},
     },
 };
 
@@ -165,6 +170,7 @@ export const RequestPoolsBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetPoolsSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetPoolsSchema},
     },
 };
 
@@ -186,6 +192,7 @@ export const RequestGetPoolsByAddressBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetPoolsByAddressSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetPoolsByAddressSchema},
     },
 };
 
@@ -207,6 +214,7 @@ export const RequestGetPoolsByOwnerBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetPoolsByOwnerSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetPoolsByOwnerSchema},
     },
 };
 
@@ -240,6 +248,7 @@ export const RequestGetNftPoolsBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetNftPoolsSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetNftPoolsSchema},
     },
 };
 
@@ -261,6 +270,7 @@ export const RequestGetNftPoolsByAddressBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetNftPoolsByAddressSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetNftPoolsByAddressSchema},
     },
 };
 
@@ -282,5 +292,6 @@ export const RequestGetNftPoolsByOwnerBody = {
     required: true,
     content: {
         'application/json': {schema: ReqGetNftPoolsByOwnerSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetNftPoolsByOwnerSchema},
     },
 };
