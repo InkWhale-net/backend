@@ -72,6 +72,11 @@ export class NftPools extends Entity {
   @property({
     type: 'number',
   })
+  maxStakingAmount?: number;
+
+  @property({
+    type: 'number',
+  })
   multiplier?: number;
 
   @property({

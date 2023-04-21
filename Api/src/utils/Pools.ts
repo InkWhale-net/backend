@@ -10,7 +10,8 @@ import {
 import {readOnlyGasLimit} from "./utils";
 import {lp_pool_contract} from "../contracts/lp_pool";
 import {psp22_contract} from "../contracts/psp22";
-import * as dotenv from 'dotenv';
+import dotenv from "dotenv";
+import {nft_pool_contract} from "../contracts/nft_pool";
 dotenv.config();
 
 let is_running = false;
@@ -60,13 +61,17 @@ export const checkQueue = async (
                 else if (requestType == "pool")
                     await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
             }
-            await updateQueueSchemaRepository.deleteAll({
-                poolContract: poolContract
-            });
+            try {
+                await updateQueueSchemaRepository.deleteAll({
+                    poolContract: poolContract
+                });
+            } catch (e) {
+                console.log(`ERROR: checkQueue deleteAll - ${e.message}`);
+            }
         }
         is_check_queue = false;
     } catch (e) {
-        console.log("checkQueue", e.message);
+        console.log(`ERROR: checkQueue - ${e.message}`);
         is_check_queue = false;
     }
 
@@ -77,101 +82,43 @@ const ProcessNFT = async (
     nft_pool_contract_calls: ContractPromise,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository
 ): Promise<void> => {
-    let _multiplier = await multiplier(api, nft_pool_contract_calls, '');
-    let _rewardPool = await rewardPool(api, nft_pool_contract_calls, '');
-    let _totalStaked = await totalStaked(api, nft_pool_contract_calls, '', true);
-    let _startTime = await startTime(api, nft_pool_contract_calls, '');
-    let _duration = await duration(api, nft_pool_contract_calls, '');
-    let _tokenContract = await psp22ContractAddress(api, nft_pool_contract_calls, '');
-    let _NFTtokenContract = await psp34ContractAddress(api, nft_pool_contract_calls, '');
-    let _owner = await owner(api, nft_pool_contract_calls, '');
-    if (!_tokenContract || !_NFTtokenContract) {
-        console.log(`WARNING: Can not get _tokenContract: ${_tokenContract} or _NFTtokenContract: ${_NFTtokenContract}`);
-        return;
-    }
-    let psp22_contract_calls = new ContractPromise(
-        api,
-        psp22_contract.CONTRACT_ABI,
-        _tokenContract,
-    );
-    let _tokenName = await tokenName(api, '', psp22_contract_calls);
-    let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
-    let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
-    let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
-    let collection = await nftPoolsSchemaRepository.findOne({
-        where: {
-            poolContract: poolContract
-        }
-    });
-    if (collection) {
-        await nftPoolsSchemaRepository.updateAll(
-            {
-                NFTtokenContract: _NFTtokenContract,
-                tokenContract: _tokenContract,
-                tokenName: _tokenName,
-                tokenSymbol: _tokenSymbol,
-                tokenDecimal: _tokenDecimal,
-                duration: _duration ? _duration : 0,
-                startTime: _startTime ? _startTime : 0,
-                tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
-                rewardPool: _rewardPool ? _rewardPool : 0,
-                totalStaked: _totalStaked ? _totalStaked : 0,
-                multiplier: _multiplier,
-                owner: _owner
-            }, {
-                poolContract: poolContract
-            });
-    } else {
-        await nftPoolsSchemaRepository.create({
-            poolContract,
-            tokenContract: _tokenContract,
-            tokenName: _tokenName,
-            tokenSymbol: _tokenSymbol,
-            tokenDecimal: _tokenDecimal,
-            duration: _duration ? _duration : 0,
-            startTime: _startTime ? _startTime : 0,
-            tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
-            rewardPool: _rewardPool ? _rewardPool : 0,
-            totalStaked: _totalStaked ? _totalStaked : 0,
-            multiplier: _multiplier,
-        });
-    }
-}
-const ProcessPool = async (
-    poolContract: string,
-    api: ApiPromise,
-    pool_contract_calls: ContractPromise,
-    poolsSchemaRepository : PoolsSchemaRepository,
-): Promise<void> => {
-    let _apy = await apy(api, pool_contract_calls, '');
-    let _rewardPool = await rewardPool(api, pool_contract_calls, '');
-    let _totalStaked = await totalStaked(api, pool_contract_calls, '', false);
-    let _startTime = await startTime(api, pool_contract_calls, '');
-    let _duration = await duration(api, pool_contract_calls, '');
-    let _tokenContract = await psp22ContractAddress(api, pool_contract_calls, '');
-    let _owner = await owner(api, pool_contract_calls, '');
-    if (!_tokenContract) {
-        console.log(`WARNING: Can not get _tokenContract: ${_tokenContract}`);
-        return;
-    }
-    let psp22_contract_calls = new ContractPromise(
-        api,
-        psp22_contract.CONTRACT_ABI,
-        _tokenContract,
-    );
-    let _tokenName = await tokenName(api, '', psp22_contract_calls);
-    let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
-    let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
-    let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
     try {
-        let collection = await poolsSchemaRepository.findOne({
+        nft_pool_contract_calls = new ContractPromise(
+            api,
+            nft_pool_contract.CONTRACT_ABI,
+            poolContract,
+        );
+        let _multiplier = await multiplier(api, nft_pool_contract_calls, '');
+        let _rewardPool = await rewardPool(api, nft_pool_contract_calls, '');
+        let _totalStaked = await totalStaked(api, nft_pool_contract_calls, '', true);
+        let _maxStaking = await maxStakingAmount(api, nft_pool_contract_calls,'',true);
+        let _startTime = await startTime(api, nft_pool_contract_calls, '');
+        let _duration = await duration(api, nft_pool_contract_calls, '');
+        let _tokenContract = await psp22ContractAddress(api, nft_pool_contract_calls, '');
+        let _NFTtokenContract = await psp34ContractAddress(api, nft_pool_contract_calls, '');
+        let _owner = await owner(api, nft_pool_contract_calls, '');
+        if (!_tokenContract || !_NFTtokenContract) {
+            console.log(`WARNING: Can not get _tokenContract: ${_tokenContract} or _NFTtokenContract: ${_NFTtokenContract}`);
+            return;
+        }
+        let psp22_contract_calls = new ContractPromise(
+            api,
+            psp22_contract.CONTRACT_ABI,
+            _tokenContract,
+        );
+        let _tokenName = await tokenName(api, '', psp22_contract_calls);
+        let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
+        let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
+        let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
+        let collection = await nftPoolsSchemaRepository.findOne({
             where: {
                 poolContract: poolContract
             }
         });
         if (collection) {
-            await poolsSchemaRepository.updateAll(
-                {
+            try {
+                await nftPoolsSchemaRepository.updateById(collection._id, {
+                    NFTtokenContract: _NFTtokenContract,
                     tokenContract: _tokenContract,
                     tokenName: _tokenName,
                     tokenSymbol: _tokenSymbol,
@@ -181,16 +128,16 @@ const ProcessPool = async (
                     tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
                     rewardPool: _rewardPool ? _rewardPool : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
-                    apy: _apy,
+                    maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                    multiplier: _multiplier,
                     owner: _owner
-                },
-                {
-                    poolContract: poolContract
-                }
-            )
+                });
+            } catch (e) {
+                console.log(`ERROR: ProcessNFT updateById - ${e.message}`);
+            }
         } else {
-            let create_collection = await poolsSchemaRepository.create(
-                {
+            try {
+                await nftPoolsSchemaRepository.create({
                     poolContract,
                     tokenContract: _tokenContract,
                     tokenName: _tokenName,
@@ -201,15 +148,104 @@ const ProcessPool = async (
                     tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
                     rewardPool: _rewardPool ? _rewardPool : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
-                    apy: _apy,
-                    owner: _owner
-                }
-            );
-            console.log({create_collection: create_collection});
+                    maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                    multiplier: _multiplier,
+                });
+            } catch (e) {
+                console.log(`ERROR: ProcessNFT create - ${e.message}`);
+            }
         }
-    } catch (e){
-        console.log(e);
-        return;
+    } catch (e) {
+        console.log(`ERROR: ProcessNFT - ${e.message}`);
+    }
+}
+const ProcessPool = async (
+    poolContract: string,
+    api: ApiPromise,
+    pool_contract_calls: ContractPromise,
+    poolsSchemaRepository : PoolsSchemaRepository,
+): Promise<void> => {
+    try {
+        pool_contract_calls = new ContractPromise(
+            api,
+            lp_pool_contract.CONTRACT_ABI,
+            poolContract,
+        );
+        let _apy = await apy(api, pool_contract_calls, '');
+        let _rewardPool = await rewardPool(api, pool_contract_calls, '');
+        let _totalStaked = await totalStaked(api, pool_contract_calls, '', false);
+        let _maxStaking = await maxStakingAmount(api, pool_contract_calls,'',false);
+        let _startTime = await startTime(api, pool_contract_calls, '');
+        let _duration = await duration(api, pool_contract_calls, '');
+        let _tokenContract = await psp22ContractAddress(api, pool_contract_calls, '');
+        let _owner = await owner(api, pool_contract_calls, '');
+        if (!_tokenContract) {
+            console.log(`WARNING: Can not get _tokenContract: ${_tokenContract}`);
+            return;
+        }
+        let psp22_contract_calls = new ContractPromise(
+            api,
+            psp22_contract.CONTRACT_ABI,
+            _tokenContract,
+        );
+        let _tokenName = await tokenName(api, '', psp22_contract_calls);
+        let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
+        let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
+        let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
+        try {
+            let collection = await poolsSchemaRepository.findOne({
+                where: {
+                    poolContract: poolContract
+                }
+            });
+            if (collection) {
+                try {
+                    await poolsSchemaRepository.updateById(collection._id, {
+                        tokenContract: _tokenContract,
+                        tokenName: _tokenName,
+                        tokenSymbol: _tokenSymbol,
+                        tokenDecimal: _tokenDecimal,
+                        duration: _duration ? _duration : 0,
+                        startTime: _startTime ? _startTime : 0,
+                        tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                        rewardPool: _rewardPool ? _rewardPool : 0,
+                        totalStaked: _totalStaked ? _totalStaked : 0,
+                        maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                        apy: _apy,
+                        owner: _owner
+                    });
+                } catch (e) {
+                    console.log(`ERROR: ProcessPool updateById - ${e.message}`);
+                }
+            } else {
+                try {
+                    let create_collection = await poolsSchemaRepository.create(
+                        {
+                            poolContract,
+                            tokenContract: _tokenContract,
+                            tokenName: _tokenName,
+                            tokenSymbol: _tokenSymbol,
+                            tokenDecimal: _tokenDecimal,
+                            duration: _duration ? _duration : 0,
+                            startTime: _startTime ? _startTime : 0,
+                            tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                            rewardPool: _rewardPool ? _rewardPool : 0,
+                            totalStaked: _totalStaked ? _totalStaked : 0,
+                            maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                            apy: _apy,
+                            owner: _owner
+                        }
+                    );
+                    console.log({create_collection: create_collection});
+                } catch (e) {
+                    console.log(`ERROR: ProcessPool create - ${e.message}`);
+                }
+            }
+        } catch (e){
+            console.log(`ERROR: ProcessPool - ${e.message}`);
+        }
+    } catch (e) {
+        console.log(`ERROR: ProcessPool - ${e.message}`);
     }
 }
 const ProcessLP = async (
@@ -218,92 +254,102 @@ const ProcessLP = async (
     lp_pool_contract_calls: ContractPromise,
     lpPoolsSchemaRepository : LpPoolsSchemaRepository,
 ): Promise<void> => {
-    lp_pool_contract_calls = new ContractPromise(
-        api,
-        lp_pool_contract.CONTRACT_ABI,
-        poolContract,
-    );
-    let _multiplier = await multiplier(api, lp_pool_contract_calls, '');
-    let _rewardPool = await rewardPool(api, lp_pool_contract_calls, '');
-    let _totalStaked = await totalStaked(api, lp_pool_contract_calls, '', false);
-    let _startTime = await startTime(api, lp_pool_contract_calls, '');
-    let _duration = await duration(api, lp_pool_contract_calls, '');
-    let _tokenContract = await psp22ContractAddress(api, lp_pool_contract_calls, '');
-    let _lptokenContract = await lpContractAddress(api, lp_pool_contract_calls, '');
-    let _owner = await owner(api, lp_pool_contract_calls, '');
-    if (!_tokenContract || !_lptokenContract) {
-        console.log(`WARNING: Can not get _tokenContract: ${_tokenContract} or _lptokenContract: ${_lptokenContract}`);
-        return;
-    }
-    let psp22_contract_calls = new ContractPromise(
-        api,
-        psp22_contract.CONTRACT_ABI,
-        _tokenContract,
-    );
-    let _tokenName = await tokenName(api, '', psp22_contract_calls);
-    let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
-    let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
-    let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
-    psp22_contract_calls = new ContractPromise(
-        api,
-        psp22_contract.CONTRACT_ABI,
-        _lptokenContract,
-    );
-    let _lptokenName = await tokenName(api, '', psp22_contract_calls);
-    let _lptokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
-    let _lptokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
-    let _lptokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
-    let collection = await lpPoolsSchemaRepository.findOne({
-        where: {
-            poolContract: poolContract
+    try {
+        lp_pool_contract_calls = new ContractPromise(
+            api,
+            lp_pool_contract.CONTRACT_ABI,
+            poolContract,
+        );
+        let _multiplier = await multiplier(api, lp_pool_contract_calls, '');
+        let _rewardPool = await rewardPool(api, lp_pool_contract_calls, '');
+        let _totalStaked = await totalStaked(api, lp_pool_contract_calls, '', false);
+        let _maxStaking = await maxStakingAmount(api, lp_pool_contract_calls,'',false);
+        let _startTime = await startTime(api, lp_pool_contract_calls, '');
+        let _duration = await duration(api, lp_pool_contract_calls, '');
+        let _tokenContract = await psp22ContractAddress(api, lp_pool_contract_calls, '');
+        let _lptokenContract = await lpContractAddress(api, lp_pool_contract_calls, '');
+        let _owner = await owner(api, lp_pool_contract_calls, '');
+        if (!_tokenContract || !_lptokenContract) {
+            console.log(`WARNING: Can not get _tokenContract: ${_tokenContract} or _lptokenContract: ${_lptokenContract}`);
+            return;
         }
-    });
-    if (collection) {
-        await lpPoolsSchemaRepository.updateAll(
-            {
-                lptokenContract: _lptokenContract,
-                lptokenName: _lptokenName,
-                lptokenSymbol: _lptokenSymbol,
-                lptokenDecimal: _lptokenDecimal,
-                tokenContract: _tokenContract,
-                tokenName: _tokenName,
-                tokenSymbol: _tokenSymbol,
-                tokenDecimal: _tokenDecimal,
-                duration: _duration ? _duration : 0,
-                startTime: _startTime ? _startTime : 0,
-                tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
-                lptokenTotalSupply: _lptokenTotalSupply ? _lptokenTotalSupply : 0,
-                rewardPool: _rewardPool ? _rewardPool : 0,
-                totalStaked: _totalStaked ? _totalStaked : 0,
-                multiplier: _multiplier,
-                owner: _owner
-            },
-            {
+        let psp22_contract_calls = new ContractPromise(
+            api,
+            psp22_contract.CONTRACT_ABI,
+            _tokenContract,
+        );
+        let _tokenName = await tokenName(api, '', psp22_contract_calls);
+        let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
+        let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
+        let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
+        psp22_contract_calls = new ContractPromise(
+            api,
+            psp22_contract.CONTRACT_ABI,
+            _lptokenContract,
+        );
+        let _lptokenName = await tokenName(api, '', psp22_contract_calls);
+        let _lptokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
+        let _lptokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
+        let _lptokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
+        let collection = await lpPoolsSchemaRepository.findOne({
+            where: {
                 poolContract: poolContract
             }
-        )
-    } else {
-        let create_collection = await lpPoolsSchemaRepository.create(
-            {
-                poolContract,
-                lptokenContract: _lptokenContract,
-                lptokenName: _lptokenName,
-                lptokenSymbol: _lptokenSymbol,
-                lptokenDecimal: _lptokenDecimal,
-                tokenContract: _tokenContract,
-                tokenName: _tokenName,
-                tokenSymbol: _tokenSymbol,
-                tokenDecimal: _tokenDecimal,
-                duration: _duration ? _duration : 0,
-                startTime: _startTime ? _startTime : 0,
-                tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
-                rewardPool: _rewardPool ? _rewardPool : 0,
-                totalStaked: _totalStaked ? _totalStaked : 0,
-                multiplier: _multiplier,
-                owner: _owner
+        });
+        if (collection) {
+            try {
+                await lpPoolsSchemaRepository.updateById(collection._id, {
+                    lptokenContract: _lptokenContract,
+                    lptokenName: _lptokenName,
+                    lptokenSymbol: _lptokenSymbol,
+                    lptokenDecimal: _lptokenDecimal,
+                    tokenContract: _tokenContract,
+                    tokenName: _tokenName,
+                    tokenSymbol: _tokenSymbol,
+                    tokenDecimal: _tokenDecimal,
+                    duration: _duration ? _duration : 0,
+                    startTime: _startTime ? _startTime : 0,
+                    tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                    lptokenTotalSupply: _lptokenTotalSupply ? _lptokenTotalSupply : 0,
+                    rewardPool: _rewardPool ? _rewardPool : 0,
+                    totalStaked: _totalStaked ? _totalStaked : 0,
+                    maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                    multiplier: _multiplier,
+                    owner: _owner
+                });
+            } catch (e) {
+                console.log(`ERROR: ProcessLP updateById - ${e.message}`);
             }
-        );
-        console.log({create_collection: create_collection});
+        } else {
+            try {
+                let create_collection = await lpPoolsSchemaRepository.create(
+                    {
+                        poolContract,
+                        lptokenContract: _lptokenContract,
+                        lptokenName: _lptokenName,
+                        lptokenSymbol: _lptokenSymbol,
+                        lptokenDecimal: _lptokenDecimal,
+                        tokenContract: _tokenContract,
+                        tokenName: _tokenName,
+                        tokenSymbol: _tokenSymbol,
+                        tokenDecimal: _tokenDecimal,
+                        duration: _duration ? _duration : 0,
+                        startTime: _startTime ? _startTime : 0,
+                        tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                        rewardPool: _rewardPool ? _rewardPool : 0,
+                        totalStaked: _totalStaked ? _totalStaked : 0,
+                        maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                        multiplier: _multiplier,
+                        owner: _owner
+                    }
+                );
+                console.log({create_collection: create_collection});
+            } catch (e) {
+                console.log(`ERROR: ProcessLP updateById - ${e.message}`);
+            }
+        }
+    } catch (e) {
+        console.log(`ERROR: ProcessLP - ${e.message}`);
     }
 }
 const ProcessTokens = async (
@@ -313,47 +359,62 @@ const ProcessTokens = async (
     tokensSchemaRepository : TokensSchemaRepository,
 ): Promise<void> => {
     try {
-        let tokenInfo = await getTokenInfo(
+        let contractAddress = await getTokenInfo(
             api,
             token_generator_calls,
             '',
             index
         );
-        if (!tokenInfo) {
-            console.log(`ERROR: Can not get tokenInfo of ${index}`);
+        if (!contractAddress) {
+            console.log(`ERROR: Can not get contractAddress of ${index}`);
             return;
         }
-        if (tokenInfo.hasOwnProperty('totalSupply')) {
-            if (!tokenInfo.totalSupply) {
-                tokenInfo.totalSupply = 0;
-            } else {
-                tokenInfo.totalSupply = tokenInfo.totalSupply.replace(/,/g, "") / (10 ** parseInt(tokenInfo.decimal));
-            }
-        }
-        tokenInfo.index = index;
-        let token = await tokensSchemaRepository.findOne({
-            where: {
-                contractAddress: tokenInfo.contractAddress
-            }
-        });
-
-        if (token) {
-            await tokensSchemaRepository.updateAll(
-                {
-                    name: tokenInfo.name,
-                    symbol: tokenInfo.symbol,
-                    decimal: tokenInfo.decimal,
-                    creator: tokenInfo.creator,
-                    mintTo: tokenInfo.mintTo,
-                    totalSupply: tokenInfo.totalSupply,
-                    index: tokenInfo.index
-                },
-                {
-                    contractAddress: tokenInfo.contractAddress
-                }
+        if (contractAddress){
+            const psp22_contract_calls = new ContractPromise(
+                api,
+                psp22_contract.CONTRACT_ABI,
+                contractAddress,
             );
-        } else {
-            await tokensSchemaRepository.create(tokenInfo);
+            let _owner = await owner(api, psp22_contract_calls, '');
+            let _tokenName = await tokenName(api, '', psp22_contract_calls);
+            let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
+            let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
+            let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
+            const currentToken = await tokensSchemaRepository.findOne({
+                where: {
+                    contractAddress: contractAddress
+                }
+            });
+            if (currentToken) {
+                try {
+                    await tokensSchemaRepository.updateById(currentToken._id, {
+                        name: _tokenName,
+                        symbol: _tokenSymbol,
+                        decimal: _tokenDecimal,
+                        creator: _owner,
+                        mintTo: _owner,
+                        totalSupply: _tokenTotalSupply,
+                        index: index
+                    });
+                } catch (e) {
+                    console.log(`ERROR: ProcessTokens updateById - ${e.message}`);
+                }
+            } else {
+                try {
+                    await tokensSchemaRepository.create({
+                        name: _tokenName,
+                        symbol: _tokenSymbol,
+                        decimal: _tokenDecimal,
+                        creator: _owner,
+                        mintTo: _owner,
+                        totalSupply: _tokenTotalSupply,
+                        index: index,
+                        contractAddress: contractAddress
+                    });
+                } catch (e) {
+                    console.log(`ERROR: ProcessTokens create - ${e.message}`);
+                }
+            }
         }
     } catch (e) {
         console.log(`ERROR: ProcessTokens - ${e.message}`);
@@ -501,6 +562,46 @@ export const checkAll = async (
     await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
 }
 
+
+const maxStakingAmount = async (
+    api: ApiPromise,
+    contract_to_call: ContractPromise,
+    caller_account: string,
+    is_nft: boolean
+): Promise<number> => {
+    if (!contract_to_call) {
+        console.log("invalid",contract_to_call);
+        return 0;
+    }
+    if (!caller_account) {
+        caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
+    }
+    const gasLimit = readOnlyGasLimit(api);
+    const azero_value = 0;
+    console.log(contract_to_call.query);
+    try {
+        const { result, output } = await contract_to_call.query["genericPoolContractTrait::maxStakingAmount"](
+            caller_account,
+            { value: azero_value, gasLimit }
+        );
+        if (result.isOk && output) {
+            // @ts-ignore
+            const a = parseFloat(output.toHuman().Ok.replace(/,/g, ""));
+            let maxStakingAmount = 0;
+            if (is_nft) {
+                maxStakingAmount = a;
+            } else {
+                maxStakingAmount = a / (10 ** 12);
+            }
+            return maxStakingAmount;
+        }
+    } catch (e) {
+        console.log(`ERROR: maxStakingAmount - ${e.message}`);
+        return 0;
+    }
+    return 0;
+}
+
 const getTokenInfo = async (
     api: ApiPromise,
     contract_to_call: ContractPromise,
@@ -517,7 +618,7 @@ const getTokenInfo = async (
     const gasLimit = readOnlyGasLimit(api);
     const azero_value = 0;
     try {
-        const {result, output} = await contract_to_call.query["tokenManagerTrait::getTokenInfo"](
+        const {result, output} = await contract_to_call.query["tokenManagerTrait::getTokenContractAddress"](
             caller_account,
             {value: azero_value, gasLimit: gasLimit},
             index
@@ -1034,15 +1135,21 @@ const totalSupply = async (
     const gasLimit = readOnlyGasLimit(api);
     const azero_value = 0;
     try {
-        const {result, output} = await psp22_contract_calls.query["psp22::totalSupply"](
+        const {result, output} = await psp22_contract_calls.query["psp22Capped::cap"](
             caller_account,
             {value: azero_value, gasLimit: gasLimit}
         );
         if (result.isOk && output) {
             // @ts-ignore
-            const totalSupply = parseFloat(output.toHuman()?.Ok.replace(/,/g, "")) / ( 10 ** 12);
-            console.log({totalSupply: totalSupply});
-            return totalSupply;
+            const data = output.toHuman()?.Ok;
+            if (data) {
+                const totalSupply = parseFloat(data.replace(/,/g, "")) / ( 10 ** 12);
+                console.log({totalSupply: totalSupply});
+                return totalSupply;
+            } else {
+                console.log({data: data});
+                return 0;
+            }
         }
     } catch (e) {
         console.log(`ERROR: totalSupply - ${e.message}`);

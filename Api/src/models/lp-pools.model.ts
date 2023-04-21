@@ -92,6 +92,11 @@ export class LpPools extends Entity {
   @property({
     type: 'number',
   })
+  maxStakingAmount?: number;
+
+  @property({
+    type: 'number',
+  })
   multiplier?: number;
 
   @property({

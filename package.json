@@ -2,7 +2,7 @@
   "name": "inkwhale-backend",
   "version": "1.0.0",
   "description": "inkwhale backend",
-  "main": "api.js",
+  "main": "api_bk.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

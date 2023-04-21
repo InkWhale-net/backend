@@ -70,6 +70,11 @@ export class Pools extends Entity {
   apy?: number;
 
   @property({
+    type: 'number',
+  })
+  maxStakingAmount?: number;
+
+  @property({
     type: 'date',
   })
   createdTime?: Date;

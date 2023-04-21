@@ -10,8 +10,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import {CronComponent} from '@loopback/cron';
 import path from 'path';
 import {MySequence} from './sequence';
-import * as dotenv from 'dotenv';
-import * as dotenvExt from 'dotenv-extended';
+import dotenv from "dotenv";
 import {IS_ENABLE_DOCS} from "./utils/constant";
 
 export {ApplicationConfig};

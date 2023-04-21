@@ -7,7 +7,7 @@ This directory contains code for models provided by this app.
 ### Model:
 - Pools
 ### Command line:
-- db.Pools.createIndex( { "poolContract": 1, "tokenContract": 1, "tokenName": 1, "tokenSymbol": 1, "tokenDecimal": 1, "duration": 1, "startTime": 1, "tokenTotalSupply": 1, "rewardPool": 1, "totalStaked": 1, "maxStakingAmount": 1, "apy": 1, "owner": 1  }, { unique: true } )
+- db.Pools.createIndex( { "poolContract": 1, "tokenContract": 1, "tokenName": 1, "tokenSymbol": 1, "tokenDecimal": 1, "duration": 1, "startTime": 1, "tokenTotalSupply": 1, "rewardPool": 1, "totalStaked": 1, "maxStakingAmount": 1, "apy": 1, "maxStakingAmount": 1, "owner": 1  }, { unique: true } )
 ### Keys:
 - poolContract
 - tokenContract
@@ -21,6 +21,7 @@ This directory contains code for models provided by this app.
 - totalStaked
 - maxStakingAmount
 - apy
+- maxStakingAmount
 - owner
 
 ## updateQueueSchemaRepository
