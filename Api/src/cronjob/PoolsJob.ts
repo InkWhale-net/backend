@@ -48,7 +48,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                 try {
                     if (CRONJOB_ENABLE.INW_POOL) {
                         const currentTime = convertToUTCTime(new Date());
-                        console.log("RUN JOB CREATE MONITOR NOW: " + currentTime);
+                        console.log("RUN JOB CronJobUpdatePools NOW: " + currentTime);
 
                         const updateQueueRepo = this.updateQueueSchemaRepository;
                         const poolsRepo = this.poolsSchemaRepository;
@@ -75,12 +75,12 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                         });
                         api.on("connected", () => {
                             api.isReady.then((api) => {
-                                console.log("Testnet AZERO Connected");
+                                console.log("Testnet InkWhale Connected");
                             });
                         });
 
                         api.on("ready", async () => {
-                            console.log("Testnet AZERO Ready");
+                            console.log("Testnet InkWhale Ready");
                             const pool_generator_calls = new ContractPromise(
                                 api,
                                 pool_generator_contract.CONTRACT_ABI,
