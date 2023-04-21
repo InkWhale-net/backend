@@ -12,7 +12,7 @@ import {
   TokensSchemaRepository,
   UpdateQueueSchemaRepository
 } from "../repositories";
-import {FAILED, OK, SUCCESS} from "../utils/constant";
+import {MESSAGE, STATUS} from "../utils/constant";
 import {
   ReqGetLpPoolsByAddressType,
   ReqGetLpPoolsByOwnerType,
@@ -56,22 +56,22 @@ export class ApiController {
       @requestBody(RequestUpdateBody) req:ReqUpdateType
   ): Promise<ResponseBody> {
     if (!req) return {
-      status: FAILED,
-      message: "No Input"
+      status: STATUS.FAILED,
+      message: MESSAGE.NO_INPUT
     };
     const poolContract = req.poolContract;
     const requestType = req.type;
     if (!poolContract) {
       return {
-        status: FAILED,
-        message: "Invalid poolContract"
+        status: STATUS.FAILED,
+        message: MESSAGE.INVALID_POOL_CONTRACT
       };
     }
     const queue = await this.updateQueueSchemaRepository.findOne({where: {poolContract: poolContract}});
     if (queue) {
       return {
-        status: FAILED,
-        message: "exist"
+        status: STATUS.FAILED,
+        message: MESSAGE.NOT_FOUND_QUEUE
       };
     }
     const create_collection = await this.updateQueueSchemaRepository.create({
@@ -80,9 +80,9 @@ export class ApiController {
       timeStamp: new Date().getTime()
     });
     return {
-      status: OK,
+      status: STATUS.OK,
       ret: "added",
-      message: SUCCESS,
+      message: STATUS.SUCCESS,
       data: create_collection
     };
   }
@@ -93,8 +93,8 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let limit = req?.limit;
@@ -111,8 +111,8 @@ export class ApiController {
     });
 
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: tokens
     };
 
@@ -124,8 +124,8 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let limit = req?.limit;
@@ -155,8 +155,8 @@ export class ApiController {
       });
     }
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pools
     };
   }
@@ -167,15 +167,15 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let poolContract = req?.poolContract;
     if (!poolContract) {
       return {
-        status: FAILED,
-        message: 'Not found the pool contract',
+        status: STATUS.FAILED,
+        message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
         ret: []
       };
     }
@@ -185,8 +185,8 @@ export class ApiController {
       }
     });
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pool
     };
   }
@@ -197,15 +197,15 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     const owner = req?.owner;
     if (!owner) {
       return {
-        status: OK,
-        message: "No owner",
+        status: STATUS.OK,
+        message: MESSAGE.NOT_FOUND_OWNER,
         ret:[]
       }
     }
@@ -215,8 +215,8 @@ export class ApiController {
       }
     });
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret:pool
     };
   }
@@ -227,8 +227,8 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let limit = req?.limit;
@@ -258,8 +258,8 @@ export class ApiController {
       });
     }
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pools
     };
   }
@@ -270,15 +270,15 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let poolContract = req?.poolContract;
     if (!poolContract) {
       return {
-        status: FAILED,
-        message: 'Not found the pool contract',
+        status: STATUS.FAILED,
+        message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
         ret: []
       }
     }
@@ -288,8 +288,8 @@ export class ApiController {
       }
     });
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pool
     };
   }
@@ -300,15 +300,15 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let owner = req?.owner;
     if (!owner) {
       return {
-        status: FAILED,
-        message: 'Not found owner',
+        status: STATUS.FAILED,
+        message: MESSAGE.NOT_FOUND_OWNER,
         ret: []
       }
     }
@@ -318,8 +318,8 @@ export class ApiController {
       }
     });
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pool
     };
   }
@@ -330,8 +330,8 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let limit = req?.limit;
@@ -362,8 +362,8 @@ export class ApiController {
       });
     }
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pools
     };
   }
@@ -374,15 +374,15 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let poolContract = req?.poolContract;
     if (!poolContract) {
       return {
-        status: OK,
-        message: "Not found the pool contract",
+        status: STATUS.OK,
+        message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
         ret:[]
       };
     }
@@ -392,8 +392,8 @@ export class ApiController {
       }
     });
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pool
     };
   }
@@ -404,15 +404,15 @@ export class ApiController {
   ): Promise<ResponseBody> {
     if (!req) {
       return {
-        status: FAILED,
-        message: "No Input"
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
       };
     }
     let owner = req?.owner;
     if (!owner) {
       return {
-        status: OK,
-        message: "Not found owner",
+        status: STATUS.OK,
+        message: MESSAGE.NOT_FOUND_OWNER,
         ret:[]
       };
     }
@@ -422,8 +422,8 @@ export class ApiController {
       }
     });
     return {
-      status: OK,
-      message: SUCCESS,
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
       ret: pool
     };
   }
