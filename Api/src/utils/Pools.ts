@@ -12,6 +12,7 @@ import {lp_pool_contract} from "../contracts/lp_pool";
 import {psp22_contract} from "../contracts/psp22";
 import dotenv from "dotenv";
 import {nft_pool_contract} from "../contracts/nft_pool";
+import {pool_contract} from "../contracts/pool";
 dotenv.config();
 
 let is_running = false;
@@ -91,7 +92,7 @@ const ProcessNFT = async (
         let _multiplier = await multiplier(api, nft_pool_contract_calls, '');
         let _rewardPool = await rewardPool(api, nft_pool_contract_calls, '');
         let _totalStaked = await totalStaked(api, nft_pool_contract_calls, '', true);
-        let _maxStaking = await maxStakingAmount(api, nft_pool_contract_calls,'',true);
+        let _maxStaking = await maxStakingAmount(api, nft_pool_contract_calls,'', `nft_pool_contract`, true);
         let _startTime = await startTime(api, nft_pool_contract_calls, '');
         let _duration = await duration(api, nft_pool_contract_calls, '');
         let _tokenContract = await psp22ContractAddress(api, nft_pool_contract_calls, '');
@@ -160,7 +161,7 @@ const ProcessNFT = async (
     }
 }
 const ProcessPool = async (
-    poolContract: string,
+    poolContractAddress: string,
     api: ApiPromise,
     pool_contract_calls: ContractPromise,
     poolsSchemaRepository : PoolsSchemaRepository,
@@ -168,13 +169,13 @@ const ProcessPool = async (
     try {
         pool_contract_calls = new ContractPromise(
             api,
-            lp_pool_contract.CONTRACT_ABI,
-            poolContract,
+            pool_contract.CONTRACT_ABI,
+            poolContractAddress,
         );
         let _apy = await apy(api, pool_contract_calls, '');
         let _rewardPool = await rewardPool(api, pool_contract_calls, '');
         let _totalStaked = await totalStaked(api, pool_contract_calls, '', false);
-        let _maxStaking = await maxStakingAmount(api, pool_contract_calls,'',false);
+        let _maxStaking = await maxStakingAmount(api, pool_contract_calls,'', `pool_contract`, false);
         let _startTime = await startTime(api, pool_contract_calls, '');
         let _duration = await duration(api, pool_contract_calls, '');
         let _tokenContract = await psp22ContractAddress(api, pool_contract_calls, '');
@@ -195,7 +196,7 @@ const ProcessPool = async (
         try {
             let collection = await poolsSchemaRepository.findOne({
                 where: {
-                    poolContract: poolContract
+                    poolContract: poolContractAddress
                 }
             });
             if (collection) {
@@ -221,7 +222,7 @@ const ProcessPool = async (
                 try {
                     let create_collection = await poolsSchemaRepository.create(
                         {
-                            poolContract,
+                            poolContract: poolContractAddress,
                             tokenContract: _tokenContract,
                             tokenName: _tokenName,
                             tokenSymbol: _tokenSymbol,
@@ -263,7 +264,7 @@ const ProcessLP = async (
         let _multiplier = await multiplier(api, lp_pool_contract_calls, '');
         let _rewardPool = await rewardPool(api, lp_pool_contract_calls, '');
         let _totalStaked = await totalStaked(api, lp_pool_contract_calls, '', false);
-        let _maxStaking = await maxStakingAmount(api, lp_pool_contract_calls,'',false);
+        let _maxStaking = await maxStakingAmount(api, lp_pool_contract_calls,'', `lp_pool_contract`, false);
         let _startTime = await startTime(api, lp_pool_contract_calls, '');
         let _duration = await duration(api, lp_pool_contract_calls, '');
         let _tokenContract = await psp22ContractAddress(api, lp_pool_contract_calls, '');
@@ -370,6 +371,7 @@ const ProcessTokens = async (
             return;
         }
         if (contractAddress){
+            console.log(`Start get owner info ${contractAddress}`);
             const psp22_contract_calls = new ContractPromise(
                 api,
                 psp22_contract.CONTRACT_ABI,
@@ -380,6 +382,7 @@ const ProcessTokens = async (
             let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
             let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
             let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
+            console.log(`Stop get owner info ${contractAddress}`);
             const currentToken = await tokensSchemaRepository.findOne({
                 where: {
                     contractAddress: contractAddress
@@ -441,7 +444,13 @@ const checkNewNFTPools = async (
                 '',
                 index
             );
+            console.log('checkNewNFTPools - poolContract', poolContract);
             if (!poolContract) continue;
+            nft_pool_contract_calls = new ContractPromise(
+                api,
+                nft_pool_contract.CONTRACT_ABI,
+                poolContract,
+            );
             await ProcessNFT(poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
         }
         is_running_nft = false;
@@ -471,8 +480,13 @@ const checkNewPools = async (
                 '',
                 index
             );
-            console.log('poolContract', poolContract);
+            console.log('checkNewPools - poolContract', poolContract);
             if (!poolContract) continue;
+            pool_contract_calls = new ContractPromise(
+                api,
+                pool_contract.CONTRACT_ABI,
+                poolContract,
+            );
             await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
         }
         is_running = false;
@@ -503,7 +517,13 @@ const checkNewLPPools = async (
                 '',
                 index
             );
+            console.log('checkNewLPPools - poolContract', poolContract);
             if (!poolContract) continue;
+            lp_pool_contract_calls = new ContractPromise(
+                api,
+                lp_pool_contract.CONTRACT_ABI,
+                poolContract,
+            );
             await ProcessLP(poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
         }
         is_running_lp = false;
@@ -558,7 +578,7 @@ export const checkAll = async (
 ) => {
     await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
     await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
-    await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
+    // await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
     await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
 }
 
@@ -567,8 +587,14 @@ const maxStakingAmount = async (
     api: ApiPromise,
     contract_to_call: ContractPromise,
     caller_account: string,
+    contractType: string,
     is_nft: boolean
 ): Promise<number> => {
+    console.log({
+        function: `maxStakingAmount`,
+        contractType: contractType,
+        maxStakingAmountAddress: contract_to_call.address.toHuman()
+    });
     if (!contract_to_call) {
         console.log("invalid",contract_to_call);
         return 0;
@@ -578,7 +604,6 @@ const maxStakingAmount = async (
     }
     const gasLimit = readOnlyGasLimit(api);
     const azero_value = 0;
-    console.log(contract_to_call.query);
     try {
         const { result, output } = await contract_to_call.query["genericPoolContractTrait::maxStakingAmount"](
             caller_account,
