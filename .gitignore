@@ -1,7 +1,7 @@
 build
 node_modules
-/testnet_v1/tmp/
-/testnet_v1/ink-whale-be/src/config/ssl/
+Api/tmp/
+Api/src/config/ssl/
 ._*
 yarn.lock
 .env
