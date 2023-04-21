@@ -12,6 +12,7 @@ import path from 'path';
 import {MySequence} from './sequence';
 import * as dotenv from 'dotenv';
 import * as dotenvExt from 'dotenv-extended';
+import {IS_ENABLE_DOCS} from "./utils/constant";
 
 export {ApplicationConfig};
 
@@ -20,10 +21,6 @@ export class InkWhaleBeApplication extends BootMixin(
 ) {
   constructor(options: ApplicationConfig = {}) {
     dotenv.config();
-    dotenvExt.load({
-      schema: '.env.example',
-      errorOnMissing: false,
-    });
     super(options);
 
     // Set up the custom sequence
@@ -36,7 +33,14 @@ export class InkWhaleBeApplication extends BootMixin(
     this.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
     });
-    this.component(RestExplorerComponent);
+    if (IS_ENABLE_DOCS) {
+      // Set up default home page
+      this.static('/', path.join(__dirname, '../public'));
+      this.configure(RestExplorerBindings.COMPONENT).to({
+        path: '/explorer',
+      });
+      this.component(RestExplorerComponent);
+    }
     this.component(CronComponent);
 
     this.projectRoot = __dirname;

@@ -16,7 +16,7 @@ import {
     TokensSchemaRepository,
     UpdateQueueSchemaRepository
 } from "../repositories";
-import {checkAll, checkQueue} from "../utils/pools";
+import {checkAll, checkQueue} from "../utils/Pools";
 import { pool_contract } from "../contracts/pool";
 import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
 import { lp_pool_contract } from "../contracts/lp_pool";
@@ -43,10 +43,10 @@ export class CronJobUpdatePools implements Provider<CronJob> {
 
     value() {
         return new CronJob({
-            cronTime: CRONJOB_TIME.POOL,
+            cronTime: CRONJOB_TIME.INW_POOL,
             onTick: async () => {
                 try {
-                    if (CRONJOB_ENABLE.POOL) {
+                    if (CRONJOB_ENABLE.INW_POOL) {
                         const currentTime = convertToUTCTime(new Date());
                         console.log("RUN JOB CREATE MONITOR NOW: " + currentTime);
 
@@ -155,8 +155,8 @@ export class CronJobUpdatePools implements Provider<CronJob> {
 
                         });
                     }
-                }catch (e) {
-                    console.log(e);
+                } catch (e) {
+                    console.log(`ERROR: CronJobUpdatePools - ${e.message}`);
                 }
             },
             start: true,

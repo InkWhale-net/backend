@@ -7,7 +7,7 @@ export class Tokens extends Entity {
     id: true,
     generated: true,
   })
-  id?: string;
+  _id: string;
 
   @property({
     type: 'string',
@@ -48,6 +48,16 @@ export class Tokens extends Entity {
     type: 'number',
   })
   index?: number;
+
+  @property({
+    type: 'date',
+  })
+  createdTime?: Date;
+
+  @property({
+    type: 'date',
+  })
+  updatedTime?: Date;
 
 
   constructor(data?: Partial<Tokens>) {

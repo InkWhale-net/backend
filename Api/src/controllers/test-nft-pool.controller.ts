@@ -37,12 +37,12 @@ class TestNftPoolController {
         'application/json': {
           schema: getModelSchemaRef(NftPools, {
             title: 'NewNftPoolsSchema',
-            exclude: ['id'],
+            exclude: ['_id'],
           }),
         },
       },
     })
-    nftPoolsSchema: Omit<NftPools, 'id'>,
+    nftPoolsSchema: Omit<NftPools, '_id'>,
   ): Promise<NftPools> {
     return this.nftPoolsSchemaRepository.create(nftPoolsSchema);
   }

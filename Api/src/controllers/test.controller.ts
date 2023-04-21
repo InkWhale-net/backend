@@ -37,12 +37,12 @@ class TestController {
         'application/json': {
           schema: getModelSchemaRef(Tokens, {
             title: 'NewTokensSchema',
-            exclude: ['id'],
+            exclude: ['_id'],
           }),
         },
       },
     })
-    tokensSchema: Omit<Tokens, 'id'>,
+    tokensSchema: Omit<Tokens, '_id'>,
   ): Promise<Tokens> {
     return this.tokensSchemaRepository.create(tokensSchema);
   }

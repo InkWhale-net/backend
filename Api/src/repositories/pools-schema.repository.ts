@@ -5,7 +5,7 @@ import {Pools, PoolsSchemaRelations} from '../models';
 
 export class PoolsSchemaRepository extends DefaultCrudRepository<
   Pools,
-  typeof Pools.prototype.id,
+  typeof Pools.prototype._id,
   PoolsSchemaRelations
 > {
   constructor(

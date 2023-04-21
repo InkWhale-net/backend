@@ -5,7 +5,7 @@ import {UpdateQueue, UpdateQueueSchemaRelations} from '../models';
 
 export class UpdateQueueSchemaRepository extends DefaultCrudRepository<
   UpdateQueue,
-  typeof UpdateQueue.prototype.id,
+  typeof UpdateQueue.prototype._id,
   UpdateQueueSchemaRelations
 > {
   constructor(

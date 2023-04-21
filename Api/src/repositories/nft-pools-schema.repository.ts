@@ -5,7 +5,7 @@ import {NftPools, NftPoolsSchemaRelations} from '../models';
 
 export class NftPoolsSchemaRepository extends DefaultCrudRepository<
   NftPools,
-  typeof NftPools.prototype.id,
+  typeof NftPools.prototype._id,
   NftPoolsSchemaRelations
 > {
   constructor(

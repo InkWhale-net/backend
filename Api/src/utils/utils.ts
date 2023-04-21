@@ -2,11 +2,32 @@ import {BN, BN_ONE, hexToU8a, isHex} from "@polkadot/util";
 import {decodeAddress, encodeAddress} from "@polkadot/keyring";
 import {ApiPromise} from "@polkadot/api";
 import {WeightV2} from "@polkadot/types/interfaces";
+import axios from "axios";
 
 
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
 
-export function splitFileName (path: string) {
+export function send_telegram_message(message: string) {
+    try {
+        new Promise(async () => {
+            await axios({
+                baseURL: process.env.TELEGRAM_URL,
+                url: "/sendMessage",
+                method: "post",
+                data: {
+                    "chat_id": process.env.TELEGRAM_ID_CHAT,
+                    "text": `${process.env.NODE_IP}: ${message}`
+                },
+                headers: {
+                    "Content-Type": "application/json",
+                    "cache-control": "no-cache",
+                    'Access-Control-Allow-Origin': '*',
+                },
+            });
+        }).then(() => {});
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 export function randomString (length: number): string {
@@ -19,11 +40,6 @@ export function randomString (length: number): string {
     return result;
 }
 
-// export async function getFileTypeFromCID (ipfs: API, cid: IPFSPath): Promise<FileTypeResult | undefined> {
-//     return await fromStream(toStream(ipfs.cat(cid, {
-//         length: 100 // or however many bytes you need
-//     })));
-// }
 
 export function isValidAddressPolkadotAddress(address: string): boolean {
     try {

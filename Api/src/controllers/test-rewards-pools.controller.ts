@@ -37,12 +37,12 @@ class TestRewardsPoolsController {
         'application/json': {
           schema: getModelSchemaRef(LpPools, {
             title: 'NewLpPoolsSchema',
-            exclude: ['id'],
+            exclude: ['_id'],
           }),
         },
       },
     })
-    lpPoolsSchema: Omit<LpPools, 'id'>,
+    lpPoolsSchema: Omit<LpPools, '_id'>,
   ): Promise<LpPools> {
     return this.lpPoolsSchemaRepository.create(lpPoolsSchema);
   }

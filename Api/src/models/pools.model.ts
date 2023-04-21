@@ -7,7 +7,7 @@ export class Pools extends Entity {
     id: true,
     generated: true,
   })
-  id?: string;
+  _id: string;
 
   @property({
     type: 'string',
@@ -68,6 +68,16 @@ export class Pools extends Entity {
     type: 'number',
   })
   apy?: number;
+
+  @property({
+    type: 'date',
+  })
+  createdTime?: Date;
+
+  @property({
+    type: 'date',
+  })
+  updatedTime?: Date;
 
 
   constructor(data?: Partial<Pools>) {

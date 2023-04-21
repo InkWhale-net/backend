@@ -7,7 +7,7 @@ export class NftPools extends Entity {
     id: true,
     generated: true,
   })
-  id?: string;
+  _id: string;
 
   @property({
     type: 'string',
@@ -73,6 +73,16 @@ export class NftPools extends Entity {
     type: 'number',
   })
   multiplier?: number;
+
+  @property({
+    type: 'date',
+  })
+  createdTime?: Date;
+
+  @property({
+    type: 'date',
+  })
+  updatedTime?: Date;
 
 
   constructor(data?: Partial<NftPools>) {

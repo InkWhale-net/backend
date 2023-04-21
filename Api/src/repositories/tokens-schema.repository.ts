@@ -5,7 +5,7 @@ import {Tokens, TokensSchemaRelations} from '../models';
 
 export class TokensSchemaRepository extends DefaultCrudRepository<
   Tokens,
-  typeof Tokens.prototype.id,
+  typeof Tokens.prototype._id,
   TokensSchemaRelations
 > {
   constructor(

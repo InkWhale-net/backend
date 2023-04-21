@@ -7,7 +7,7 @@ export class UpdateQueue extends Entity {
     id: true,
     generated: true,
   })
-  id?: string;
+  _id: string;
 
   // lp nft pool
   @property({
@@ -24,6 +24,16 @@ export class UpdateQueue extends Entity {
     type: 'number',
   })
   timeStamp?: number;
+
+  @property({
+    type: 'date',
+  })
+  createdTime?: Date;
+
+  @property({
+    type: 'date',
+  })
+  updatedTime?: Date;
 
 
   constructor(data?: Partial<UpdateQueue>) {

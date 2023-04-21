@@ -1,7 +1,6 @@
 import {ApplicationConfig, InkWhaleBeApplication} from './application';
 import { createBindingFromClass } from '@loopback/core';
 export * from './application';
-import fs from "fs";
 import dotenv from "dotenv";
 import {CronJobUpdatePools} from "./cronjob/PoolsJob";
 dotenv.config();
@@ -28,14 +27,7 @@ if (require.main === module) {
     rest: {
       port: +(process.env.PORT ?? 3007),
       host: process.env.HOST,
-      protocol: 'https',
-      // key: fs.readFileSync(`${process.env.SSL_KEY}`),
-      // cert: fs.readFileSync(`${process.env.SS`L_PEM}`),
-      // The `gracePeriodForClose` provides a graceful close for http/https
-      // servers with keep-alive clients. The default value is `Infinity`
-      // (don't force-close). If you want to immediately destroy all sockets
-      // upon stop, set its value to `0`.
-      // See https://www.npmjs.com/package/stoppable
+      protocol: 'http',
       requestBodyParser: {json: {limit: '1MB'}},
       gracePeriodForClose: 5000, // 5 seconds
       openApiSpec: {
@@ -47,7 +39,7 @@ if (require.main === module) {
         disabled: true,
       },
       cors: {
-        origin: '*',
+        origin: (process.env.CORS_ORIGIN) ? process.env.CORS_ORIGIN : '*',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
         optionsSuccessStatus: 204,
