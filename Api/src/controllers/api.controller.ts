@@ -106,7 +106,7 @@ export class ApiController {
     if (!offset) offset = 0;
 
     const tokens = await this.tokensSchemaRepository.find({
-      where: {contractAddress: { neq: undefined }},
+      where: {},
       order: [order],
       limit: limit,
       skip: offset
