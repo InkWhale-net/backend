@@ -40,6 +40,11 @@ export class Tokens extends Entity {
   mintTo?: string;
 
   @property({
+    type: 'string',
+  })
+  tokenIconUrl?: string;
+
+  @property({
     type: 'number',
   })
   totalSupply?: number;

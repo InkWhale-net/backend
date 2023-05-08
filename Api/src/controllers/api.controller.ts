@@ -32,6 +32,8 @@ import {
   RequestLpPoolsByOwnerBody,
   RequestPoolsBody,
   RequestUpdateBody,
+  ReqUpdateTokenIconBody,
+  ReqUpdateTokenIconType,
   ReqUpdateType,
   ResponseBody
 } from "../utils/Message";
@@ -104,7 +106,7 @@ export class ApiController {
     if (!offset) offset = 0;
 
     const tokens = await this.tokensSchemaRepository.find({
-      where: {},
+      where: {contractAddress: { neq: undefined }},
       order: [order],
       limit: limit,
       skip: offset
@@ -114,6 +116,42 @@ export class ApiController {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
       ret: tokens
+    };
+
+  }
+
+  @post('/updateTokenUrl')
+  async updateTokenUrl(
+      @requestBody(ReqUpdateTokenIconBody) req:ReqUpdateTokenIconType
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
+      };
+    }
+
+    const token = await this.tokensSchemaRepository.findOne({where: {contractAddress: req.contractAddress}})
+    if(token) {
+      try {
+        await this.tokensSchemaRepository.updateById(token._id, {
+          tokenIconUrl: req?.tokenIconUrl
+        });
+    } catch (e) {
+        console.log(`ERROR: ProcessTokens updateById - ${e.message}`);
+    }
+    } else {
+      try {
+        await this.tokensSchemaRepository.create({
+          tokenIconUrl: req?.tokenIconUrl
+        });
+    } catch (e) {
+        console.log(`ERROR: ProcessTokens create - ${e.message}`);
+    }
+    }
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
     };
 
   }

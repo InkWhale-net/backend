@@ -63,6 +63,32 @@ export const RequestGetTokensBody = {
     },
 };
 
+// UPDATE TOKEN ICON
+export type ReqUpdateTokenIconType = {
+    contractAddress?: string,
+    tokenIconUrl?: string,
+}
+const ReqUpdateTokenIconSchema: SchemaObject = {
+    type: 'object',
+    properties: {
+        contractAddress: {
+            type: 'string',
+        },
+        tokenIconUrl: {
+            type: 'string',
+        },
+       
+    },
+};
+export const ReqUpdateTokenIconBody = {
+    description: 'The input of getTokens function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqUpdateTokenIconSchema},
+        'application/x-www-form-urlencoded': {schema: ReqUpdateTokenIconSchema},
+    },
+};
+
 // GET LP POOLS
 export type ReqGetLpPoolsType = {
     limit?: number,
