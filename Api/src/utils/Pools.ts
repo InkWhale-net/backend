@@ -378,6 +378,7 @@ const ProcessTokens = async (
                 contractAddress,
             );
             let _owner = await owner(api, psp22_contract_calls, '');
+            let _mintTo = await mintTo(api, psp22_contract_calls, '');
             let _tokenName = await tokenName(api, '', psp22_contract_calls);
             let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
             let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
@@ -395,7 +396,7 @@ const ProcessTokens = async (
                         symbol: _tokenSymbol,
                         decimal: _tokenDecimal,
                         creator: _owner,
-                        mintTo: _owner,
+                        mintTo: _mintTo,
                         totalSupply: _tokenTotalSupply,
                         index: index
                     });
@@ -1098,6 +1099,36 @@ const owner = async (
     const value = 0;
     const {result, output} = await contract_to_call
         .query["ownable::owner"](
+            caller_account,
+        {
+            value: value,
+            gasLimit: gasLimit,
+        });
+    if (result.isOk && output) {
+        // @ts-ignore
+        const owner = output.toHuman()?.Ok;
+        console.log({owner: owner});
+        return owner;
+    }
+    return undefined;
+}
+
+const mintTo = async (
+    api: ApiPromise,
+    contract_to_call: ContractPromise,
+    caller_account: string
+): Promise<string | undefined> => {
+    if (!contract_to_call) {
+        console.log("invalid", contract_to_call);
+        return undefined;
+    }
+    if (!caller_account || caller_account?.length == 0) {
+        caller_account = `${process.env.CALLER_ACCOUNT}`;
+    }
+    const gasLimit = readOnlyGasLimit(api);
+    const value = 0;
+    const {result, output} = await contract_to_call
+        .query["mint_to"](
             caller_account,
         {
             value: value,
