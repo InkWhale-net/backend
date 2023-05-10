@@ -552,7 +552,7 @@ const checkNewTokens = async (
                     index: index
                 }
             });
-            if (!token) {
+            if (token) {
                 await ProcessTokens(api, token_generator_calls, index, tokensSchemaRepository);
             }
         }
@@ -1118,27 +1118,32 @@ const mintTo = async (
     contract_to_call: ContractPromise,
     caller_account: string
 ): Promise<string | undefined> => {
-    if (!contract_to_call) {
-        console.log("invalid", contract_to_call);
-        return undefined;
-    }
-    if (!caller_account || caller_account?.length == 0) {
-        caller_account = `${process.env.CALLER_ACCOUNT}`;
-    }
-    const gasLimit = readOnlyGasLimit(api);
-    const value = 0;
-    const {result, output} = await contract_to_call
-        .query["mint_to"](
+    try {
+        if (!contract_to_call) {
+            console.log("invalid", contract_to_call);
+            return undefined;
+        }
+        console.log(contract_to_call.address.toHuman());
+        if (!caller_account || caller_account?.length == 0) {
+            caller_account = `${process.env.CALLER_ACCOUNT}`;
+        }
+        const gasLimit = readOnlyGasLimit(api);
+        const value = 0;
+        const {result, output} = await contract_to_call
+            .query["mint_to"](
             caller_account,
-        {
-            value: value,
-            gasLimit: gasLimit,
-        });
-    if (result.isOk && output) {
-        // @ts-ignore
-        const owner = output.toHuman()?.Ok;
-        console.log({owner: owner});
-        return owner;
+            {
+                value: value,
+                gasLimit: gasLimit,
+            });
+        if (result.isOk && output) {
+            // @ts-ignore
+            const owner = output.toHuman()?.Ok;
+            console.log({owner: owner});
+            return owner;
+        }
+    } catch (e) {
+        console.log(`ERROR: ${e.messages}`);
     }
     return undefined;
 }
