@@ -151,7 +151,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 tokensRepo,
                                 poolsRepo,
                                 lpPoolsRepo
-                            ),1000);
+                            ),3000);
 
                             setInterval(() => checkAll(
                                 api,

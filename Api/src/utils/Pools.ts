@@ -371,14 +371,14 @@ const ProcessTokens = async (
             return;
         }
         if (contractAddress){
-            console.log(`Start get owner info ${contractAddress}`);
+            console.log(`Start get owner info ${contractAddress} for index ${index}`);
             const psp22_contract_calls = new ContractPromise(
                 api,
                 psp22_contract.CONTRACT_ABI,
                 contractAddress,
             );
             let _owner = await owner(api, psp22_contract_calls, '');
-            let _mintTo = await mintTo(api, psp22_contract_calls, '');
+            // let _mintTo = await mintTo(api, psp22_contract_calls, '');
             let _tokenName = await tokenName(api, '', psp22_contract_calls);
             let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
             let _tokenDecimal = await tokenDecimals(api, '', psp22_contract_calls);
@@ -396,9 +396,10 @@ const ProcessTokens = async (
                         symbol: _tokenSymbol,
                         decimal: _tokenDecimal,
                         creator: _owner,
-                        mintTo: _mintTo,
+                        mintTo: undefined,
                         totalSupply: _tokenTotalSupply,
-                        index: index
+                        index: index,
+                        updatedTime: new Date()
                     });
                 } catch (e) {
                     console.log(`ERROR: ProcessTokens updateById - ${e.message}`);
@@ -410,10 +411,12 @@ const ProcessTokens = async (
                         symbol: _tokenSymbol,
                         decimal: _tokenDecimal,
                         creator: _owner,
-                        mintTo: _owner,
+                        mintTo: undefined,
                         totalSupply: _tokenTotalSupply,
                         index: index,
-                        contractAddress: contractAddress
+                        contractAddress: contractAddress,
+                        createdTime: new Date(),
+                        updatedTime: new Date()
                     });
                 } catch (e) {
                     console.log(`ERROR: ProcessTokens create - ${e.message}`);
@@ -546,13 +549,14 @@ const checkNewTokens = async (
     try {
         is_running_tokens = true;
         let tokenCount = await getTokenCount(api, token_generator_calls, '');
+        console.log({tokenCount: tokenCount});
         for (let index = tokenCount; index > 0; index--) {
             let token = await tokensSchemaRepository.findOne({
                 where: {
                     index: index
                 }
             });
-            if (token) {
+            if (!token) {
                 await ProcessTokens(api, token_generator_calls, index, tokensSchemaRepository);
             }
         }
