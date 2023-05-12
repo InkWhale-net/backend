@@ -122,20 +122,20 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 token_generator_contract.CONTRACT_ADDRESS
                             );
 
-                            await checkAll(
-                                api,
-                                pool_generator_calls,
-                                pool_contract_calls,
-                                nft_pool_generator_calls,
-                                nft_pool_contract_calls,
-                                lp_pool_generator_calls,
-                                lp_pool_contract_calls,
-                                token_generator_calls,
-                                poolsRepo,
-                                nftPoolsRepo,
-                                lpPoolsRepo,
-                                tokensRepo
-                            );
+                            // await checkAll(
+                            //     api,
+                            //     pool_generator_calls,
+                            //     pool_contract_calls,
+                            //     nft_pool_generator_calls,
+                            //     nft_pool_contract_calls,
+                            //     lp_pool_generator_calls,
+                            //     lp_pool_contract_calls,
+                            //     token_generator_calls,
+                            //     poolsRepo,
+                            //     nftPoolsRepo,
+                            //     lpPoolsRepo,
+                            //     tokensRepo
+                            // );
 
                             setInterval(() => checkQueue(
                                 api,
@@ -153,20 +153,20 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                 lpPoolsRepo
                             ),3000);
 
-                            setInterval(() => checkAll(
-                                api,
-                                pool_generator_calls,
-                                pool_contract_calls,
-                                nft_pool_generator_calls,
-                                nft_pool_contract_calls,
-                                lp_pool_generator_calls,
-                                lp_pool_contract_calls,
-                                token_generator_calls,
-                                poolsRepo,
-                                nftPoolsRepo,
-                                lpPoolsRepo,
-                                tokensRepo
-                            ), 60 * 1000);
+                            // setInterval(() => checkAll(
+                            //     api,
+                            //     pool_generator_calls,
+                            //     pool_contract_calls,
+                            //     nft_pool_generator_calls,
+                            //     nft_pool_contract_calls,
+                            //     lp_pool_generator_calls,
+                            //     lp_pool_contract_calls,
+                            //     token_generator_calls,
+                            //     poolsRepo,
+                            //     nftPoolsRepo,
+                            //     lpPoolsRepo,
+                            //     tokensRepo
+                            // ), 60 * 1000);
 
                         });
                     }

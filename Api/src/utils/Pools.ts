@@ -387,7 +387,8 @@ const ProcessTokens = async (
             console.log(`Stop get owner info ${contractAddress}`);
             const currentToken = await tokensSchemaRepository.findOne({
                 where: {
-                    contractAddress: contractAddress
+                    contractAddress: contractAddress,
+                    tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS
                 }
             });
             if (currentToken) {
@@ -416,6 +417,7 @@ const ProcessTokens = async (
                         totalSupply: _tokenTotalSupply,
                         index: index,
                         contractAddress: contractAddress,
+                        tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
                         createdTime: new Date(),
                         updatedTime: new Date()
                     });
@@ -560,6 +562,8 @@ const checkNewTokens = async (
             });
             if (!token) {
                 await ProcessTokens(api, token_generator_calls, index, tokensSchemaRepository);
+            } else {
+                console.log(`token_generator_contract: ${token_generator_contract.CONTRACT_ADDRESS} index: ${index} ready in DB`);
             }
         }
     } catch (e) {

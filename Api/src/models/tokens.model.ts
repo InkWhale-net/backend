@@ -32,6 +32,11 @@ export class Tokens extends Entity {
   @property({
     type: 'string',
   })
+  tokenGeneratorContractAddress?: string;
+
+  @property({
+    type: 'string',
+  })
   creator?: string;
 
   @property({

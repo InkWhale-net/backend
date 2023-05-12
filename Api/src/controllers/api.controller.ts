@@ -37,6 +37,7 @@ import {
   ReqUpdateType,
   ResponseBody
 } from "../utils/Message";
+import {token_generator_contract} from "../contracts/token_generator";
 
 export class ApiController {
   constructor(
@@ -106,7 +107,9 @@ export class ApiController {
     if (!offset) offset = 0;
 
     const tokens = await this.tokensSchemaRepository.find({
-      where: {},
+      where: {
+        tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS
+      },
       order: [order],
       limit: limit,
       skip: offset
