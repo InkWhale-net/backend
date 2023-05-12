@@ -13,6 +13,7 @@ import {psp22_contract} from "../contracts/psp22";
 import dotenv from "dotenv";
 import {nft_pool_contract} from "../contracts/nft_pool";
 import {pool_contract} from "../contracts/pool";
+import {token_generator_contract} from "../contracts/token_generator";
 dotenv.config();
 
 let is_running = false;
@@ -553,7 +554,8 @@ const checkNewTokens = async (
         for (let index = tokenCount; index > 0; index--) {
             let token = await tokensSchemaRepository.findOne({
                 where: {
-                    index: index
+                    index: index,
+                    contractAddress: token_generator_contract.CONTRACT_ADDRESS
                 }
             });
             if (!token) {
