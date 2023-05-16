@@ -1,8 +1,8 @@
 export const pool_contract = {
-  CONTRACT_ADDRESS: "5Hm3Gmksv4aGuWtckgHxZFjJXoDRwUTo2H1quMiJn3A46yWM",
+  CONTRACT_ADDRESS: "5CrKNdvAaGdkVBtr6vX9QJxXfAQL4XT1Uw2MZkMa38DW94Sc",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0x8a9fcb2aa39ca45c5457eadf688ea0ae81ac3174230b05e198792632c67ad9da",
+		"hash": "0xd15f8bd61307b0c1550a11f4c90c92f33817d0a6d6be0027cd839693d40963ef",
 		"language": "ink! 4.1.0",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {

@@ -1,8 +1,8 @@
 export const nft_pool_contract = {
-  CONTRACT_ADDRESS: "5CtvumpQ3E3CKZnJ6qbjcf6fb8kWdLY8X128N1rtwD7mDQu6",
+  CONTRACT_ADDRESS: "5Gp7NPz2167S54biqWr9Z5bEHy1rURAqSGZ4EE9zUT36M2bd",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0xb11c611299a98175b4c71a6abdbed80f1cdd7654522b6635a37569c2b0c688c2",
+		"hash": "0xe8cced444b8f27fc0ef849d205ba34fb169623a360f642cc3d92bea69cc4291f",
 		"language": "ink! 4.1.0",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {

@@ -1,8 +1,8 @@
 export const psp22_contract = {
-  CONTRACT_ADDRESS: "5H7tcjoLA1K1MqUhxtCHuKZUS5T8PFT3pKCwxRWfbjGcaucW",
+  CONTRACT_ADDRESS: "5GWe1NDUko5QQiHfyF3x31NjxPP8UsUP5kc7a5r4F4XK3xYa",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0xeb050f30db24f3b3516e32b6b8c85af1d3b0ef618fb22bf89660c8318270e4e2",
+		"hash": "0xa6295895c51c249b8f6dd0bdc952c2dae0d2a0e971bc802397bbf022ffc241f7",
 		"language": "ink! 4.1.0",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {

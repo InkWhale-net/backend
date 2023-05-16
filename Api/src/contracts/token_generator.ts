@@ -1,8 +1,8 @@
 export const token_generator_contract = {
-  CONTRACT_ADDRESS: "5ExAxzS6dxTo6E41ZrnfiYjEXerX2oEfRWnjsbK8BQzZkRmv",
+  CONTRACT_ADDRESS: "5CziXvnbXHwa1zpm7BemypEdqKEsgFp6vZiEokTxJ7hMr6Py",
   CONTRACT_ABI: {
 	  "source": {
-		"hash": "0x8104074e93b39a87b42140373643b676eb9e486348ea4e6e623eefcbd47897e0",
+		"hash": "0x86ffd7ead0dd90ccdb204ffdaf984f633ce8b0cf3c827e5e26e27851ce2d0928",
 		"language": "ink! 4.1.0",
 		"compiler": "rustc 1.70.0-nightly",
 		"build_info": {
