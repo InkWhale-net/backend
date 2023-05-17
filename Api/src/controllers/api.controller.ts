@@ -146,7 +146,8 @@ export class ApiController {
     } else {
       try {
         await this.tokensSchemaRepository.create({
-          tokenIconUrl: req?.tokenIconUrl
+          tokenIconUrl: req?.tokenIconUrl,
+          contractAddress: req.contractAddress
         });
     } catch (e) {
         console.log(`ERROR: ProcessTokens create - ${e.message}`);
