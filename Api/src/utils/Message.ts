@@ -67,6 +67,7 @@ export const RequestGetTokensBody = {
 export type ReqUpdateTokenIconType = {
     contractAddress?: string,
     tokenIconUrl?: string,
+    tokenGeneratorContractAddress?: string
 }
 const ReqUpdateTokenIconSchema: SchemaObject = {
     type: 'object',
@@ -77,7 +78,9 @@ const ReqUpdateTokenIconSchema: SchemaObject = {
         tokenIconUrl: {
             type: 'string',
         },
-       
+        tokenGeneratorContractAddress: {
+            type: 'string',
+        },
     },
 };
 export const ReqUpdateTokenIconBody = {
