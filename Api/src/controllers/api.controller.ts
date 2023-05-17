@@ -38,6 +38,9 @@ import {
   ResponseBody
 } from "../utils/Message";
 import {token_generator_contract} from "../contracts/token_generator";
+import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
+import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
+import {pool_generator_contract} from "../contracts/pool_generator";
 
 export class ApiController {
   constructor(
@@ -181,6 +184,7 @@ export class ApiController {
     if (showZeroPool == "false") {
       pools = await this.lpPoolsSchemaRepository.find({
         where: {
+          lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
             gt: 0
           }
@@ -191,7 +195,9 @@ export class ApiController {
       });
     } else {
       pools = await this.lpPoolsSchemaRepository.find({
-        where: {},
+        where: {
+          lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS,
+        },
         order: [order],
         limit: limit,
         skip: offset
@@ -284,6 +290,7 @@ export class ApiController {
     if (showZeroPool == "false") {
       pools = await this.poolsSchemaRepository.find({
         where: {
+          poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
             gt: 0
           }
@@ -294,7 +301,9 @@ export class ApiController {
       });
     } else {
       pools = await this.poolsSchemaRepository.find({
-        where: {},
+        where: {
+          poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS,
+        },
         order: [order],
         limit: limit,
         skip: offset
@@ -387,6 +396,7 @@ export class ApiController {
     if (showZeroPool == "false") {
       pools = await this.nftPoolsSchemaRepository.find({
         where: {
+          nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
             gt: 0
           }
@@ -398,7 +408,9 @@ export class ApiController {
     }
     else {
       pools = await this.nftPoolsSchemaRepository.find({
-        where: {},
+        where: {
+          nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS,
+        },
         order: [order],
         limit: limit,
         skip: offset

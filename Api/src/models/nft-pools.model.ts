@@ -32,6 +32,11 @@ export class NftPools extends Entity {
   @property({
     type: 'string',
   })
+  nftPoolGeneratorContractAddress?: string;
+
+  @property({
+    type: 'string',
+  })
   tokenName?: string;
 
   @property({

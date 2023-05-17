@@ -27,6 +27,11 @@ export class LpPools extends Entity {
   @property({
     type: 'string',
   })
+  lpPoolGeneratorContractAddress?: string;
+
+  @property({
+    type: 'string',
+  })
   lptokenName?: string;
 
   @property({

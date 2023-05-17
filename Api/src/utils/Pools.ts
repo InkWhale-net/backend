@@ -14,6 +14,9 @@ import dotenv from "dotenv";
 import {nft_pool_contract} from "../contracts/nft_pool";
 import {pool_contract} from "../contracts/pool";
 import {token_generator_contract} from "../contracts/token_generator";
+import {pool_generator_contract} from "../contracts/pool_generator";
+import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
+import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
 dotenv.config();
 
 let is_running = false;
@@ -120,6 +123,7 @@ const ProcessNFT = async (
         if (collection) {
             try {
                 await nftPoolsSchemaRepository.updateById(collection._id, {
+                    poolContract: poolContract,
                     NFTtokenContract: _NFTtokenContract,
                     tokenContract: _tokenContract,
                     tokenName: _tokenName,
@@ -132,7 +136,8 @@ const ProcessNFT = async (
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
-                    owner: _owner
+                    owner: _owner,
+                    nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
                 });
             } catch (e) {
                 console.log(`ERROR: ProcessNFT updateById - ${e.message}`);
@@ -140,7 +145,8 @@ const ProcessNFT = async (
         } else {
             try {
                 await nftPoolsSchemaRepository.create({
-                    poolContract,
+                    poolContract: poolContract,
+                    NFTtokenContract: _NFTtokenContract,
                     tokenContract: _tokenContract,
                     tokenName: _tokenName,
                     tokenSymbol: _tokenSymbol,
@@ -152,6 +158,8 @@ const ProcessNFT = async (
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
+                    owner: _owner,
+                    nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
                 });
             } catch (e) {
                 console.log(`ERROR: ProcessNFT create - ${e.message}`);
@@ -214,7 +222,8 @@ const ProcessPool = async (
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
                         apy: _apy,
-                        owner: _owner
+                        owner: _owner,
+                        poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
                     });
                 } catch (e) {
                     console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -235,7 +244,8 @@ const ProcessPool = async (
                             totalStaked: _totalStaked ? _totalStaked : 0,
                             maxStakingAmount: _maxStaking ? _maxStaking : 0,
                             apy: _apy,
-                            owner: _owner
+                            owner: _owner,
+                            poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
                         }
                     );
                     console.log({create_collection: create_collection});
@@ -317,7 +327,8 @@ const ProcessLP = async (
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
-                    owner: _owner
+                    owner: _owner,
+                    lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
                 });
             } catch (e) {
                 console.log(`ERROR: ProcessLP updateById - ${e.message}`);
@@ -342,7 +353,8 @@ const ProcessLP = async (
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
                         multiplier: _multiplier,
-                        owner: _owner
+                        owner: _owner,
+                        lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
                     }
                 );
                 console.log({create_collection: create_collection});

@@ -3,6 +3,8 @@ import {decodeAddress, encodeAddress} from "@polkadot/keyring";
 import {ApiPromise} from "@polkadot/api";
 import {WeightV2} from "@polkadot/types/interfaces";
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 const MAX_CALL_WEIGHT = new BN(5_000_000_000_000).isub(BN_ONE);
@@ -70,4 +72,20 @@ export function readOnlyGasLimit(api: ApiPromise):WeightV2 {
         refTime: new BN(1_000_000_000_000),
         proofSize: MAX_CALL_WEIGHT,
     });
+}
+
+export function isAzEnabled(azDomainAddress?: string): boolean {
+    try {
+        if (!azDomainAddress) {
+            return false;
+        }
+        let azeroDomainConfig = process.env.AZERO_DOMAIN_LIST;
+        if (azeroDomainConfig) {
+            const tmp = azeroDomainConfig.split(',');
+            return (tmp.indexOf(azDomainAddress) > -1);
+        }
+    } catch (e) {
+        console.log(`ERROR - isAzEnabled: ${e.messages}`);
+    }
+    return false;
 }

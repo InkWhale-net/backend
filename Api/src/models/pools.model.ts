@@ -75,6 +75,11 @@ export class Pools extends Entity {
   maxStakingAmount?: number;
 
   @property({
+    type: 'string',
+  })
+  poolGeneratorContractAddress?: string;
+
+  @property({
     type: 'date',
   })
   createdTime?: Date;
