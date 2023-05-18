@@ -17,6 +17,7 @@ import {token_generator_contract} from "../contracts/token_generator";
 import {pool_generator_contract} from "../contracts/pool_generator";
 import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
+import {convertToUTCTime} from "./Tools";
 dotenv.config();
 
 let is_running = false;
@@ -50,21 +51,37 @@ export const checkQueue = async (
             let requestType = queue_data[j].requestType;
             console.log("processing queue for ", requestType, poolContract);
             if (poolContract == "new") {
-                if (requestType == "nft")
+                if (requestType == "nft") {
+                    console.log(`Start checkNewNFTPools at ${convertToUTCTime(new Date())}`);
                     await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
-                else if (requestType == "lp")
+                    console.log(`Stop checkNewNFTPools at ${convertToUTCTime(new Date())}`);
+                } else if (requestType == "lp") {
+                    console.log(`Start checkNewLPPools at ${convertToUTCTime(new Date())}`);
                     await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
-                else if (requestType == "pool")
+                    console.log(`Stop checkNewLPPools at ${convertToUTCTime(new Date())}`);
+                } else if (requestType == "pool") {
+                    console.log(`Start checkNewPools at ${convertToUTCTime(new Date())}`);
                     await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
-                else if (requestType == "token")
+                    console.log(`Stop checkNewPools at ${convertToUTCTime(new Date())}`);
+                } else if (requestType == "token") {
+                    console.log(`Start checkNewTokens at ${convertToUTCTime(new Date())}`);
                     await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
+                    console.log(`Stop checkNewTokens at ${convertToUTCTime(new Date())}`);
+                }
             } else {
-                if (requestType == "nft")
+                if (requestType == "nft") {
+                    console.log(`Start ProcessNFT at ${convertToUTCTime(new Date())}`);
                     await ProcessNFT(poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
-                else if (requestType == "lp")
+                    console.log(`Stop ProcessNFT at ${convertToUTCTime(new Date())}`);
+                } else if (requestType == "lp") {
+                    console.log(`Start ProcessLP at ${convertToUTCTime(new Date())}`);
                     await ProcessLP(poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
-                else if (requestType == "pool")
+                    console.log(`Stop ProcessLP at ${convertToUTCTime(new Date())}`);
+                } else if (requestType == "pool") {
+                    console.log(`Start ProcessPool at ${convertToUTCTime(new Date())}`);
                     await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
+                    console.log(`Stop ProcessPool at ${convertToUTCTime(new Date())}`);
+                }
             }
             try {
                 await updateQueueSchemaRepository.deleteAll({
@@ -599,10 +616,15 @@ export const checkAll = async (
     lpPoolsSchemaRepository: LpPoolsSchemaRepository,
     tokensSchemaRepository: TokensSchemaRepository
 ) => {
+    console.log(`Start checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
     await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
+    console.log(`Stop checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
+    console.log(`Start checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
     await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
-    // await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
+    console.log(`Stop checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
+    console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
     await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
+    console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
 }
 
 
