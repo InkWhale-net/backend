@@ -50,45 +50,48 @@ export const checkQueue = async (
             let poolContract: string = queue_data[j].poolContract!;
             let requestType = queue_data[j].requestType;
             console.log("processing queue for ", requestType, poolContract);
+            let isRemoved = false;
             if (poolContract == "new") {
                 if (requestType == "nft") {
                     console.log(`Start checkNewNFTPools at ${convertToUTCTime(new Date())}`);
-                    await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
+                    isRemoved = await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
                     console.log(`Stop checkNewNFTPools at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "lp") {
                     console.log(`Start checkNewLPPools at ${convertToUTCTime(new Date())}`);
-                    await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
+                    isRemoved = await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
                     console.log(`Stop checkNewLPPools at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "pool") {
                     console.log(`Start checkNewPools at ${convertToUTCTime(new Date())}`);
-                    await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
+                    isRemoved = await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
                     console.log(`Stop checkNewPools at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "token") {
                     console.log(`Start checkNewTokens at ${convertToUTCTime(new Date())}`);
-                    await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
+                    isRemoved = await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
                     console.log(`Stop checkNewTokens at ${convertToUTCTime(new Date())}`);
                 }
             } else {
                 if (requestType == "nft") {
                     console.log(`Start ProcessNFT at ${convertToUTCTime(new Date())}`);
-                    await ProcessNFT(poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
+                    isRemoved = await ProcessNFT(poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
                     console.log(`Stop ProcessNFT at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "lp") {
                     console.log(`Start ProcessLP at ${convertToUTCTime(new Date())}`);
-                    await ProcessLP(poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
+                    isRemoved = await ProcessLP(poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
                     console.log(`Stop ProcessLP at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "pool") {
                     console.log(`Start ProcessPool at ${convertToUTCTime(new Date())}`);
-                    await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
+                    isRemoved = await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
                     console.log(`Stop ProcessPool at ${convertToUTCTime(new Date())}`);
                 }
             }
-            try {
-                await updateQueueSchemaRepository.deleteAll({
-                    poolContract: poolContract
-                });
-            } catch (e) {
-                console.log(`ERROR: checkQueue deleteAll - ${e.message}`);
+            if (isRemoved) {
+                try {
+                    await updateQueueSchemaRepository.deleteAll({
+                        poolContract: poolContract
+                    });
+                } catch (e) {
+                    console.log(`ERROR: checkQueue deleteAll - ${e.message}`);
+                }
             }
         }
         is_check_queue = false;
@@ -103,7 +106,7 @@ const ProcessNFT = async (
     api: ApiPromise,
     nft_pool_contract_calls: ContractPromise,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository
-): Promise<void> => {
+): Promise<boolean> => {
     try {
         nft_pool_contract_calls = new ContractPromise(
             api,
@@ -121,7 +124,7 @@ const ProcessNFT = async (
         let _owner = await owner(api, nft_pool_contract_calls, '');
         if (!_tokenContract || !_NFTtokenContract) {
             console.log(`WARNING: Can not get _tokenContract: ${_tokenContract} or _NFTtokenContract: ${_NFTtokenContract}`);
-            return;
+            return false;
         }
         let psp22_contract_calls = new ContractPromise(
             api,
@@ -158,6 +161,7 @@ const ProcessNFT = async (
                 });
             } catch (e) {
                 console.log(`ERROR: ProcessNFT updateById - ${e.message}`);
+                return false;
             }
         } else {
             try {
@@ -180,18 +184,21 @@ const ProcessNFT = async (
                 });
             } catch (e) {
                 console.log(`ERROR: ProcessNFT create - ${e.message}`);
+                return false;
             }
         }
     } catch (e) {
         console.log(`ERROR: ProcessNFT - ${e.message}`);
+        return false;
     }
+    return true;
 }
 const ProcessPool = async (
     poolContractAddress: string,
     api: ApiPromise,
     pool_contract_calls: ContractPromise,
     poolsSchemaRepository : PoolsSchemaRepository,
-): Promise<void> => {
+): Promise<boolean> => {
     try {
         pool_contract_calls = new ContractPromise(
             api,
@@ -208,7 +215,7 @@ const ProcessPool = async (
         let _owner = await owner(api, pool_contract_calls, '');
         if (!_tokenContract) {
             console.log(`WARNING: Can not get _tokenContract: ${_tokenContract}`);
-            return;
+            return false;
         }
         let psp22_contract_calls = new ContractPromise(
             api,
@@ -244,6 +251,7 @@ const ProcessPool = async (
                     });
                 } catch (e) {
                     console.log(`ERROR: ProcessPool updateById - ${e.message}`);
+                    return false;
                 }
             } else {
                 try {
@@ -268,21 +276,25 @@ const ProcessPool = async (
                     console.log({create_collection: create_collection});
                 } catch (e) {
                     console.log(`ERROR: ProcessPool create - ${e.message}`);
+                    return false;
                 }
             }
         } catch (e){
             console.log(`ERROR: ProcessPool - ${e.message}`);
+            return false;
         }
     } catch (e) {
         console.log(`ERROR: ProcessPool - ${e.message}`);
+        return false;
     }
+    return true;
 }
 const ProcessLP = async (
     poolContract: string,
     api: ApiPromise,
     lp_pool_contract_calls: ContractPromise,
     lpPoolsSchemaRepository : LpPoolsSchemaRepository,
-): Promise<void> => {
+): Promise<boolean> => {
     try {
         lp_pool_contract_calls = new ContractPromise(
             api,
@@ -300,7 +312,7 @@ const ProcessLP = async (
         let _owner = await owner(api, lp_pool_contract_calls, '');
         if (!_tokenContract || !_lptokenContract) {
             console.log(`WARNING: Can not get _tokenContract: ${_tokenContract} or _lptokenContract: ${_lptokenContract}`);
-            return;
+            return false;
         }
         let psp22_contract_calls = new ContractPromise(
             api,
@@ -349,6 +361,7 @@ const ProcessLP = async (
                 });
             } catch (e) {
                 console.log(`ERROR: ProcessLP updateById - ${e.message}`);
+                return false;
             }
         } else {
             try {
@@ -377,11 +390,14 @@ const ProcessLP = async (
                 console.log({create_collection: create_collection});
             } catch (e) {
                 console.log(`ERROR: ProcessLP updateById - ${e.message}`);
+                return false;
             }
         }
     } catch (e) {
         console.log(`ERROR: ProcessLP - ${e.message}`);
+        return false;
     }
+    return true;
 }
 const ProcessTokens = async (
     api: ApiPromise,
@@ -465,10 +481,10 @@ const checkNewNFTPools = async (
     nft_pool_generator_calls: ContractPromise,
     nft_pool_contract_calls: ContractPromise,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository
-): Promise<void> => {
+): Promise<boolean> => {
     if (is_running_nft) {
         console.log("checkNewNFTPools is running. Do nothing.");
-        return;
+        return false;
     }
     try {
         is_running_nft = true;
@@ -493,7 +509,9 @@ const checkNewNFTPools = async (
     } catch (e) {
         is_running_nft = false;
         console.log(e.message);
+        return false;
     }
+    return true;
 }
 
 const checkNewPools = async (
@@ -501,10 +519,10 @@ const checkNewPools = async (
     pool_generator_calls: ContractPromise,
     pool_contract_calls: ContractPromise,
     poolsSchemaRepository: PoolsSchemaRepository
-): Promise<void> => {
+): Promise<boolean> => {
     if (is_running) {
         console.log("checkNewPools is running. Do nothing.");
-        return;
+        return false;
     }
     try {
         is_running = true;
@@ -529,7 +547,9 @@ const checkNewPools = async (
     } catch (e) {
         is_running = false;
         console.log(`ERROR: checkNewPools - ${e.message}`);
+        return false;
     }
+    return true;
 }
 
 const checkNewLPPools = async (
@@ -537,10 +557,10 @@ const checkNewLPPools = async (
     lp_pool_generator_calls: ContractPromise,
     lp_pool_contract_calls: ContractPromise,
     lpPoolsSchemaRepository: LpPoolsSchemaRepository
-): Promise<void> => {
+): Promise<boolean> => {
     if (is_running_lp) {
         console.log("checkNewLPPools is running. Do nothing.");
-        return;
+        return false;
     }
     try {
         is_running_lp = true;
@@ -566,17 +586,19 @@ const checkNewLPPools = async (
     } catch (e) {
         is_running_lp = false;
         console.log(`ERROR: checkNewLPPools - ${e.message}`);
+        return false;
     }
+    return true;
 }
 
 const checkNewTokens = async (
     api: ApiPromise,
     tokensSchemaRepository : TokensSchemaRepository,
     token_generator_calls: ContractPromise
-): Promise<void> => {
+): Promise<boolean> => {
     if (is_running_tokens) {
         console.log("checkNewTokens is running. Do nothing.");
-        return;
+        return false;
     }
     try {
         is_running_tokens = true;
@@ -598,8 +620,10 @@ const checkNewTokens = async (
     } catch (e) {
         is_running_tokens = false;
         console.log(`ERROR: checkNewTokens - ${e.message}`);
+        return false;
     }
     is_running_tokens = false;
+    return true;
 }
 
 export const checkAll = async (
