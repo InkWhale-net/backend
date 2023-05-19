@@ -23,10 +23,12 @@ export const EACH_30_SECONDS = '*/30 * * * * *';                // Every 30 seco
 
 export const CRONJOB_TIME = {
     INW_POOL: process.env.CRONJOB_TIME_INW_POOL ?? EACH_15_SECONDS,
+    INW_POOL_SCAN_ALL: process.env.CRONJOB_TIME_INW_POOL_SCAN_ALL ?? EACH_5_MINUTES,
 };
 
 export const CRONJOB_ENABLE = {
     INW_POOL: (process.env.IS_ENABLE_JOB_INW_POOL == "true"),
+    INW_POOL_SCAN_ALL: (process.env.IS_ENABLE_JOB_INW_POOL_SCAN_ALL == "true"),
 };
 
 export const IS_ENABLE_DOCS = (process.env.IS_ENABLE_DOCS == "true"); // set FALSE for disabling api explorer
@@ -69,4 +71,5 @@ export const MESSAGE = {
 
 export const CONFIG_TYPE_NAME = {
     INW_POOL: "CronJobUpdatePools",
+    INW_POOL_SCAN_ALL: "CronJobUpdateAllPools"
 };

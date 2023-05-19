@@ -3,7 +3,13 @@ import { createBindingFromClass } from '@loopback/core';
 export * from './application';
 import dotenv from "dotenv";
 import {CronJobUpdatePools} from "./cronjob/PoolsJob";
+import {CronJobUpdateAllPools} from "./cronjob/ScanAllJob";
+import {ApiPromise, WsProvider} from "@polkadot/api";
+import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
+import {global_vars, SOCKET_STATUS} from "./cronjob/global";
 dotenv.config();
+
+export let globalApi: ApiPromise;
 
 export async function main(options: ApplicationConfig = {}) {
   const app = new InkWhaleBeApplication(options);
@@ -11,12 +17,52 @@ export async function main(options: ApplicationConfig = {}) {
   app.add(cronJobPool);
   app.configure(cronJobPool.key);
 
+  const cronJobUpdateAllPools = createBindingFromClass(CronJobUpdateAllPools);
+  app.add(cronJobUpdateAllPools);
+  app.configure(cronJobUpdateAllPools.key);
+
   await app.boot();
   await app.start();
 
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);
+
+  try {
+    const provider = new WsProvider(process.env.PROVIDER);
+    globalApi = new ApiPromise({
+      provider,
+      rpc: jsonrpc,
+      types: {
+        ContractsPsp34Id: {
+          _enum: {
+            U8: "u8",
+            U16: "u16",
+            U32: "u32",
+            U64: "u64",
+            U128: "u128",
+            Bytes: "Vec<u8>",
+          },
+        },
+      },
+    });
+    globalApi.on("connected", () => {
+      globalApi.isReady.then((api) => {
+        console.log(`Global RPC Connected: ${process.env.PROVIDER}`);
+        global_vars.socketStatus = SOCKET_STATUS.CONNECTED;
+      });
+    });
+    globalApi.on("ready", async () => {
+      console.log("Global RPC Ready");
+      global_vars.socketStatus = SOCKET_STATUS.READY;
+    });
+    globalApi.on("error", (err) => {
+      console.log('error', err );
+      global_vars.socketStatus = SOCKET_STATUS.ERROR;
+    });
+  } catch (e) {
+    console.log(`API GLOBAL - ERROR: ${e.message}`);
+  }
 
   return app;
 }

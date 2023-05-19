@@ -17,19 +17,18 @@ import {
     TokensSchemaRepository,
     UpdateQueueSchemaRepository
 } from "../repositories";
-import {checkAll, checkQueue} from "../utils/Pools";
+import {checkAll} from "../utils/Pools";
 import { pool_contract } from "../contracts/pool";
 import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
 import { lp_pool_contract } from "../contracts/lp_pool";
 import { nft_pool_generator_contract } from "../contracts/nft_pool_generator";
 import { nft_pool_contract } from "../contracts/nft_pool";
-import { psp22_contract } from "../contracts/psp22";
 import { token_generator_contract } from "../contracts/token_generator";
 import {global_vars, SOCKET_STATUS} from "./global";
 import {globalApi} from "../index";
 
 @cronJob()
-export class CronJobUpdatePools implements Provider<CronJob> {
+export class CronJobUpdateAllPools implements Provider<CronJob> {
     constructor(
         @repository(PoolsSchemaRepository)
         public poolsSchemaRepository : PoolsSchemaRepository,
@@ -51,16 +50,15 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                 try {
                     if (CRONJOB_ENABLE.INW_POOL) {
                         const currentTime = convertToUTCTime(new Date());
-                        console.log("RUN JOB CronJobUpdatePools NOW: " + currentTime);
+                        console.log("RUN JOB CronJobUpdateAllPools NOW: " + currentTime);
 
-                        const updateQueueRepo = this.updateQueueSchemaRepository;
                         const poolsRepo = this.poolsSchemaRepository;
                         const lpPoolsRepo = this.lpPoolsSchemaRepository;
                         const tokensRepo = this.tokensSchemaRepository;
                         const nftPoolsRepo = this.nftPoolsSchemaRepository;
 
                         if (!(global_vars.socketStatus == SOCKET_STATUS.CONNECTED && globalApi)) return;
-                        console.log(`${CONFIG_TYPE_NAME.INW_POOL} - InkWhale CronJobUpdatePools is active!`);
+                        console.log(`${CONFIG_TYPE_NAME.INW_POOL} - InkWhale CronJobUpdateAllPools is active!`);
 
                         const pool_generator_calls = new ContractPromise(
                             globalApi,
@@ -98,24 +96,23 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                             token_generator_contract.CONTRACT_ADDRESS
                         );
 
-                        await checkQueue(
+                        await checkAll(
                             globalApi,
                             pool_generator_calls,
-                            nft_pool_generator_calls,
-                            lp_pool_generator_calls,
-                            token_generator_calls,
-                            nft_pool_contract_calls,
-                            lp_pool_contract_calls,
                             pool_contract_calls,
-                            updateQueueRepo,
-                            nftPoolsRepo,
-                            tokensRepo,
+                            nft_pool_generator_calls,
+                            nft_pool_contract_calls,
+                            lp_pool_generator_calls,
+                            lp_pool_contract_calls,
+                            token_generator_calls,
                             poolsRepo,
-                            lpPoolsRepo
+                            nftPoolsRepo,
+                            lpPoolsRepo,
+                            tokensRepo
                         );
                     }
                 } catch (e) {
-                    console.log(`ERROR: CronJobUpdatePools - ${e.message}`);
+                    console.log(`ERROR: CronJobUpdateAllPools - ${e.message}`);
                 }
             },
             start: true,
