@@ -41,6 +41,7 @@ import {token_generator_contract} from "../contracts/token_generator";
 import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
 import {pool_generator_contract} from "../contracts/pool_generator";
+import {Tokens} from "../models";
 
 export class ApiController {
   constructor(
@@ -109,7 +110,7 @@ export class ApiController {
     if (!limit) limit = 100;
     if (!offset) offset = 0;
 
-    const tokens = await this.tokensSchemaRepository.find({
+    let tokens = await this.tokensSchemaRepository.find({
       where: {
         tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS
       },

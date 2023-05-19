@@ -1153,7 +1153,7 @@ const startTime = async (
     return 0;
 }
 
-const owner = async (
+export const owner = async (
     api: ApiPromise,
     contract_to_call: ContractPromise,
     caller_account: string
@@ -1251,7 +1251,7 @@ const balanceOf = async (
     }
     return 0;
 }
-const totalSupply = async (
+export const totalSupply = async (
     api: ApiPromise,
     caller_account: string,
     psp22_contract_calls: ContractPromise
@@ -1289,7 +1289,7 @@ const totalSupply = async (
     return 0;
 }
 
-const tokenName = async (
+export const tokenName = async (
     api: ApiPromise,
     caller_account: string,
     psp22_contract_calls: ContractPromise
@@ -1321,7 +1321,7 @@ const tokenName = async (
     return undefined;
 }
 
-const tokenSymbol = async (
+export const tokenSymbol = async (
     api: ApiPromise,
     caller_account: string,
     psp22_contract_calls: ContractPromise
@@ -1353,7 +1353,7 @@ const tokenSymbol = async (
     return undefined;
 }
 
-const tokenDecimals = async (
+export const tokenDecimals = async (
     api: ApiPromise,
     caller_account: string,
     psp22_contract_calls: ContractPromise

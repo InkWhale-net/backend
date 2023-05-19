@@ -17,7 +17,7 @@ import {
     TokensSchemaRepository,
     UpdateQueueSchemaRepository
 } from "../repositories";
-import {checkAll, checkQueue} from "../utils/Pools";
+import {checkAll, checkQueue, owner, tokenDecimals, tokenName, tokenSymbol, totalSupply} from "../utils/Pools";
 import { pool_contract } from "../contracts/pool";
 import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
 import { lp_pool_contract } from "../contracts/lp_pool";
@@ -97,6 +97,66 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                             token_generator_contract.CONTRACT_ABI,
                             token_generator_contract.CONTRACT_ADDRESS
                         );
+
+
+                        // TODO: Run at the first time after rebuilding new contract
+                        if ((process.env.IS_NEW_INW == "true")) {
+                            const inwToken = process.env.INW_ADDRESS;
+                            if (inwToken) {
+                                let psp22_contract_calls = new ContractPromise(
+                                    globalApi,
+                                    psp22_contract.CONTRACT_ABI,
+                                    inwToken
+                                );
+                                let _owner = await owner(globalApi, psp22_contract_calls, '');
+                                let _tokenName = await tokenName(globalApi, '', psp22_contract_calls);
+                                let _tokenSymbol = await tokenSymbol(globalApi, '', psp22_contract_calls);
+                                let _tokenDecimal = await tokenDecimals(globalApi, '', psp22_contract_calls);
+                                let _tokenTotalSupply = await totalSupply(globalApi, '', psp22_contract_calls);
+                                const currentToken = await tokensRepo.findOne({
+                                    where: {
+                                        contractAddress: inwToken,
+                                        tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS
+                                    }
+                                });
+                                if (currentToken) {
+                                    console.log(`updateById data for INW`);
+                                    try {
+                                        await tokensRepo.updateById(currentToken._id, {
+                                            name: _tokenName,
+                                            symbol: _tokenSymbol,
+                                            decimal: _tokenDecimal,
+                                            creator: _owner,
+                                            mintTo: undefined,
+                                            totalSupply: _tokenTotalSupply,
+                                            index: 0,
+                                            updatedTime: new Date()
+                                        });
+                                    } catch (e) {
+                                        console.log(`ERROR: ProcessTokens updateById - ${e.message}`);
+                                    }
+                                } else {
+                                    console.log(`create new data for INW`);
+                                    try {
+                                        await tokensRepo.create({
+                                            name: _tokenName,
+                                            symbol: _tokenSymbol,
+                                            decimal: _tokenDecimal,
+                                            creator: _owner,
+                                            mintTo: undefined,
+                                            totalSupply: _tokenTotalSupply,
+                                            index: 0,
+                                            contractAddress: inwToken,
+                                            tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
+                                            createdTime: new Date(),
+                                            updatedTime: new Date()
+                                        });
+                                    } catch (e) {
+                                        console.log(`ERROR: ProcessTokens create - ${e.message}`);
+                                    }
+                                }
+                            }
+                        }
 
                         await checkQueue(
                             globalApi,
