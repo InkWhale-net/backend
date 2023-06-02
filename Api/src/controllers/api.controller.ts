@@ -76,22 +76,29 @@ export class ApiController {
     }
     const queue = await this.updateQueueSchemaRepository.findOne({where: {poolContract: poolContract}});
     if (queue) {
+      await this.updateQueueSchemaRepository.updateById(queue._id, {
+        requestType: requestType,
+        poolContract: poolContract,
+        timeStamp: new Date().getTime()
+      });
       return {
-        status: STATUS.FAILED,
-        message: MESSAGE.NOT_FOUND_QUEUE
+        status: STATUS.OK,
+        ret: "updated",
+        message: STATUS.SUCCESS
+      };
+    } else {
+      const create_collection = await this.updateQueueSchemaRepository.create({
+        requestType: requestType,
+        poolContract: poolContract,
+        timeStamp: new Date().getTime()
+      });
+      return {
+        status: STATUS.OK,
+        ret: "added",
+        message: STATUS.SUCCESS,
+        data: create_collection
       };
     }
-    const create_collection = await this.updateQueueSchemaRepository.create({
-      requestType: requestType,
-      poolContract: poolContract,
-      timeStamp: new Date().getTime()
-    });
-    return {
-      status: STATUS.OK,
-      ret: "added",
-      message: STATUS.SUCCESS,
-      data: create_collection
-    };
   }
 
   @post('/getTokens')
