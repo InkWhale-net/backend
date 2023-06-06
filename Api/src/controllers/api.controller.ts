@@ -22,6 +22,8 @@ import {
   ReqGetPoolsByOwnerType,
   ReqGetPoolsType,
   ReqGetTokensType,
+  ReqImportToken,
+  ReqImportTokenBody,
   RequestGetLpPoolsBody,
   RequestGetNftPoolsBody,
   RequestGetNftPoolsByAddressBody, RequestGetNftPoolsByOwnerBody,
@@ -42,6 +44,10 @@ import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
 import {pool_generator_contract} from "../contracts/pool_generator";
 import {Tokens} from "../models";
+import { globalApi } from '..';
+import { psp22_contract } from '../contracts/psp22';
+import { isValidSignature, readOnlyGasLimit } from '../utils/utils';
+import { ContractPromise } from '@polkadot/api-contract';
 
 export class ApiController {
   constructor(
@@ -163,6 +169,98 @@ export class ApiController {
       message: STATUS.SUCCESS,
     };
 
+  }
+
+  @post('/importToken')
+  async importToken(
+    @requestBody(ReqImportTokenBody) req: ReqImportToken,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+    const token = await this.tokensSchemaRepository.findOne({
+      where: {contractAddress: req.tokenAddress},
+    });
+    if (token) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.DUPLICATED_TOKEN,
+      };
+    }
+    const contract_to_call = new ContractPromise(
+      globalApi,
+      psp22_contract.CONTRACT_ABI,
+      req.tokenAddress || '',
+    );
+
+    const gasLimit = readOnlyGasLimit(globalApi);
+    const queryResult: any = await contract_to_call.query['ownable::owner'](
+      process.env.CALLER_ACCOUNT ||
+        '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
+      {
+        value: 0,
+        gasLimit,
+      },
+    );
+    if (!queryResult?.result.isOk)
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.INVALID_TOKEN_OWNER,
+      };
+    const ownerAddress = queryResult.output.toHuman().Ok;
+    const signatureValidation = isValidSignature(
+      MESSAGE.SIGN_IMPORT_TOKEN,
+      req?.signature || '',
+      ownerAddress,
+    );
+    if (!signatureValidation)
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.INVALID_SIGNATURE,
+      };
+    const queryResult1: any = await contract_to_call.query['psp22Capped::cap'](
+      process.env.CALLER_ACCOUNT ||
+        '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
+      {value: 0, gasLimit},
+    );
+    const rawTotalSupply = queryResult1?.output?.toHuman()?.Ok;
+    const totalSupply = parseInt(rawTotalSupply.replace(',', ''))
+    if (!(totalSupply > 0)) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.INVALID_TOKEN_SUPPLY,
+      };
+    }
+
+    try {
+      await this.tokensSchemaRepository.create({
+        name: req?.name,
+        symbol: req?.symbol,
+        decimal: req?.decimal,
+        creator: ownerAddress,
+        mintTo: undefined,
+        totalSupply: totalSupply,
+        index: 0,
+        contractAddress: req.tokenAddress,
+        tokenGeneratorContractAddress: req?.tokenGeneratorContractAddress,
+        tokenIconUrl: req?.tokenIconUrl,
+        createdTime: new Date(),
+        updatedTime: new Date(),
+      });
+    } catch (e) {
+      console.log(`ERROR: ProcessTokens create - ${e.message}`);
+      return {
+        status: STATUS.FAILED,
+        message: `${MESSAGE.UNKNOW_ERROR} when ProcessTokens create`,
+      };
+    }
+    return {
+      status: STATUS.OK,
+      message: MESSAGE.IMPORT_TOKEN_SUCCESS,
+    };
   }
 
   @post('/getLPPools')

@@ -1,9 +1,11 @@
-import {BN, BN_ONE, hexToU8a, isHex} from "@polkadot/util";
+import {BN, BN_ONE, hexToU8a, isHex, u8aToHex} from "@polkadot/util";
 import {decodeAddress, encodeAddress} from "@polkadot/keyring";
 import {ApiPromise} from "@polkadot/api";
 import {WeightV2} from "@polkadot/types/interfaces";
 import axios from "axios";
 import dotenv from "dotenv";
+import {signatureVerify} from '@polkadot/util-crypto';
+
 dotenv.config();
 
 
@@ -89,3 +91,14 @@ export function isAzEnabled(azDomainAddress?: string): boolean {
     }
     return false;
 }
+
+export const isValidSignature = (
+    signedMessage: string,
+    signature: string,
+    address: string,
+  ) => {
+    const publicKey = decodeAddress(address);
+    const hexPublicKey = u8aToHex(publicKey);
+  
+    return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
+  };

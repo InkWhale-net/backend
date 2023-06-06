@@ -66,7 +66,14 @@ export const MESSAGE = {
     DUPLICATED_RECORD: "Duplicated Record",
     INPUT_ALREADY_EXIST: "Input already exist",
     JSON_NOT_EXIST: "JSON not exist",
-    SIGN: "Sign message to report"
+    SIGN: "Sign message to report",
+    DUPLICATED_TOKEN: "Token existed in system",
+    SIGN_IMPORT_TOKEN: "Sign message to import token",
+    INVALID_TOKEN_SUPPLY: "Invalid token supply",
+    INVALID_TOKEN_OWNER: "Invalid token owner",
+    INVALID_SIGNATURE: "Invalid token signature",
+    IMPORT_TOKEN_SUCCESS: "Import token success",
+    UNKNOW_ERROR: "Unknow error"
 }
 
 export const CONFIG_TYPE_NAME = {
