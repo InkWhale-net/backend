@@ -102,3 +102,6 @@ export const isValidSignature = (
   
     return signatureVerify(signedMessage, signature, hexPublicKey).isValid;
   };
+
+export const roundUp = (v: any, n = 4) =>
+  Math.ceil(v * Math.pow(10, n)) / Math.pow(10, n);

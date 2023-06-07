@@ -8,7 +8,13 @@ import {
   TokensSchemaRepository,
   UpdateQueueSchemaRepository,
 } from '../repositories';
-import {MESSAGE, STATUS} from '../utils/constant';
+import {
+  ADDRESSES_INW,
+  MESSAGE,
+  PRIVATE_SALE_CONTRACT_ADDRESS,
+  PUBLIC_SALE_CONTRACT_ADDRESS,
+  STATUS,
+} from '../utils/constant';
 import {
   ReqGetLpPoolsByAddressType,
   ReqGetLpPoolsByOwnerType,
@@ -45,7 +51,7 @@ import {pool_generator_contract} from '../contracts/pool_generator';
 import {Tokens} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
-import {isValidSignature, readOnlyGasLimit} from '../utils/utils';
+import {isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
 import {ContractPromise} from '@polkadot/api-contract';
 
 export class ApiController {
@@ -276,6 +282,111 @@ export class ApiController {
     return {
       status: STATUS.OK,
       message: MESSAGE.IMPORT_TOKEN_SUCCESS,
+    };
+  }
+
+  @post('/getINWTotalSupply')
+  async getINWTotalSupply(): Promise<ResponseBody> {
+    const contract_to_call = new ContractPromise(
+      globalApi,
+      psp22_contract.CONTRACT_ABI,
+      process.env.INW_ADDRESS ||
+        '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
+    );
+    const gasLimit = readOnlyGasLimit(globalApi);
+    const queryResult: any = await contract_to_call.query['psp22::totalSupply'](
+      process.env.CALLER_ACCOUNT ||
+        '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
+      {
+        value: 0,
+        gasLimit,
+      },
+    );
+    if (!queryResult?.result.isOk)
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.GET_INW_TOTAL_SUPPLY_FAIL,
+      };
+    const totalSupply = queryResult?.output?.toHuman()?.Ok;
+    return {
+      status: STATUS.OK,
+      message: MESSAGE.GET_INW_TOTAL_SUPPLY_SUCCESS,
+      ret: {
+        totalSupply,
+      },
+    };
+  }
+
+  @post('/getINWInCirculation')
+  async getINWInCirculation(): Promise<ResponseBody> {
+    const contract_to_call = new ContractPromise(
+      globalApi,
+      psp22_contract.CONTRACT_ABI,
+      process.env.INW_ADDRESS ||
+        '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
+    );
+    const gasLimit = readOnlyGasLimit(globalApi);
+    const queryResult: any = await contract_to_call.query['psp22::totalSupply'](
+      process.env.CALLER_ACCOUNT ||
+        '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
+      {
+        value: 0,
+        gasLimit,
+      },
+    );
+    if (!queryResult?.result.isOk)
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.GET_INW_TOTAL_SUPPLY_FAIL,
+      };
+    let inCirculation = 0
+    try {
+      const totalSupplyRaw = queryResult?.output?.toHuman()?.Ok;
+      const totalSupply: any =
+        totalSupplyRaw.replaceAll(',', '') / 10 ** 12 || 0;
+      const listContractAccount = [
+        ...Object.values(ADDRESSES_INW),
+        PUBLIC_SALE_CONTRACT_ADDRESS,
+        PRIVATE_SALE_CONTRACT_ADDRESS,
+      ];
+
+      let balanceQrs = await Promise.all(
+        listContractAccount.map(address => {
+          return contract_to_call.query['psp22::balanceOf'](
+            process.env.CALLER_ACCOUNT ||
+              '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
+            {
+              value: 0,
+              gasLimit,
+            },
+            address,
+          );
+        }),
+      );
+      const sumBalance = balanceQrs.reduce(
+        (accumulator, currentValue: any) =>
+          accumulator +
+          +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
+        0,
+      );
+      inCirculation = roundUp(totalSupply - sumBalance / 10 ** 12);
+    } catch (error) {
+      console.log(error)
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.GET_INW_IN_CIRCULATION_FAIL,
+        ret: {
+          inCirculation,
+        },
+      };
+    }
+
+    return {
+      status: STATUS.OK,
+      message: MESSAGE.GET_INW_IN_CIRCULATION_SUCCESS,
+      ret: {
+        inCirculation,
+      },
     };
   }
 
