@@ -73,10 +73,25 @@ export const MESSAGE = {
     INVALID_TOKEN_OWNER: "Invalid token owner",
     INVALID_SIGNATURE: "Invalid token signature",
     IMPORT_TOKEN_SUCCESS: "Import token success",
-    UNKNOW_ERROR: "Unknow error"
+    UNKNOW_ERROR: "Unknow error",
+    GET_INW_TOTAL_SUPPLY_FAIL: "Get INW total supply fail",
+    GET_INW_TOTAL_SUPPLY_SUCCESS: "Get INW total supply success",
+    GET_INW_IN_CIRCULATION_SUCCESS: 'Get INW In Circulation success',
+    GET_INW_IN_CIRCULATION_FAIL: 'Get INW In Circulation fail'
 }
 
 export const CONFIG_TYPE_NAME = {
     INW_POOL: "CronJobUpdatePools",
     INW_POOL_SCAN_ALL: "CronJobUpdateAllPools"
 };
+
+export const ADDRESSES_INW = {
+    INW_TREASURY: '5FKbmp1Fe6tBzUU8wvfgkiuvRTRb15rt6R4K7vkLaWG7AGFh',
+    INT_GROWTH: '5DJdkQWR22B9cqEijAx3ELaJHwwcxAEkVeDUpiVkB3LATAbz',
+    INW_REWARD_POOL: '5CZcZB1CqWLc1PKNScrd8RX38Y1Pe4Mv9BuzqVhrHcxzHDZe',
+    INW_TEAM: '5DtKc7qBE3fmGLHWGbqtYdvhBxkWpTfPfvGABsoqTVyesLsQ'
+}
+
+export const PUBLIC_SALE_CONTRACT_ADDRESS = "5DKkZW8zjxraKESYLuUDKkXhz4zJjyJXuYNc5GqMWEdJHrYZ"
+
+export const PRIVATE_SALE_CONTRACT_ADDRESS = "5CMsCud79ZmWZxjaUVzj2yoV7A297wXvE6AEJvYPG1kcxNQg"
