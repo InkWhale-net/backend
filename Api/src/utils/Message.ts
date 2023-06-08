@@ -69,6 +69,16 @@ export type ReqUpdateTokenIconType = {
     tokenIconUrl?: string,
     tokenGeneratorContractAddress?: string
 }
+export type ReqImportToken = {
+    tokenAddress?: string,
+    tokenIconUrl?: string,
+    tokenGeneratorContractAddress?: string,
+    name?: string,
+    symbol?: string,
+    decimal?: number,
+    creator?: string,
+    signature?: string,
+}
 const ReqUpdateTokenIconSchema: SchemaObject = {
     type: 'object',
     properties: {
@@ -83,12 +93,50 @@ const ReqUpdateTokenIconSchema: SchemaObject = {
         },
     },
 };
+const ReqImportTokenSchema: SchemaObject = {
+    type: 'object',
+    properties: {
+        tokenAddress: {
+            type: 'string',
+        },
+        tokenIconUrl: {
+            type: 'string',
+        },
+        tokenGeneratorContractAddress: {
+            type: 'string',
+        },
+        name: {
+            type: 'string',
+        },
+        symbol: {
+            type: 'string',
+        },
+        decimal: {
+            type: 'number',
+        },
+        creator: {
+            type: 'string',
+        },
+        signature: {
+            type: 'string',
+        },
+    },
+};
 export const ReqUpdateTokenIconBody = {
     description: 'The input of getTokens function',
     required: true,
     content: {
         'application/json': {schema: ReqUpdateTokenIconSchema},
         'application/x-www-form-urlencoded': {schema: ReqUpdateTokenIconSchema},
+    },
+};
+
+export const ReqImportTokenBody = {
+    description: 'The input of importToken function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqImportTokenSchema},
+        'application/x-www-form-urlencoded': {schema: ReqImportTokenSchema},
     },
 };
 
