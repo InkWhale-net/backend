@@ -128,7 +128,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                             decimal: _tokenDecimal,
                                             creator: _owner,
                                             mintTo: undefined,
-                                            totalSupply: _tokenTotalSupply,
+                                            totalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                                             index: 0,
                                             updatedTime: new Date()
                                         });
@@ -144,7 +144,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                                             decimal: _tokenDecimal,
                                             creator: _owner,
                                             mintTo: undefined,
-                                            totalSupply: _tokenTotalSupply,
+                                            totalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                                             index: 0,
                                             contractAddress: inwToken,
                                             tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
