@@ -1,22 +1,26 @@
 import {inject} from '@loopback/core';
-import {
-  Request,
-  RestBindings,
-  post,
-  requestBody,
-} from '@loopback/rest';
+import {post, Request, requestBody, RestBindings,} from '@loopback/rest';
 import {repository} from "@loopback/repository";
 import {
-  LpPoolsSchemaRepository, NftPoolsSchemaRepository,
+  LpPoolsSchemaRepository,
+  NftPoolsSchemaRepository,
   PoolsSchemaRepository,
   TokensSchemaRepository,
   UpdateQueueSchemaRepository
 } from "../repositories";
-import {ADDRESSES_INW, MESSAGE, PRIVATE_SALE_CONTRACT_ADDRESS, PUBLIC_SALE_CONTRACT_ADDRESS, STATUS} from "../utils/constant";
+import {
+  ADDRESSES_INW,
+  MESSAGE,
+  PRIVATE_SALE_CONTRACT_ADDRESS,
+  PUBLIC_SALE_CONTRACT_ADDRESS,
+  STATUS
+} from "../utils/constant";
 import {
   ReqGetLpPoolsByAddressType,
   ReqGetLpPoolsByOwnerType,
-  ReqGetLpPoolsType, ReqGetNftPoolsByAddressType, ReqGetNftPoolsByOwnerType,
+  ReqGetLpPoolsType,
+  ReqGetNftPoolsByAddressType,
+  ReqGetNftPoolsByOwnerType,
   ReqGetNftPoolsType,
   ReqGetPoolsByAddressType,
   ReqGetPoolsByOwnerType,
@@ -26,7 +30,8 @@ import {
   ReqImportTokenBody,
   RequestGetLpPoolsBody,
   RequestGetNftPoolsBody,
-  RequestGetNftPoolsByAddressBody, RequestGetNftPoolsByOwnerBody,
+  RequestGetNftPoolsByAddressBody,
+  RequestGetNftPoolsByOwnerBody,
   RequestGetPoolsByAddressBody,
   RequestGetPoolsByOwnerBody,
   RequestGetTokensBody,
@@ -43,11 +48,16 @@ import {token_generator_contract} from "../contracts/token_generator";
 import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
 import {pool_generator_contract} from "../contracts/pool_generator";
-import {Tokens} from "../models";
-import { globalApi } from '..';
-import { psp22_contract } from '../contracts/psp22';
-import { isValidSignature, readOnlyGasLimit, roundUp } from '../utils/utils';
-import { ContractPromise } from '@polkadot/api-contract';
+import {UpdateQueue} from "../models";
+import {globalApi} from '..';
+import {psp22_contract} from '../contracts/psp22';
+import {isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
+import {ContractPromise} from '@polkadot/api-contract';
+import {checkQueue} from "../utils/Pools";
+import {global_vars, SOCKET_STATUS} from "../cronjob/global";
+import {pool_contract} from "../contracts/pool";
+import {lp_pool_contract} from "../contracts/lp_pool";
+import {nft_pool_contract} from "../contracts/nft_pool";
 
 export class ApiController {
   constructor(
@@ -72,6 +82,10 @@ export class ApiController {
       status: STATUS.FAILED,
       message: MESSAGE.NO_INPUT
     };
+    console.log({
+      poolContract: req.poolContract,
+      type: req.type
+    });
     const poolContract = req.poolContract;
     const requestType = req.type;
     if (!poolContract) {
@@ -80,6 +94,9 @@ export class ApiController {
         message: MESSAGE.INVALID_POOL_CONTRACT
       };
     }
+    const isTrigger = true;
+    let retMsg: string = "Error";
+    let data: UpdateQueue | undefined = undefined;
     const queue = await this.updateQueueSchemaRepository.findOne({where: {poolContract: poolContract}});
     if (queue) {
       await this.updateQueueSchemaRepository.updateById(queue._id, {
@@ -87,24 +104,81 @@ export class ApiController {
         poolContract: poolContract,
         timeStamp: new Date().getTime()
       });
-      return {
-        status: STATUS.OK,
-        ret: "updated",
-        message: STATUS.SUCCESS
-      };
+      retMsg = "updated";
     } else {
-      const create_collection = await this.updateQueueSchemaRepository.create({
+      data = await this.updateQueueSchemaRepository.create({
         requestType: requestType,
         poolContract: poolContract,
         timeStamp: new Date().getTime()
       });
-      return {
-        status: STATUS.OK,
-        ret: "added",
-        message: STATUS.SUCCESS,
-        data: create_collection
-      };
+      retMsg = "added";
     }
+
+    if (isTrigger && (global_vars.socketStatus == SOCKET_STATUS.CONNECTED) && globalApi) {
+      const pool_generator_calls = new ContractPromise(
+          globalApi,
+          pool_generator_contract.CONTRACT_ABI,
+          pool_generator_contract.CONTRACT_ADDRESS
+      );
+      const pool_contract_calls = new ContractPromise(
+          globalApi,
+          pool_contract.CONTRACT_ABI,
+          pool_contract.CONTRACT_ADDRESS
+      );
+      const lp_pool_generator_calls = new ContractPromise(
+          globalApi,
+          lp_pool_generator_contract.CONTRACT_ABI,
+          lp_pool_generator_contract.CONTRACT_ADDRESS
+      );
+      const lp_pool_contract_calls = new ContractPromise(
+          globalApi,
+          lp_pool_contract.CONTRACT_ABI,
+          lp_pool_contract.CONTRACT_ADDRESS
+      );
+      const nft_pool_generator_calls = new ContractPromise(
+          globalApi,
+          nft_pool_generator_contract.CONTRACT_ABI,
+          nft_pool_generator_contract.CONTRACT_ADDRESS
+      );
+      const nft_pool_contract_calls = new ContractPromise(
+          globalApi,
+          nft_pool_contract.CONTRACT_ABI,
+          nft_pool_contract.CONTRACT_ADDRESS
+      );
+      const token_generator_calls = new ContractPromise(
+          globalApi,
+          token_generator_contract.CONTRACT_ABI,
+          token_generator_contract.CONTRACT_ADDRESS
+      );
+      const updateQueueRepo = this.updateQueueSchemaRepository;
+      const poolsRepo = this.poolsSchemaRepository;
+      const lpPoolsRepo = this.lpPoolsSchemaRepository;
+      const tokensRepo = this.tokensSchemaRepository;
+      const nftPoolsRepo = this.nftPoolsSchemaRepository;
+      checkQueue(
+          isTrigger,
+          globalApi,
+          pool_generator_calls,
+          nft_pool_generator_calls,
+          lp_pool_generator_calls,
+          token_generator_calls,
+          nft_pool_contract_calls,
+          lp_pool_contract_calls,
+          pool_contract_calls,
+          updateQueueRepo,
+          nftPoolsRepo,
+          tokensRepo,
+          poolsRepo,
+          lpPoolsRepo
+      );
+    }
+
+    return {
+      status: STATUS.OK,
+      ret: retMsg,
+      message: STATUS.SUCCESS,
+      data: (data !== undefined) ? data : undefined
+    };
   }
 
   @post('/getTokens')
