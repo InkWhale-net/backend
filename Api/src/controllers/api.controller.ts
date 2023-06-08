@@ -407,6 +407,8 @@ export class ApiController {
         ...Object.values(ADDRESSES_INW),
         PUBLIC_SALE_CONTRACT_ADDRESS,
         PRIVATE_SALE_CONTRACT_ADDRESS,
+        process.env.PRIVATE_SALE_WALLET_ADDRESS,
+        process.env.PUBLIC_SALE_WALLET_ADDRESS
       ];
 
       let balanceQrs = await Promise.all(
