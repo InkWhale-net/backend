@@ -162,7 +162,7 @@ const ProcessNFT = async (
                     tokenDecimal: _tokenDecimal,
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
-                    tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                    tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                     rewardPool: _rewardPool ? _rewardPool : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -185,7 +185,7 @@ const ProcessNFT = async (
                     tokenDecimal: _tokenDecimal,
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
-                    tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                    tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                     rewardPool: _rewardPool ? _rewardPool : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -254,7 +254,7 @@ const ProcessPool = async (
                         tokenDecimal: _tokenDecimal,
                         duration: _duration ? _duration : 0,
                         startTime: _startTime ? _startTime : 0,
-                        tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                        tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                         rewardPool: _rewardPool ? _rewardPool : 0,
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -277,7 +277,7 @@ const ProcessPool = async (
                             tokenDecimal: _tokenDecimal,
                             duration: _duration ? _duration : 0,
                             startTime: _startTime ? _startTime : 0,
-                            tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                            tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                             rewardPool: _rewardPool ? _rewardPool : 0,
                             totalStaked: _totalStaked ? _totalStaked : 0,
                             maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -365,8 +365,8 @@ const ProcessLP = async (
                     tokenDecimal: _tokenDecimal,
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
-                    tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
-                    lptokenTotalSupply: _lptokenTotalSupply ? _lptokenTotalSupply : 0,
+                    tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                    lptokenTotalSupply: _lptokenTotalSupply ? (_lptokenTotalSupply / (10 ** _lptokenDecimal)) : 0,
                     rewardPool: _rewardPool ? _rewardPool : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -393,7 +393,8 @@ const ProcessLP = async (
                         tokenDecimal: _tokenDecimal,
                         duration: _duration ? _duration : 0,
                         startTime: _startTime ? _startTime : 0,
-                        tokenTotalSupply: _tokenTotalSupply ? _tokenTotalSupply : 0,
+                        tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                        lptokenTotalSupply: _lptokenTotalSupply ? (_lptokenTotalSupply / (10 ** _lptokenDecimal)) : 0,
                         rewardPool: _rewardPool ? _rewardPool : 0,
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -459,7 +460,7 @@ const ProcessTokens = async (
                         decimal: _tokenDecimal,
                         creator: _owner,
                         mintTo: undefined,
-                        totalSupply: _tokenTotalSupply,
+                        totalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                         index: index,
                         updatedTime: new Date()
                     });
@@ -474,7 +475,7 @@ const ProcessTokens = async (
                         decimal: _tokenDecimal,
                         creator: _owner,
                         mintTo: undefined,
-                        totalSupply: _tokenTotalSupply,
+                        totalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                         index: index,
                         contractAddress: contractAddress,
                         tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
@@ -1351,7 +1352,8 @@ export const totalSupply = async (
             // @ts-ignore
             const data = output.toHuman()?.Ok;
             if (data) {
-                const totalSupply = parseFloat(data.replace(/,/g, "")) / ( 10 ** 12);
+                // const totalSupply = parseFloat(data.replace(/,/g, "")) / ( 10 ** 12);
+                const totalSupply = parseFloat(data.replace(/,/g, ""));
                 console.log({totalSupply: totalSupply});
                 return totalSupply;
             } else {
