@@ -163,7 +163,7 @@ const ProcessNFT = async (
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
                     tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
-                    rewardPool: _rewardPool ? _rewardPool : 0,
+                    rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
@@ -186,7 +186,7 @@ const ProcessNFT = async (
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
                     tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
-                    rewardPool: _rewardPool ? _rewardPool : 0,
+                    rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
@@ -255,7 +255,7 @@ const ProcessPool = async (
                         duration: _duration ? _duration : 0,
                         startTime: _startTime ? _startTime : 0,
                         tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
-                        rewardPool: _rewardPool ? _rewardPool : 0,
+                        rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
                         apy: _apy,
@@ -278,7 +278,7 @@ const ProcessPool = async (
                             duration: _duration ? _duration : 0,
                             startTime: _startTime ? _startTime : 0,
                             tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
-                            rewardPool: _rewardPool ? _rewardPool : 0,
+                            rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                             totalStaked: _totalStaked ? _totalStaked : 0,
                             maxStakingAmount: _maxStaking ? _maxStaking : 0,
                             apy: _apy,
@@ -367,7 +367,7 @@ const ProcessLP = async (
                     startTime: _startTime ? _startTime : 0,
                     tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                     lptokenTotalSupply: _lptokenTotalSupply ? (_lptokenTotalSupply / (10 ** _lptokenDecimal)) : 0,
-                    rewardPool: _rewardPool ? _rewardPool : 0,
+                    rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
@@ -395,7 +395,7 @@ const ProcessLP = async (
                         startTime: _startTime ? _startTime : 0,
                         tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                         lptokenTotalSupply: _lptokenTotalSupply ? (_lptokenTotalSupply / (10 ** _lptokenDecimal)) : 0,
-                        rewardPool: _rewardPool ? _rewardPool : 0,
+                        rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
                         multiplier: _multiplier,
@@ -991,7 +991,8 @@ const rewardPool = async (
         );
         if (result.isOk && output) {
             // @ts-ignore
-            const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, "")) / (10 ** 12);
+            // const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, "")) / (10 ** 12);
+            const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""));
             console.log({rewardPool: rewardPool});
             return rewardPool;
         }
