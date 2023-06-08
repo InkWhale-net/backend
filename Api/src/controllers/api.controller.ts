@@ -328,6 +328,7 @@ export class ApiController {
         contractAddress: req.tokenAddress,
         tokenGeneratorContractAddress: req?.tokenGeneratorContractAddress,
         tokenIconUrl: req?.tokenIconUrl,
+        isManagedByTokenGenerator: false,
         createdTime: new Date(),
         updatedTime: new Date(),
       });
