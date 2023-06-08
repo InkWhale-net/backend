@@ -462,6 +462,7 @@ const ProcessTokens = async (
                         mintTo: undefined,
                         totalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
                         index: index,
+                        isManagedByTokenGenerator: true,
                         updatedTime: new Date()
                     });
                 } catch (e) {
@@ -479,6 +480,7 @@ const ProcessTokens = async (
                         index: index,
                         contractAddress: contractAddress,
                         tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
+                        isManagedByTokenGenerator: true,
                         createdTime: new Date(),
                         updatedTime: new Date()
                     });
@@ -673,6 +675,7 @@ const checkNewTokens = async (
         let tokenCount = await getTokenCount(api, token_generator_calls, '');
         let totalTokenDb = (await tokensSchemaRepository.count({
             tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
+            isManagedByTokenGenerator: true,
             index: {gt: 0}
         })).count;
         console.log({
@@ -684,7 +687,8 @@ const checkNewTokens = async (
             let token = await tokensSchemaRepository.findOne({
                 where: {
                     index: index,
-                    contractAddress: token_generator_contract.CONTRACT_ADDRESS
+                    contractAddress: token_generator_contract.CONTRACT_ADDRESS,
+                    isManagedByTokenGenerator: true
                 }
             });
             if (!token) {

@@ -60,6 +60,11 @@ export class Tokens extends Entity {
   index?: number;
 
   @property({
+    type: 'boolean',
+  })
+  isManagedByTokenGenerator?: boolean;
+
+  @property({
     type: 'date',
   })
   createdTime?: Date;
