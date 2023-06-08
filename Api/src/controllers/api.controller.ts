@@ -11,8 +11,8 @@ import {
 import {
   ADDRESSES_INW,
   MESSAGE,
-  PRIVATE_SALE_CONTRACT_ADDRESS,
-  PUBLIC_SALE_CONTRACT_ADDRESS,
+  PRIVATE_SALE_WALLET_ADDRESS,
+  PUBLIC_SALE_WALLET_ADDRESS,
   STATUS
 } from "../utils/constant";
 import {
@@ -406,10 +406,10 @@ export class ApiController {
         totalSupplyRaw.replaceAll(',', '') / 10 ** 12 || 0;
       const listContractAccount = [
         ...Object.values(ADDRESSES_INW),
-        PUBLIC_SALE_CONTRACT_ADDRESS,
-        PRIVATE_SALE_CONTRACT_ADDRESS,
-        process.env.PRIVATE_SALE_WALLET_ADDRESS,
-        process.env.PUBLIC_SALE_WALLET_ADDRESS
+        PRIVATE_SALE_WALLET_ADDRESS,
+        PUBLIC_SALE_WALLET_ADDRESS,
+        process.env.PUBLIC_SALE_CONTRACT_ADDRESS,
+        process.env.PRIVATE_SALE_CONTRACT_ADDRESS
       ];
 
       let balanceQrs = await Promise.all(
