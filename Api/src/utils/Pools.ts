@@ -17,7 +17,7 @@ import {token_generator_contract} from "../contracts/token_generator";
 import {pool_generator_contract} from "../contracts/pool_generator";
 import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
-import {convertToUTCTime} from "./Tools";
+import {convertToUTCTime, sleep} from "./Tools";
 import {global_vars} from "../cronjob/global";
 dotenv.config();
 
@@ -518,6 +518,10 @@ const checkNewNFTPools = async (
             poolCount: poolCount,
             totalNftPoolDb: totalNftPoolDb
         });
+        if (totalNftPoolDb >= poolCount) {
+            await sleep(3000);
+            poolCount = await getPoolCount(api, nft_pool_generator_calls, '');
+        }
         totalNftPoolDb = (isCheckAll) ? 0 : totalNftPoolDb;
         for (let index = poolCount; index > totalNftPoolDb; index--) {
             let poolContract = await getPool(
@@ -572,6 +576,10 @@ const checkNewPools = async (
             poolCount: poolCount,
             totalPoolDb: totalPoolDb
         });
+        if (totalPoolDb >= poolCount) {
+            await sleep(3000);
+            poolCount = await getPoolCount(api, pool_generator_calls, '');
+        }
         totalPoolDb = (isCheckAll) ? 0 : totalPoolDb;
         for (let index = poolCount; index > totalPoolDb; index--) {
             let poolContract = await getPool(
@@ -627,6 +635,10 @@ const checkNewLPPools = async (
             poolCount: poolCount,
             totalLpPoolDb: totalLpPoolDb
         });
+        if (totalLpPoolDb >= poolCount) {
+            await sleep(3000);
+            poolCount = await getPoolCount(api, lp_pool_generator_calls, '');
+        }
         totalLpPoolDb = (isCheckAll) ? 0 : totalLpPoolDb;
         for (let index = poolCount; index > totalLpPoolDb; index--) {
             let poolContract = await getPool(
@@ -682,6 +694,10 @@ const checkNewTokens = async (
             tokenCount: tokenCount,
             totalTokenDb: totalTokenDb
         });
+        if (totalTokenDb >= tokenCount) {
+            await sleep(3000);
+            tokenCount = await getTokenCount(api, token_generator_calls, '');
+        }
         totalTokenDb = (isCheckAll) ? 0 : totalTokenDb;
         for (let index = tokenCount; index > totalTokenDb; index--) {
             let token = await tokensSchemaRepository.findOne({
