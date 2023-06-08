@@ -22,6 +22,7 @@ import {global_vars} from "../cronjob/global";
 dotenv.config();
 
 export const checkQueue = async (
+    isTrigger: boolean,
     api: ApiPromise,
     pool_generator_calls: ContractPromise,
     nft_pool_generator_calls: ContractPromise,
@@ -37,11 +38,13 @@ export const checkQueue = async (
     lpPoolsSchemaRepository: LpPoolsSchemaRepository
 ): Promise<boolean> => {
     console.log(`Start checkQueue at ${convertToUTCTime(new Date())}`);
-    if (global_vars.is_check_queue) {
-        console.log(`Stop checkQueue at ${convertToUTCTime(new Date())} with is_check_queue: ${global_vars.is_check_queue}`);
-        return false;
+    if (!isTrigger) {
+        if (global_vars.is_check_queue) {
+            console.log(`Stop checkQueue at ${convertToUTCTime(new Date())} with is_check_queue: ${global_vars.is_check_queue}`);
+            return false;
+        }
+        global_vars.is_check_queue = true;
     }
-    global_vars.is_check_queue = true;
     try {
         let queue_data = await updateQueueSchemaRepository.find({});
         let records_length = queue_data.length;
@@ -53,33 +56,33 @@ export const checkQueue = async (
             if (poolContract == "new") {
                 if (requestType == "nft") {
                     console.log(`Start checkNewNFTPools at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
+                    isRemoved = await checkNewNFTPools(isTrigger, false, api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
                     console.log(`Stop checkNewNFTPools at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "lp") {
                     console.log(`Start checkNewLPPools at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await checkNewLPPools(api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
+                    isRemoved = await checkNewLPPools(isTrigger, false, api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
                     console.log(`Stop checkNewLPPools at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "pool") {
                     console.log(`Start checkNewPools at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
+                    isRemoved = await checkNewPools(isTrigger, false, api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
                     console.log(`Stop checkNewPools at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "token") {
                     console.log(`Start checkNewTokens at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
+                    isRemoved = await checkNewTokens(isTrigger, false, api, tokensSchemaRepository, token_generator_calls);
                     console.log(`Stop checkNewTokens at ${convertToUTCTime(new Date())}`);
                 }
             } else {
                 if (requestType == "nft") {
                     console.log(`Start ProcessNFT at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await ProcessNFT(poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
+                    isRemoved = await ProcessNFT(isTrigger, false, poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
                     console.log(`Stop ProcessNFT at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "lp") {
                     console.log(`Start ProcessLP at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await ProcessLP(poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
+                    isRemoved = await ProcessLP(isTrigger, false, poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
                     console.log(`Stop ProcessLP at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "pool") {
                     console.log(`Start ProcessPool at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
+                    isRemoved = await ProcessPool(isTrigger, false, poolContract, api, pool_contract_calls, poolsSchemaRepository);
                     console.log(`Stop ProcessPool at ${convertToUTCTime(new Date())}`);
                 }
             }
@@ -93,10 +96,14 @@ export const checkQueue = async (
                 }
             }
         }
-        global_vars.is_check_queue = false;
+        if (!isTrigger) {
+            global_vars.is_check_queue = false;
+        }
     } catch (e) {
         console.log(`ERROR: checkQueue - ${e.message}`);
-        global_vars.is_check_queue = false;
+        if (!isTrigger) {
+            global_vars.is_check_queue = false;
+        }
         console.log(`Stop checkQueue at ${convertToUTCTime(new Date())} with an exception`);
         return false;
     }
@@ -104,6 +111,8 @@ export const checkQueue = async (
     return true;
 }
 const ProcessNFT = async (
+    isTrigger: boolean,
+    isCheckAll: boolean,
     poolContract: string,
     api: ApiPromise,
     nft_pool_contract_calls: ContractPromise,
@@ -196,6 +205,8 @@ const ProcessNFT = async (
     return true;
 }
 const ProcessPool = async (
+    isTrigger: boolean,
+    isCheckAll: boolean,
     poolContractAddress: string,
     api: ApiPromise,
     pool_contract_calls: ContractPromise,
@@ -292,6 +303,8 @@ const ProcessPool = async (
     return true;
 }
 const ProcessLP = async (
+    isTrigger: boolean,
+    isCheckAll: boolean,
     poolContract: string,
     api: ApiPromise,
     lp_pool_contract_calls: ContractPromise,
@@ -479,19 +492,31 @@ const ProcessTokens = async (
 }
 
 const checkNewNFTPools = async (
+    isTrigger: boolean,
+    isCheckAll: boolean,
     api: ApiPromise,
     nft_pool_generator_calls: ContractPromise,
     nft_pool_contract_calls: ContractPromise,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository
 ): Promise<boolean> => {
-    if (global_vars.is_running_nft) {
-        console.log("checkNewNFTPools is running. Do nothing.");
-        return false;
+    if (!isTrigger) {
+        if (global_vars.is_running_nft) {
+            console.log("checkNewNFTPools is running. Do nothing.");
+            return false;
+        }
+        global_vars.is_running_nft = true;
     }
     try {
-        global_vars.is_running_nft = true;
         let poolCount = await getPoolCount(api, nft_pool_generator_calls, '');
-        for (let index = poolCount; index > 0; index--) {
+        let totalNftPoolDb = (await nftPoolsSchemaRepository.count({
+            nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS,
+        })).count;
+        console.log({
+            poolCount: poolCount,
+            totalNftPoolDb: totalNftPoolDb
+        });
+        totalNftPoolDb = (isCheckAll) ? 0 : totalNftPoolDb;
+        for (let index = poolCount; index > totalNftPoolDb; index--) {
             let poolContract = await getPool(
                 api,
                 nft_pool_generator_calls,
@@ -505,11 +530,15 @@ const checkNewNFTPools = async (
                 nft_pool_contract.CONTRACT_ABI,
                 poolContract,
             );
-            await ProcessNFT(poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
+            await ProcessNFT(isTrigger, isCheckAll, poolContract, api, nft_pool_contract_calls, nftPoolsSchemaRepository);
         }
-        global_vars.is_running_nft = false;
+        if (!isTrigger) {
+            global_vars.is_running_nft = false;
+        }
     } catch (e) {
-        global_vars.is_running_nft = false;
+        if (!isTrigger) {
+            global_vars.is_running_nft = false;
+        }
         console.log(e.message);
         return false;
     }
@@ -517,19 +546,31 @@ const checkNewNFTPools = async (
 }
 
 const checkNewPools = async (
+    isTrigger: boolean,
+    isCheckAll: boolean,
     api: ApiPromise,
     pool_generator_calls: ContractPromise,
     pool_contract_calls: ContractPromise,
     poolsSchemaRepository: PoolsSchemaRepository
 ): Promise<boolean> => {
-    if (global_vars.is_running) {
-        console.log("checkNewPools is running. Do nothing.");
-        return false;
+    if (!isTrigger) {
+        if (global_vars.is_running) {
+            console.log("checkNewPools is running. Do nothing.");
+            return false;
+        }
+        global_vars.is_running = true;
     }
     try {
-        global_vars.is_running = true;
         let poolCount = await getPoolCount(api, pool_generator_calls, '');
-        for (let index = poolCount; index > 0; index--) {
+        let totalPoolDb = (await poolsSchemaRepository.count({
+            poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
+        })).count;
+        console.log({
+            poolCount: poolCount,
+            totalPoolDb: totalPoolDb
+        });
+        totalPoolDb = (isCheckAll) ? 0 : totalPoolDb;
+        for (let index = poolCount; index > totalPoolDb; index--) {
             let poolContract = await getPool(
                 api,
                 pool_generator_calls,
@@ -543,11 +584,15 @@ const checkNewPools = async (
                 pool_contract.CONTRACT_ABI,
                 poolContract,
             );
-            await ProcessPool(poolContract, api, pool_contract_calls, poolsSchemaRepository);
+            await ProcessPool(isTrigger, isCheckAll, poolContract, api, pool_contract_calls, poolsSchemaRepository);
         }
-        global_vars.is_running = false;
+        if (!isTrigger) {
+            global_vars.is_running = false;
+        }
     } catch (e) {
-        global_vars.is_running = false;
+        if (!isTrigger) {
+            global_vars.is_running = false;
+        }
         console.log(`ERROR: checkNewPools - ${e.message}`);
         return false;
     }
@@ -555,20 +600,32 @@ const checkNewPools = async (
 }
 
 const checkNewLPPools = async (
+    isTrigger: boolean,
+    isCheckAll: boolean,
     api: ApiPromise,
     lp_pool_generator_calls: ContractPromise,
     lp_pool_contract_calls: ContractPromise,
     lpPoolsSchemaRepository: LpPoolsSchemaRepository
 ): Promise<boolean> => {
-    if (global_vars.is_running_lp) {
-        console.log("checkNewLPPools is running. Do nothing.");
-        return false;
+    if (!isTrigger) {
+        if (global_vars.is_running_lp) {
+            console.log("checkNewLPPools is running. Do nothing.");
+            return false;
+        }
+        global_vars.is_running_lp = true;
     }
     try {
-        global_vars.is_running_lp = true;
         let poolCount = await getPoolCount(api, lp_pool_generator_calls, '');
         console.log('LP poolCount', poolCount);
-        for (let index = poolCount; index > 0; index--) {
+        let totalLpPoolDb = (await lpPoolsSchemaRepository.count({
+            lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS,
+        })).count;
+        console.log({
+            poolCount: poolCount,
+            totalLpPoolDb: totalLpPoolDb
+        });
+        totalLpPoolDb = (isCheckAll) ? 0 : totalLpPoolDb;
+        for (let index = poolCount; index > totalLpPoolDb; index--) {
             let poolContract = await getPool(
                 api,
                 lp_pool_generator_calls,
@@ -582,11 +639,15 @@ const checkNewLPPools = async (
                 lp_pool_contract.CONTRACT_ABI,
                 poolContract,
             );
-            await ProcessLP(poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
+            await ProcessLP(isTrigger, isCheckAll, poolContract, api, lp_pool_contract_calls, lpPoolsSchemaRepository);
         }
-        global_vars.is_running_lp = false;
+        if (!isTrigger) {
+            global_vars.is_running_lp = false;
+        }
     } catch (e) {
-        global_vars.is_running_lp = false;
+        if (!isTrigger) {
+            global_vars.is_running_lp = false;
+        }
         console.log(`ERROR: checkNewLPPools - ${e.message}`);
         return false;
     }
@@ -594,19 +655,31 @@ const checkNewLPPools = async (
 }
 
 const checkNewTokens = async (
+    isTrigger: boolean,
+    isCheckAll: boolean,
     api: ApiPromise,
     tokensSchemaRepository : TokensSchemaRepository,
     token_generator_calls: ContractPromise
 ): Promise<boolean> => {
-    if (global_vars.is_running_tokens) {
-        console.log("checkNewTokens is running. Do nothing.");
-        return false;
+    if (!isTrigger) {
+        if (global_vars.is_running_tokens) {
+            console.log("checkNewTokens is running. Do nothing.");
+            return false;
+        }
+        global_vars.is_running_tokens = true;
     }
     try {
-        global_vars.is_running_tokens = true;
         let tokenCount = await getTokenCount(api, token_generator_calls, '');
-        console.log({tokenCount: tokenCount});
-        for (let index = tokenCount; index > 0; index--) {
+        let totalTokenDb = (await tokensSchemaRepository.count({
+            tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
+            index: {gt: 0}
+        })).count;
+        console.log({
+            tokenCount: tokenCount,
+            totalTokenDb: totalTokenDb
+        });
+        totalTokenDb = (isCheckAll) ? 0 : totalTokenDb;
+        for (let index = tokenCount; index > totalTokenDb; index--) {
             let token = await tokensSchemaRepository.findOne({
                 where: {
                     index: index,
@@ -620,11 +693,15 @@ const checkNewTokens = async (
             }
         }
     } catch (e) {
-        global_vars.is_running_tokens = false;
+        if (!isTrigger) {
+            global_vars.is_running_tokens = false;
+        }
         console.log(`ERROR: checkNewTokens - ${e.message}`);
         return false;
     }
-    global_vars.is_running_tokens = false;
+    if (!isTrigger) {
+        global_vars.is_running_tokens = false;
+    }
     return true;
 }
 
@@ -643,13 +720,13 @@ export const checkAll = async (
     tokensSchemaRepository: TokensSchemaRepository
 ) => {
     console.log(`Start checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
-    await checkNewPools(api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
+    await checkNewPools(false, true, api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
     console.log(`Stop checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
     console.log(`Start checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
-    await checkNewNFTPools(api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
+    await checkNewNFTPools(false, true, api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
     console.log(`Stop checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
     console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
-    await checkNewTokens(api, tokensSchemaRepository, token_generator_calls);
+    await checkNewTokens(false, true, api, tokensSchemaRepository, token_generator_calls);
     console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
 }
 

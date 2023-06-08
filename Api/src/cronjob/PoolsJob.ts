@@ -159,6 +159,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                         }
 
                         await checkQueue(
+                            false,
                             globalApi,
                             pool_generator_calls,
                             nft_pool_generator_calls,
