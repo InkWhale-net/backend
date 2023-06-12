@@ -54,12 +54,35 @@ const ReqGetTokensSchema: SchemaObject = {
         },
     },
 };
+
 export const RequestGetTokensBody = {
-    description: 'The input of getTokens function',
+    description: 'The input of getToken function',
     required: true,
     content: {
         'application/json': {schema: ReqGetTokensSchema},
         'application/x-www-form-urlencoded': {schema: ReqGetTokensSchema},
+    },
+};
+
+export type ReqGetTokenType = {
+    tokenAddress: string,
+}
+
+const ReqGetTokenSchema: SchemaObject = {
+    type: 'object',
+    properties: {
+      tokenAddress: {
+        type: 'string',
+      },
+    },
+  };
+
+export const RequestGetTokenBody = {
+    description: 'The input of getTokens function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqGetTokenSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetTokenSchema},
     },
 };
 

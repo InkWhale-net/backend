@@ -26,6 +26,7 @@ import {
   ReqGetPoolsByOwnerType,
   ReqGetPoolsType,
   ReqGetTokensType,
+  ReqGetTokenType,
   ReqImportToken,
   ReqImportTokenBody,
   RequestGetLpPoolsBody,
@@ -34,6 +35,7 @@ import {
   RequestGetNftPoolsByOwnerBody,
   RequestGetPoolsByAddressBody,
   RequestGetPoolsByOwnerBody,
+  RequestGetTokenBody,
   RequestGetTokensBody,
   RequestLpPoolsByAddressBody,
   RequestLpPoolsByOwnerBody,
@@ -251,6 +253,28 @@ export class ApiController {
     };
 
   }
+
+  @post('/getTokenInfor')
+  async getTokenInfor(
+      @requestBody(RequestGetTokenBody) req:ReqGetTokenType
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
+      };
+    }
+    const token = await this.tokensSchemaRepository.findOne({
+      where: {contractAddress: req.tokenAddress},
+    });
+
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: token
+    };
+  }
+
 
   @post('/importToken')
   async importToken(
