@@ -219,7 +219,7 @@ const ProcessPool = async (
             poolContractAddress,
         );
         let _apy = await apy(api, pool_contract_calls, '');
-        if(!(_apy > 0)) return false
+        if(!(_apy > 0)) return true;
         let _rewardPool = await rewardPool(api, pool_contract_calls, '');
         let _totalStaked = await totalStaked(api, pool_contract_calls, '', false);
         let _maxStaking = await maxStakingAmount(api, pool_contract_calls,'', `pool_contract`, false);
