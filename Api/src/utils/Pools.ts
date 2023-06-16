@@ -7,7 +7,7 @@ import {
     TokensSchemaRepository,
     UpdateQueueSchemaRepository
 } from "../repositories";
-import {readOnlyGasLimit} from "./utils";
+import {isInwWhaleDisabledCollections, readOnlyGasLimit} from "./utils";
 import {lp_pool_contract} from "../contracts/lp_pool";
 import {psp22_contract} from "../contracts/psp22";
 import dotenv from "dotenv";
@@ -531,6 +531,10 @@ const checkNewNFTPools = async (
                 '',
                 index
             );
+            // TODO: skip if poolContract is Punk Collections and remove queue!
+            if (isInwWhaleDisabledCollections(poolContract)) {
+                continue;
+            }
             console.log('checkNewNFTPools - poolContract', poolContract);
             if (!poolContract) continue;
             nft_pool_contract_calls = new ContractPromise(
@@ -589,6 +593,10 @@ const checkNewPools = async (
                 '',
                 index
             );
+            // TODO: skip if poolContract is Punk Collections and remove queue!
+            if (isInwWhaleDisabledCollections(poolContract)) {
+                continue;
+            }
             console.log('checkNewPools - poolContract', poolContract);
             if (!poolContract) continue;
             pool_contract_calls = new ContractPromise(
@@ -648,6 +656,10 @@ const checkNewLPPools = async (
                 '',
                 index
             );
+            // TODO: skip if poolContract is Punk Collections and remove queue!
+            if (isInwWhaleDisabledCollections(poolContract)) {
+                continue;
+            }
             console.log('checkNewLPPools - poolContract', poolContract);
             if (!poolContract) continue;
             lp_pool_contract_calls = new ContractPromise(
