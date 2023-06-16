@@ -91,6 +91,21 @@ export function isAzEnabled(azDomainAddress?: string): boolean {
     }
     return false;
 }
+export function isInwWhaleDisabledCollections(collectionAddress?: string): boolean {
+    try {
+        if (!collectionAddress) {
+            return false;
+        }
+        let inkWhaleDisabledCollection = process.env.INW_DISABLED_COLLECTION;
+        if (inkWhaleDisabledCollection) {
+            const tmp = inkWhaleDisabledCollection.split(',');
+            return (tmp.indexOf(inkWhaleDisabledCollection) > -1);
+        }
+    } catch (e) {
+        console.log(`ERROR - isInwWhaleDisabledCollections: ${e.messages}`);
+    }
+    return false;
+}
 
 export const isValidSignature = (
     signedMessage: string,
