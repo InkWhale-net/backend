@@ -99,7 +99,7 @@ export function isInwWhaleDisabledCollections(collectionAddress?: string): boole
         let inkWhaleDisabledCollection = process.env.INW_DISABLED_COLLECTION;
         if (inkWhaleDisabledCollection) {
             const tmp = inkWhaleDisabledCollection.split(',');
-            return (tmp.indexOf(inkWhaleDisabledCollection) > -1);
+            return (tmp.indexOf(collectionAddress) > -1);
         }
     } catch (e) {
         console.log(`ERROR - isInwWhaleDisabledCollections: ${e.messages}`);
