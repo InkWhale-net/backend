@@ -594,6 +594,10 @@ const checkNewPools = async (
                 index
             );
             // TODO: skip if poolContract is Punk Collections and remove queue!
+            console.log({
+                poolContract: poolContract,
+                isDisabled: isInwWhaleDisabledCollections(poolContract)
+            });
             if (isInwWhaleDisabledCollections(poolContract)) {
                 continue;
             }
