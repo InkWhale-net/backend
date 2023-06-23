@@ -793,13 +793,13 @@ const maxStakingAmount = async (
         );
         if (result.isOk && output) {
             // @ts-ignore
-            const a = parseFloat(output.toHuman().Ok.replace(/,/g, ""));
-            let maxStakingAmount = 0;
-            if (is_nft) {
-                maxStakingAmount = a;
-            } else {
-                maxStakingAmount = a / (10 ** 12);
-            }
+            // const a = parseFloat(output.toHuman().Ok.replace(/,/g, ""));
+            let maxStakingAmount = output.toHuman().Ok;
+            // if (is_nft) {
+            //     maxStakingAmount = a;
+            // } else {
+            //     maxStakingAmount = a / (10 ** 12);
+            // }
             return maxStakingAmount;
         }
     } catch (e) {
