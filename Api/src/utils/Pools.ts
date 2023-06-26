@@ -1058,13 +1058,13 @@ const totalStaked = async (
         );
         if (result.isOk && output) {
             // @ts-ignore
-            const a = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""));
-            let totalStaked: number;
-            if (is_nft) {
-                totalStaked = a;
-            } else {
-                totalStaked = a / (10 ** 12);
-            }
+            const totalStaked = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""));
+            // let totalStaked: number;
+            // if (is_nft) {
+            //     totalStaked = a;
+            // } else {
+            //     totalStaked = a / (10 ** 12);
+            // }
             return totalStaked;
         }
     } catch (e) {
