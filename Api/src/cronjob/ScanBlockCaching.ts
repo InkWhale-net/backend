@@ -11,6 +11,8 @@ import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {inw_token} from "../contracts/inw_token";
 import * as inw_token_calls from "../contracts/inw_token_calls";
 import {psp22_contract} from "../contracts/psp22_contract";
+import {token_generator_contract} from "../contracts/token_generator";
+import {compactAddLength, hexToU8a} from "@polkadot/util";
 dotenv.config();
 
 export const collections: {
@@ -147,6 +149,7 @@ export async function mainScanBlockCaching():Promise<void> {
 
                 const abi_inw_token_contract = new Abi(inw_token.CONTRACT_ABI);
                 const abi_psp22_contract = new Abi(psp22_contract.CONTRACT_ABI);
+                const abi_token_generator_contract = new Abi(token_generator_contract.CONTRACT_ABI);
 
                 await eventApi.rpc.chain.subscribeNewHeads((header: any) => {
                     try {
@@ -156,15 +159,78 @@ export async function mainScanBlockCaching():Promise<void> {
                             && collections.reScannedBlocks
                         ) {
                             console.log(`scanEventBlocks`);
-                            scanEventBlocks(
-                                // parseInt(header.number.toString()),
-                                51194491,
-                                eventApi,
-                                collections.scannedBlocks,
-                                collections.eventTransfer,
-                                abi_inw_token_contract,
-                                abi_psp22_contract
-                            );
+                            // scanEventBlocks(
+                            //     // parseInt(header.number.toString()),
+                            //     header,
+                            //     51227699,
+                            //     eventApi,
+                            //     collections.scannedBlocks,
+                            //     collections.eventTransfer,
+                            //     abi_inw_token_contract,
+                            //     abi_psp22_contract,
+                            //     abi_token_generator_contract
+                            // );
+
+                            (async () => {
+                                const exampleBlockNumber = 51227699;
+                                const blockHash = await eventApi.rpc.chain.getBlockHash(exampleBlockNumber);
+                                const signedBlock = await eventApi.rpc.chain.getBlock(blockHash);
+                                await signedBlock.block.extrinsics.forEach( (ex: any, index: any) => {
+                                    let newData:any = {};
+                                    newData.ex = ex.toHuman();
+                                    const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
+                                    if (isSigned) {
+                                        // console.log(index, ex.toHuman());
+                                        // console.log({
+                                        //     signer: ex.signer.toString(),
+                                        //     signature: ex.signature.toString(),
+                                        //     nonce: ex.nonce.toString(),
+                                        //     method: method,
+                                        //     section: section,
+                                        // });
+
+                                        if (args) {
+                                            newData.tokenContract = args.dest.Id;
+                                            newData.value = args.value;
+                                            newData.gas_limit = args.gas_limit;
+                                            newData.storage_deposit_limit = args.storage_deposit_limit;
+                                            newData.data = args.data;
+                                        }
+                                        if (meta?.documentation) {
+                                            console.log(meta.documentation.map((d:any) => d.toString()).join('\n'));
+                                            newData.documentation = meta.documentation;
+                                        }
+
+                                        newData.signer = ex.signer.toString();
+                                        newData.signature = ex.signature.toString();
+                                        newData.nonce = ex.nonce.toString();
+                                        newData.method = method;
+                                        newData.section = section;
+                                        if (
+                                            method === `call`
+                                            && section === `contracts`
+                                            && args
+                                            && args?.data
+                                        ) {
+                                            let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+                                            if (decodedMessage?.args) {
+                                                const to = decodedMessage.args[0].toHuman();
+                                                const amount = decodedMessage.args[1].toHuman();
+                                                // console.log({
+                                                //     from: ex.signer.toString(),
+                                                //     to: to,
+                                                //     amount: amount,
+                                                //     args: JSON.stringify(decodedMessage.args),
+                                                // });
+                                                newData.to = to;
+                                                newData.amount = amount;
+                                                newData.args = JSON.stringify(decodedMessage.args);
+                                            }
+                                        }
+                                    }
+                                    console.log(newData);
+                                });
+                            })()
                         }
                     } catch (e) {
                         console.log(`mainScanBlockCaching - ERROR: ${e.message}`);
