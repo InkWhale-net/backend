@@ -82,7 +82,8 @@ export const MESSAGE = {
 
 export const CONFIG_TYPE_NAME = {
     INW_POOL: "CronJobUpdatePools",
-    INW_POOL_SCAN_ALL: "CronJobUpdateAllPools"
+    INW_POOL_SCAN_ALL: "CronJobUpdateAllPools",
+    INW_POOL_EVENT_SCANNED: "ScanBlockCaching",
 };
 
 export const ADDRESSES_INW = {

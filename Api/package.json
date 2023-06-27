@@ -73,7 +73,8 @@
     "loopback4-ratelimiter": "^4.2.0",
     "mobile-detect": "^1.4.5",
     "redis": "^4.6.7",
-    "tslib": "^2.0.0"
+    "tslib": "^2.0.0",
+    "winston": "^3.9.0"
   },
   "devDependencies": {
     "@loopback/build": "^9.0.3",
