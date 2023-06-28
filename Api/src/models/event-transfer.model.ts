@@ -16,6 +16,31 @@ export class EventTransfer extends Entity {
   blockNumber: number;
 
   @property({
+    type: 'number',
+  })
+  eventIndex: number;
+
+  @property({
+    type: 'string',
+  })
+  fromAddress: string;
+
+  @property({
+    type: 'string',
+  })
+  toAddress: string;
+
+  @property({
+    type: 'string',
+  })
+  tokenAddress: string;
+
+  @property({
+    type: 'string',
+  })
+  amount: string;
+
+  @property({
     type: 'object',
   })
   data?: object;

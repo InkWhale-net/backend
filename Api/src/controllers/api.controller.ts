@@ -2,6 +2,7 @@ import {inject} from '@loopback/core';
 import {post, Request, requestBody, RestBindings,} from '@loopback/rest';
 import {repository} from "@loopback/repository";
 import {
+  EventTransferRepository,
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
@@ -26,7 +27,7 @@ import {
   ReqGetPoolsByOwnerType,
   ReqGetPoolsType,
   ReqGetTokensType,
-  ReqGetTokenType,
+  ReqGetTokenType, ReqGetTransactionHistoryType,
   ReqImportToken,
   ReqImportTokenBody,
   RequestGetLpPoolsBody,
@@ -36,7 +37,7 @@ import {
   RequestGetPoolsByAddressBody,
   RequestGetPoolsByOwnerBody,
   RequestGetTokenBody,
-  RequestGetTokensBody,
+  RequestGetTokensBody, RequestGetTransactionHistoryBody,
   RequestLpPoolsByAddressBody,
   RequestLpPoolsByOwnerBody,
   RequestPoolsBody,
@@ -71,6 +72,8 @@ export class ApiController {
       public tokensSchemaRepository : TokensSchemaRepository,
       @repository(LpPoolsSchemaRepository)
       public lpPoolsSchemaRepository : LpPoolsSchemaRepository,
+      @repository(EventTransferRepository)
+      public eventTransferRepository : EventTransferRepository,
       @repository(NftPoolsSchemaRepository)
       public nftPoolsSchemaRepository : NftPoolsSchemaRepository,
       @inject(RestBindings.Http.REQUEST) private req: Request
@@ -792,6 +795,39 @@ export class ApiController {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
       ret: pool
+    };
+  }
+
+  @post('/getTransactionHistory')
+  async getTransactionHistory(
+      @requestBody(RequestGetTransactionHistoryBody) req:ReqGetTransactionHistoryType
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT
+      };
+    }
+    let tokenContract = req?.tokenContract;
+    let fromAddress = req?.fromAddress;
+    let toAddress = req?.toAddress;
+    if (!tokenContract) {
+      return {
+        status: STATUS.OK,
+        message: MESSAGE.NOT_EXIST_ADDRESS,
+        ret:[]
+      };
+    }
+    let data = await this.eventTransferRepository.find({
+      where: {
+        tokenAddress: tokenContract,
+        fromAddress: fromAddress,
+      }
+    });
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: data
     };
   }
 }

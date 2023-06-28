@@ -395,3 +395,33 @@ export const RequestGetNftPoolsByOwnerBody = {
         'application/x-www-form-urlencoded': {schema: ReqGetNftPoolsByOwnerSchema},
     },
 };
+
+// GET HISTORY TRANSFER BY USER
+export type ReqGetTransactionHistoryType = {
+    tokenContract?: string,
+    fromAddress?: string,
+    toAddress?: string,
+};
+const ReqGetTransactionHistorySchema: SchemaObject = {
+    type: 'object',
+    required: ['tokenContract'],
+    properties: {
+        tokenContract: {
+            type: 'string',
+        },
+        fromAddress: {
+            type: 'string',
+        },
+        toAddress: {
+            type: 'string',
+        },
+    },
+};
+export const RequestGetTransactionHistoryBody = {
+    description: 'The input of getTransactionHistory function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqGetTransactionHistorySchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetTransactionHistorySchema},
+    },
+};
