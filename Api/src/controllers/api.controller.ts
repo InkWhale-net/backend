@@ -833,6 +833,8 @@ export class ApiController {
     if (tokenContract != 'undefined') {
       queryClause.and = [{tokenAddress: tokenContract}];
     }
+    console.log('queryClause', queryClause);
+    
     let data = await this.eventTransferRepository.find({
       where: queryClause,
       order: [order],
