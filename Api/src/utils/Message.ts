@@ -399,23 +399,39 @@ export const RequestGetNftPoolsByOwnerBody = {
 // GET HISTORY TRANSFER BY USER
 export type ReqGetTransactionHistoryType = {
     tokenContract?: string,
-    fromAddress?: string,
-    toAddress?: string,
+    queryAddress?: string,
+    limit?: number,
+    offset?: number,
+    sort?: Boolean,
+    isFromOnly: Boolean,
+    isToOnly: Boolean
 };
 const ReqGetTransactionHistorySchema: SchemaObject = {
-    type: 'object',
-    required: ['tokenContract'],
-    properties: {
-        tokenContract: {
-            type: 'string',
-        },
-        fromAddress: {
-            type: 'string',
-        },
-        toAddress: {
-            type: 'string',
-        },
+  type: 'object',
+  required: ['tokenContract'],
+  properties: {
+    tokenContract: {
+      type: 'string',
     },
+    queryAddress: {
+      type: 'string',
+    },
+    limit: {
+      type: 'number',
+    },
+    offset: {
+      type: 'number',
+    },
+    sort: {
+      type: 'boolean',
+    },
+    isFromOnly: {
+      type: 'boolean',
+    },
+    isToOnly: {
+      type: 'boolean',
+    },
+  },
 };
 export const RequestGetTransactionHistoryBody = {
     description: 'The input of getTransactionHistory function',

@@ -64,96 +64,103 @@ import {nft_pool_contract} from "../contracts/nft_pool";
 
 export class ApiController {
   constructor(
-      @repository(PoolsSchemaRepository)
-      public poolsSchemaRepository : PoolsSchemaRepository,
-      @repository(UpdateQueueSchemaRepository)
-      public updateQueueSchemaRepository : UpdateQueueSchemaRepository,
-      @repository(TokensSchemaRepository)
-      public tokensSchemaRepository : TokensSchemaRepository,
-      @repository(LpPoolsSchemaRepository)
-      public lpPoolsSchemaRepository : LpPoolsSchemaRepository,
-      @repository(EventTransferRepository)
-      public eventTransferRepository : EventTransferRepository,
-      @repository(NftPoolsSchemaRepository)
-      public nftPoolsSchemaRepository : NftPoolsSchemaRepository,
-      @inject(RestBindings.Http.REQUEST) private req: Request
+    @repository(PoolsSchemaRepository)
+    public poolsSchemaRepository: PoolsSchemaRepository,
+    @repository(UpdateQueueSchemaRepository)
+    public updateQueueSchemaRepository: UpdateQueueSchemaRepository,
+    @repository(TokensSchemaRepository)
+    public tokensSchemaRepository: TokensSchemaRepository,
+    @repository(LpPoolsSchemaRepository)
+    public lpPoolsSchemaRepository: LpPoolsSchemaRepository,
+    @repository(EventTransferRepository)
+    public eventTransferRepository: EventTransferRepository,
+    @repository(NftPoolsSchemaRepository)
+    public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
+    @inject(RestBindings.Http.REQUEST) private req: Request,
   ) {}
 
   @post('/update')
   async update(
-      @requestBody(RequestUpdateBody) req:ReqUpdateType
+    @requestBody(RequestUpdateBody) req: ReqUpdateType,
   ): Promise<ResponseBody> {
-    if (!req) return {
-      status: STATUS.FAILED,
-      message: MESSAGE.NO_INPUT
-    };
+    if (!req)
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
     console.log({
       poolContract: req.poolContract,
-      type: req.type
+      type: req.type,
     });
     const poolContract = req.poolContract;
     const requestType = req.type;
     if (!poolContract) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.INVALID_POOL_CONTRACT
+        message: MESSAGE.INVALID_POOL_CONTRACT,
       };
     }
     const isTrigger = true;
-    let retMsg: string = "Error";
+    let retMsg: string = 'Error';
     let data: UpdateQueue | undefined = undefined;
-    const queue = await this.updateQueueSchemaRepository.findOne({where: {poolContract: poolContract}});
+    const queue = await this.updateQueueSchemaRepository.findOne({
+      where: {poolContract: poolContract},
+    });
     if (queue) {
       await this.updateQueueSchemaRepository.updateById(queue._id, {
         requestType: requestType,
         poolContract: poolContract,
-        timeStamp: new Date().getTime()
+        timeStamp: new Date().getTime(),
       });
-      retMsg = "updated";
+      retMsg = 'updated';
     } else {
       data = await this.updateQueueSchemaRepository.create({
         requestType: requestType,
         poolContract: poolContract,
-        timeStamp: new Date().getTime()
+        timeStamp: new Date().getTime(),
       });
-      retMsg = "added";
+      retMsg = 'added';
     }
 
-    if (isTrigger && (global_vars.socketStatus == SOCKET_STATUS.CONNECTED) && globalApi) {
+    if (
+      isTrigger &&
+      global_vars.socketStatus == SOCKET_STATUS.CONNECTED &&
+      globalApi
+    ) {
       const pool_generator_calls = new ContractPromise(
-          globalApi,
-          pool_generator_contract.CONTRACT_ABI,
-          pool_generator_contract.CONTRACT_ADDRESS
+        globalApi,
+        pool_generator_contract.CONTRACT_ABI,
+        pool_generator_contract.CONTRACT_ADDRESS,
       );
       const pool_contract_calls = new ContractPromise(
-          globalApi,
-          pool_contract.CONTRACT_ABI,
-          pool_contract.CONTRACT_ADDRESS
+        globalApi,
+        pool_contract.CONTRACT_ABI,
+        pool_contract.CONTRACT_ADDRESS,
       );
       const lp_pool_generator_calls = new ContractPromise(
-          globalApi,
-          lp_pool_generator_contract.CONTRACT_ABI,
-          lp_pool_generator_contract.CONTRACT_ADDRESS
+        globalApi,
+        lp_pool_generator_contract.CONTRACT_ABI,
+        lp_pool_generator_contract.CONTRACT_ADDRESS,
       );
       const lp_pool_contract_calls = new ContractPromise(
-          globalApi,
-          lp_pool_contract.CONTRACT_ABI,
-          lp_pool_contract.CONTRACT_ADDRESS
+        globalApi,
+        lp_pool_contract.CONTRACT_ABI,
+        lp_pool_contract.CONTRACT_ADDRESS,
       );
       const nft_pool_generator_calls = new ContractPromise(
-          globalApi,
-          nft_pool_generator_contract.CONTRACT_ABI,
-          nft_pool_generator_contract.CONTRACT_ADDRESS
+        globalApi,
+        nft_pool_generator_contract.CONTRACT_ABI,
+        nft_pool_generator_contract.CONTRACT_ADDRESS,
       );
       const nft_pool_contract_calls = new ContractPromise(
-          globalApi,
-          nft_pool_contract.CONTRACT_ABI,
-          nft_pool_contract.CONTRACT_ADDRESS
+        globalApi,
+        nft_pool_contract.CONTRACT_ABI,
+        nft_pool_contract.CONTRACT_ADDRESS,
       );
       const token_generator_calls = new ContractPromise(
-          globalApi,
-          token_generator_contract.CONTRACT_ABI,
-          token_generator_contract.CONTRACT_ADDRESS
+        globalApi,
+        token_generator_contract.CONTRACT_ABI,
+        token_generator_contract.CONTRACT_ADDRESS,
       );
       const updateQueueRepo = this.updateQueueSchemaRepository;
       const poolsRepo = this.poolsSchemaRepository;
@@ -161,20 +168,20 @@ export class ApiController {
       const tokensRepo = this.tokensSchemaRepository;
       const nftPoolsRepo = this.nftPoolsSchemaRepository;
       checkQueue(
-          isTrigger,
-          globalApi,
-          pool_generator_calls,
-          nft_pool_generator_calls,
-          lp_pool_generator_calls,
-          token_generator_calls,
-          nft_pool_contract_calls,
-          lp_pool_contract_calls,
-          pool_contract_calls,
-          updateQueueRepo,
-          nftPoolsRepo,
-          tokensRepo,
-          poolsRepo,
-          lpPoolsRepo
+        isTrigger,
+        globalApi,
+        pool_generator_calls,
+        nft_pool_generator_calls,
+        lp_pool_generator_calls,
+        token_generator_calls,
+        nft_pool_contract_calls,
+        lp_pool_contract_calls,
+        pool_contract_calls,
+        updateQueueRepo,
+        nftPoolsRepo,
+        tokensRepo,
+        poolsRepo,
+        lpPoolsRepo,
       );
     }
 
@@ -182,89 +189,90 @@ export class ApiController {
       status: STATUS.OK,
       ret: retMsg,
       message: STATUS.SUCCESS,
-      data: (data !== undefined) ? data : undefined
+      data: data !== undefined ? data : undefined,
     };
   }
 
   @post('/getTokens')
   async getTokens(
-      @requestBody(RequestGetTokensBody) req:ReqGetTokensType
+    @requestBody(RequestGetTokensBody) req: ReqGetTokensType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let limit = req?.limit;
     let offset = req?.offset;
-    const order = req?.sort ? "index DESC" : "index ASC";
+    const order = req?.sort ? 'index DESC' : 'index ASC';
     if (!limit) limit = 100;
     if (!offset) offset = 0;
 
     let tokens = await this.tokensSchemaRepository.find({
       where: {
-        tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS
+        tokenGeneratorContractAddress:
+          token_generator_contract.CONTRACT_ADDRESS,
       },
       order: [order],
       limit: limit,
-      skip: offset
+      skip: offset,
     });
 
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: tokens
+      ret: tokens,
     };
-
   }
 
   @post('/updateTokenUrl')
   async updateTokenUrl(
-      @requestBody(ReqUpdateTokenIconBody) req:ReqUpdateTokenIconType
+    @requestBody(ReqUpdateTokenIconBody) req: ReqUpdateTokenIconType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
 
-    const token = await this.tokensSchemaRepository.findOne({where: {contractAddress: req.contractAddress}})
-    if(token) {
+    const token = await this.tokensSchemaRepository.findOne({
+      where: {contractAddress: req.contractAddress},
+    });
+    if (token) {
       try {
         await this.tokensSchemaRepository.updateById(token._id, {
-          tokenIconUrl: req?.tokenIconUrl
+          tokenIconUrl: req?.tokenIconUrl,
         });
-    } catch (e) {
+      } catch (e) {
         console.log(`ERROR: ProcessTokens updateById - ${e.message}`);
-    }
+      }
     } else {
       try {
         await this.tokensSchemaRepository.create({
           tokenIconUrl: req?.tokenIconUrl,
           contractAddress: req.contractAddress,
-          tokenGeneratorContractAddress: req.tokenGeneratorContractAddress
+          tokenGeneratorContractAddress: req.tokenGeneratorContractAddress,
         });
-    } catch (e) {
+      } catch (e) {
         console.log(`ERROR: ProcessTokens create - ${e.message}`);
-    }
+      }
     }
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
     };
-
   }
 
   @post('/getTokenInfor')
   async getTokenInfor(
-      @requestBody(RequestGetTokenBody) req:ReqGetTokenType
+    @requestBody(RequestGetTokenBody) req: ReqGetTokenType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     const token = await this.tokensSchemaRepository.findOne({
@@ -274,10 +282,9 @@ export class ApiController {
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: token
+      ret: token,
     };
   }
-
 
   @post('/importToken')
   async importToken(
@@ -335,7 +342,7 @@ export class ApiController {
       {value: 0, gasLimit},
     );
     const rawTotalSupply = queryResult1?.output?.toHuman()?.Ok;
-    const totalSupply = parseInt(rawTotalSupply.replace(',', ''))
+    const totalSupply = parseInt(rawTotalSupply.replace(',', ''));
     if (!(totalSupply > 0)) {
       return {
         status: STATUS.FAILED,
@@ -426,7 +433,7 @@ export class ApiController {
         status: STATUS.FAILED,
         message: MESSAGE.GET_INW_TOTAL_SUPPLY_FAIL,
       };
-    let inCirculation = 0
+    let inCirculation = 0;
     try {
       const totalSupplyRaw = queryResult?.output?.toHuman()?.Ok;
       const totalSupply: any =
@@ -436,7 +443,7 @@ export class ApiController {
         PRIVATE_SALE_WALLET_ADDRESS,
         PUBLIC_SALE_WALLET_ADDRESS,
         process.env.PUBLIC_SALE_CONTRACT_ADDRESS,
-        process.env.PRIVATE_SALE_CONTRACT_ADDRESS
+        process.env.PRIVATE_SALE_CONTRACT_ADDRESS,
       ];
 
       let balanceQrs = await Promise.all(
@@ -460,7 +467,7 @@ export class ApiController {
       );
       inCirculation = roundUp(totalSupply - sumBalance / 10 ** 12);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return {
         status: STATUS.FAILED,
         message: MESSAGE.GET_INW_IN_CIRCULATION_FAIL,
@@ -481,12 +488,12 @@ export class ApiController {
 
   @post('/getLPPools')
   async getLPPools(
-      @requestBody(RequestGetLpPoolsBody) req:ReqGetLpPoolsType
+    @requestBody(RequestGetLpPoolsBody) req: ReqGetLpPoolsType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let limit = req?.limit;
@@ -494,45 +501,47 @@ export class ApiController {
     let showZeroPool = req?.showZeroPool;
     if (!limit) limit = 100;
     if (!offset) offset = 0;
-    const order = req?.sort ? "startTime DESC" : "startTime ASC";
+    const order = req?.sort ? 'startTime DESC' : 'startTime ASC';
     let pools = [];
-    if (showZeroPool == "false") {
+    if (showZeroPool == 'false') {
       pools = await this.lpPoolsSchemaRepository.find({
         where: {
-          lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS,
+          lpPoolGeneratorContractAddress:
+            lp_pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
-            gt: 0
-          }
+            gt: 0,
+          },
         },
         order: [order],
         limit: limit,
-        skip: offset
+        skip: offset,
       });
     } else {
       pools = await this.lpPoolsSchemaRepository.find({
         where: {
-          lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS,
+          lpPoolGeneratorContractAddress:
+            lp_pool_generator_contract.CONTRACT_ADDRESS,
         },
         order: [order],
         limit: limit,
-        skip: offset
+        skip: offset,
       });
     }
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pools
+      ret: pools,
     };
   }
 
   @post('/getLPPoolByAddress')
   async getLPPoolByAddress(
-      @requestBody(RequestLpPoolsByAddressBody) req:ReqGetLpPoolsByAddressType
+    @requestBody(RequestLpPoolsByAddressBody) req: ReqGetLpPoolsByAddressType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let poolContract = req?.poolContract;
@@ -540,29 +549,29 @@ export class ApiController {
       return {
         status: STATUS.FAILED,
         message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
-        ret: []
+        ret: [],
       };
     }
     let pool = await this.lpPoolsSchemaRepository.find({
       where: {
-        poolContract: poolContract
-      }
+        poolContract: poolContract,
+      },
     });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pool
+      ret: pool,
     };
   }
 
   @post('/getLPPoolByOwner')
   async getLPPoolByOwner(
-      @requestBody(RequestLpPoolsByOwnerBody) req:ReqGetLpPoolsByOwnerType
+    @requestBody(RequestLpPoolsByOwnerBody) req: ReqGetLpPoolsByOwnerType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     const owner = req?.owner;
@@ -570,29 +579,29 @@ export class ApiController {
       return {
         status: STATUS.OK,
         message: MESSAGE.NOT_FOUND_OWNER,
-        ret:[]
-      }
+        ret: [],
+      };
     }
     let pool = await this.lpPoolsSchemaRepository.find({
       where: {
-        owner: owner
-      }
+        owner: owner,
+      },
     });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret:pool
+      ret: pool,
     };
   }
 
   @post('/getPools')
   async getPools(
-      @requestBody(RequestPoolsBody) req:ReqGetPoolsType
+    @requestBody(RequestPoolsBody) req: ReqGetPoolsType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let limit = req?.limit;
@@ -600,45 +609,47 @@ export class ApiController {
     let showZeroPool = req?.showZeroPool;
     if (!limit) limit = 100;
     if (!offset) offset = 0;
-    const order = req?.sort ? "startTime DESC" : "startTime ASC";
+    const order = req?.sort ? 'startTime DESC' : 'startTime ASC';
     let pools = [];
-    if (showZeroPool == "false") {
+    if (showZeroPool == 'false') {
       pools = await this.poolsSchemaRepository.find({
         where: {
-          poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS,
+          poolGeneratorContractAddress:
+            pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
-            gt: 0
-          }
+            gt: 0,
+          },
         },
         order: [order],
         limit: limit,
-        skip: offset
+        skip: offset,
       });
     } else {
       pools = await this.poolsSchemaRepository.find({
         where: {
-          poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS,
+          poolGeneratorContractAddress:
+            pool_generator_contract.CONTRACT_ADDRESS,
         },
         order: [order],
         limit: limit,
-        skip: offset
+        skip: offset,
       });
     }
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pools
+      ret: pools,
     };
   }
 
   @post('/getPoolByAddress')
   async getPoolByAddress(
-      @requestBody(RequestGetPoolsByAddressBody) req:ReqGetPoolsByAddressType
+    @requestBody(RequestGetPoolsByAddressBody) req: ReqGetPoolsByAddressType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let poolContract = req?.poolContract;
@@ -646,29 +657,29 @@ export class ApiController {
       return {
         status: STATUS.FAILED,
         message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
-        ret: []
-      }
+        ret: [],
+      };
     }
     let pool = await this.poolsSchemaRepository.find({
       where: {
-        poolContract: poolContract
-      }
+        poolContract: poolContract,
+      },
     });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pool
+      ret: pool,
     };
   }
 
   @post('/getPoolByOwner')
   async getPoolByOwner(
-      @requestBody(RequestGetPoolsByOwnerBody) req:ReqGetPoolsByOwnerType
+    @requestBody(RequestGetPoolsByOwnerBody) req: ReqGetPoolsByOwnerType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let owner = req?.owner;
@@ -676,29 +687,29 @@ export class ApiController {
       return {
         status: STATUS.FAILED,
         message: MESSAGE.NOT_FOUND_OWNER,
-        ret: []
-      }
+        ret: [],
+      };
     }
     let pool = await this.poolsSchemaRepository.find({
       where: {
-        owner: owner
-      }
+        owner: owner,
+      },
     });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pool
+      ret: pool,
     };
   }
 
   @post('/getNFTPools')
   async getNFTPools(
-      @requestBody(RequestGetNftPoolsBody) req:ReqGetNftPoolsType
+    @requestBody(RequestGetNftPoolsBody) req: ReqGetNftPoolsType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let limit = req?.limit;
@@ -706,46 +717,48 @@ export class ApiController {
     let showZeroPool = req?.showZeroPool;
     if (!limit) limit = 100;
     if (!offset) offset = 0;
-    const order = req?.sort ? "startTime DESC" : "startTime ASC";
+    const order = req?.sort ? 'startTime DESC' : 'startTime ASC';
     let pools = [];
-    if (showZeroPool == "false") {
+    if (showZeroPool == 'false') {
       pools = await this.nftPoolsSchemaRepository.find({
         where: {
-          nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS,
+          nftPoolGeneratorContractAddress:
+            nft_pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
-            gt: 0
-          }
+            gt: 0,
+          },
         },
         order: [order],
         limit: limit,
-        skip: offset
+        skip: offset,
       });
-    }
-    else {
+    } else {
       pools = await this.nftPoolsSchemaRepository.find({
         where: {
-          nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS,
+          nftPoolGeneratorContractAddress:
+            nft_pool_generator_contract.CONTRACT_ADDRESS,
         },
         order: [order],
         limit: limit,
-        skip: offset
+        skip: offset,
       });
     }
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pools
+      ret: pools,
     };
   }
 
   @post('/getNFTPoolByAddress')
   async getNFTPoolByAddress(
-      @requestBody(RequestGetNftPoolsByAddressBody) req:ReqGetNftPoolsByAddressType
+    @requestBody(RequestGetNftPoolsByAddressBody)
+    req: ReqGetNftPoolsByAddressType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let poolContract = req?.poolContract;
@@ -753,29 +766,29 @@ export class ApiController {
       return {
         status: STATUS.OK,
         message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
-        ret:[]
+        ret: [],
       };
     }
     let pool = await this.nftPoolsSchemaRepository.find({
       where: {
-        poolContract: poolContract
-      }
+        poolContract: poolContract,
+      },
     });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pool
+      ret: pool,
     };
   }
 
   @post('/getNFTPoolByOwner')
   async getNFTPoolByOwner(
-      @requestBody(RequestGetNftPoolsByOwnerBody) req:ReqGetNftPoolsByOwnerType
+    @requestBody(RequestGetNftPoolsByOwnerBody) req: ReqGetNftPoolsByOwnerType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let owner = req?.owner;
@@ -783,51 +796,51 @@ export class ApiController {
       return {
         status: STATUS.OK,
         message: MESSAGE.NOT_FOUND_OWNER,
-        ret:[]
+        ret: [],
       };
     }
     let pool = await this.nftPoolsSchemaRepository.find({
       where: {
-        owner: owner
-      }
+        owner: owner,
+      },
     });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pool
+      ret: pool,
     };
   }
 
   @post('/getTransactionHistory')
   async getTransactionHistory(
-      @requestBody(RequestGetTransactionHistoryBody) req:ReqGetTransactionHistoryType
+    @requestBody(RequestGetTransactionHistoryBody)
+    req: ReqGetTransactionHistoryType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
         status: STATUS.FAILED,
-        message: MESSAGE.NO_INPUT
+        message: MESSAGE.NO_INPUT,
       };
     }
     let tokenContract = req?.tokenContract;
-    let fromAddress = req?.fromAddress;
-    let toAddress = req?.toAddress;
-    if (!tokenContract) {
-      return {
-        status: STATUS.OK,
-        message: MESSAGE.NOT_EXIST_ADDRESS,
-        ret:[]
-      };
+    let queryAddress = req?.queryAddress;
+
+    const order = req?.sort ? 'createdTime ASC' : 'createdTime DESC';
+
+    let queryClause: any = {
+      or: [{toAddress: queryAddress}, {fromAddress: queryAddress}],
+    };
+    if (tokenContract != 'undefined') {
+      queryClause.and = [{tokenAddress: tokenContract}];
     }
     let data = await this.eventTransferRepository.find({
-      where: {
-        tokenAddress: tokenContract,
-        fromAddress: fromAddress,
-      }
+      where: queryClause,
+      order: [order],
     });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: data
+      ret: data,
     };
   }
 }
