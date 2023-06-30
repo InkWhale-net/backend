@@ -1,21 +1,21 @@
 import {inject} from '@loopback/core';
-import {post, Request, requestBody, RestBindings,} from '@loopback/rest';
-import {repository} from "@loopback/repository";
+import {post, Request, requestBody, RestBindings} from '@loopback/rest';
+import {repository} from '@loopback/repository';
 import {
   EventTransferRepository,
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
   TokensSchemaRepository,
-  UpdateQueueSchemaRepository
-} from "../repositories";
+  UpdateQueueSchemaRepository,
+} from '../repositories';
 import {
   ADDRESSES_INW,
   MESSAGE,
   PRIVATE_SALE_WALLET_ADDRESS,
   PUBLIC_SALE_WALLET_ADDRESS,
-  STATUS
-} from "../utils/constant";
+  STATUS,
+} from '../utils/constant';
 import {
   ReqGetLpPoolsByAddressType,
   ReqGetLpPoolsByOwnerType,
@@ -27,7 +27,8 @@ import {
   ReqGetPoolsByOwnerType,
   ReqGetPoolsType,
   ReqGetTokensType,
-  ReqGetTokenType, ReqGetTransactionHistoryType,
+  ReqGetTokenType,
+  ReqGetTransactionHistoryType,
   ReqImportToken,
   ReqImportTokenBody,
   RequestGetLpPoolsBody,
@@ -37,7 +38,8 @@ import {
   RequestGetPoolsByAddressBody,
   RequestGetPoolsByOwnerBody,
   RequestGetTokenBody,
-  RequestGetTokensBody, RequestGetTransactionHistoryBody,
+  RequestGetTokensBody,
+  RequestGetTransactionHistoryBody,
   RequestLpPoolsByAddressBody,
   RequestLpPoolsByOwnerBody,
   RequestPoolsBody,
@@ -45,22 +47,22 @@ import {
   ReqUpdateTokenIconBody,
   ReqUpdateTokenIconType,
   ReqUpdateType,
-  ResponseBody
-} from "../utils/Message";
-import {token_generator_contract} from "../contracts/token_generator";
-import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
-import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
-import {pool_generator_contract} from "../contracts/pool_generator";
-import {UpdateQueue} from "../models";
+  ResponseBody,
+} from '../utils/Message';
+import {token_generator_contract} from '../contracts/token_generator';
+import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
+import {nft_pool_generator_contract} from '../contracts/nft_pool_generator';
+import {pool_generator_contract} from '../contracts/pool_generator';
+import {UpdateQueue} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
 import {isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
 import {ContractPromise} from '@polkadot/api-contract';
-import {checkQueue} from "../utils/Pools";
-import {global_vars, SOCKET_STATUS} from "../cronjob/global";
-import {pool_contract} from "../contracts/pool";
-import {lp_pool_contract} from "../contracts/lp_pool";
-import {nft_pool_contract} from "../contracts/nft_pool";
+import {checkQueue} from '../utils/Pools';
+import {global_vars, SOCKET_STATUS} from '../cronjob/global';
+import {pool_contract} from '../contracts/pool';
+import {lp_pool_contract} from '../contracts/lp_pool';
+import {nft_pool_contract} from '../contracts/nft_pool';
 
 export class ApiController {
   constructor(
@@ -822,19 +824,24 @@ export class ApiController {
         message: MESSAGE.NO_INPUT,
       };
     }
+
     let tokenContract = req?.tokenContract;
     let queryAddress = req?.queryAddress;
 
     const order = req?.sort ? 'createdTime ASC' : 'createdTime DESC';
+    let queryClause: any = {};
 
-    let queryClause: any = {
-      or: [{toAddress: queryAddress}, {fromAddress: queryAddress}],
-    };
+    if (queryAddress != 'undefined') {
+      queryClause.or = [
+        req?.isFromOnly ? undefined : {toAddress: queryAddress},
+        req?.isToOnly ? undefined : {fromAddress: queryAddress},
+      ].filter(e => e);
+    }
+
     if (tokenContract != 'undefined') {
       queryClause.and = [{tokenAddress: tokenContract}];
     }
-    console.log('queryClause', queryClause);
-    
+
     let data = await this.eventTransferRepository.find({
       where: queryClause,
       order: [order],
