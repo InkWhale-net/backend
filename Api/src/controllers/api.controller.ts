@@ -848,7 +848,7 @@ export class ApiController {
       limit: req?.limit || 10,
       skip: req?.offset || 0,
     });
-    let countDoc = await this.eventTransferRepository.count();
+    let countDoc = await this.eventTransferRepository.count(queryClause);
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
