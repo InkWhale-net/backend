@@ -29,7 +29,7 @@ export async function scanEventBlocks(
     inw_contract: ContractPromise
 ) {
     try {
-        if (global_event_vars.isScanning) {
+        if (!global_event_vars.isScanning) {
             const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
             const signedBlock = await api.rpc.chain.getBlock(blockHash);
 
@@ -48,7 +48,7 @@ export async function scanEventBlocks(
             return;
         }
         global_event_vars.isScanning = true;
-        const isDebug = false;
+        const isDebug = true;
         if (!isDebug) {
             try {
                 console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords history at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
@@ -148,6 +148,7 @@ export async function processEventRecords(
                 to?: any,
                 amount?: any,
                 args?: any,
+                decoded?: any,
             } = {};
             newData.ex = ex.toHuman();
             const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
@@ -172,12 +173,18 @@ export async function processEventRecords(
                     && section === `contracts`
                     && args
                     && args?.data
+                    || true
                 ) {
                     let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+                    const {identifier, method, path} = decodedMessage.message;
+                    if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
+                        continue;
+                    }
                     if (decodedMessage?.args) {
                         newData.to = decodedMessage.args[0].toHuman();
                         newData.amount = decodedMessage.args[1].toHuman();
                         newData.args = JSON.stringify(decodedMessage.args);
+                        newData.decoded = decodedMessage;
                     }
                 }
 
