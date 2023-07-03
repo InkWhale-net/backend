@@ -130,8 +130,9 @@ export async function processEventRecords(
          * Token:       5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST
          * timestamp:   2023-06-27T06:50:58.421Z
          */
+        let index=0;
         for (const ex of signedBlock.block.extrinsics) {
-            const index: any = signedBlock.block.extrinsics.indexOf(ex);
+            index = index + 1;
             let newData:{
                 ex?: any,
                 tokenContract?: string,
@@ -148,6 +149,7 @@ export async function processEventRecords(
                 to?: any,
                 amount?: any,
                 args?: any,
+                decoded?: any,
             } = {};
             newData.ex = ex.toHuman();
             const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
@@ -172,16 +174,22 @@ export async function processEventRecords(
                     && section === `contracts`
                     && args
                     && args?.data
+                    || true
                 ) {
                     let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+                    const {identifier, method, path} = decodedMessage.message;
+                    if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
+                        continue;
+                    }
                     if (decodedMessage?.args) {
                         newData.to = decodedMessage.args[0].toHuman();
                         newData.amount = decodedMessage.args[1].toHuman();
                         newData.args = JSON.stringify(decodedMessage.args);
+                        newData.decoded = decodedMessage;
                     }
                 }
 
-                console.log(newData);
+                // console.log(newData);
                 const filter = {
                     blockNumber: toScan,
                     eventIndex: index,

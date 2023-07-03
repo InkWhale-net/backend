@@ -126,7 +126,7 @@ export class RedisCache {
 export async function mainScanBlockCaching():Promise<void> {
     const newCache = new RedisCache(5000);
     connectToDatabase().then(() => {
-        const rpc = process.env.PROVIDER_MAINNET;
+        const rpc = process.env.PROVIDER;
         if (!rpc) {
             console.log(`RPC not found! ${rpc}`);
             return;
@@ -178,7 +178,7 @@ export async function mainScanBlockCaching():Promise<void> {
                                 newCache,
                                 header,
                                 parseInt(header.number.toString()),
-                                // 51227699,
+                                // 34765608,
                                 eventApi,
                                 collections.scannedBlocks,
                                 collections.eventTransfer,
