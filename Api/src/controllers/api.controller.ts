@@ -848,11 +848,14 @@ export class ApiController {
       limit: req?.limit || 10,
       skip: req?.offset || 0,
     });
-    console.log(data)
+    let countDoc = await this.eventTransferRepository.count();
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: data,
+      ret: {
+        dataArray: data,
+        total: countDoc?.count,
+      },
     };
   }
 }
