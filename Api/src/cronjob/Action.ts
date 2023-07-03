@@ -79,7 +79,7 @@ export async function scanEventBlocks(
                     await processEventRecords(
                         newCache,
                         signedBlock,
-                        blockNumber,
+                        to_scan,
                         abi_inw_token_contract,
                         abi_token_generator_contract,
                         api,
