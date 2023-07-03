@@ -177,8 +177,8 @@ export async function mainScanBlockCaching():Promise<void> {
                             scanEventBlocks(
                                 newCache,
                                 header,
-                                // parseInt(header.number.toString()),
-                                34765608,
+                                parseInt(header.number.toString()),
+                                // 34765608,
                                 eventApi,
                                 collections.scannedBlocks,
                                 collections.eventTransfer,

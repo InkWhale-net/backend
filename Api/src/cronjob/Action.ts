@@ -29,7 +29,7 @@ export async function scanEventBlocks(
     inw_contract: ContractPromise
 ) {
     try {
-        if (!global_event_vars.isScanning) {
+        if (global_event_vars.isScanning) {
             const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
             const signedBlock = await api.rpc.chain.getBlock(blockHash);
 
@@ -48,7 +48,7 @@ export async function scanEventBlocks(
             return;
         }
         global_event_vars.isScanning = true;
-        const isDebug = true;
+        const isDebug = false;
         if (!isDebug) {
             try {
                 console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords history at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
@@ -188,7 +188,7 @@ export async function processEventRecords(
                     }
                 }
 
-                console.log(newData);
+                // console.log(newData);
                 const filter = {
                     blockNumber: toScan,
                     eventIndex: index,
