@@ -130,8 +130,9 @@ export async function processEventRecords(
          * Token:       5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST
          * timestamp:   2023-06-27T06:50:58.421Z
          */
+        let index=0;
         for (const ex of signedBlock.block.extrinsics) {
-            const index: any = signedBlock.block.extrinsics.indexOf(ex);
+            index = index + 1;
             let newData:{
                 ex?: any,
                 tokenContract?: string,
