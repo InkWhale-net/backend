@@ -828,7 +828,7 @@ export class ApiController {
     let tokenContract = req?.tokenContract;
     let queryAddress = req?.queryAddress;
 
-    const order = req?.sort ? 'createdTime ASC' : 'createdTime DESC';
+    const order = req?.sort ? 'blockNumber ASC' : 'blockNumber DESC';
     let queryClause: any = {};
 
     if (queryAddress != 'undefined') {
