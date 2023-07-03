@@ -845,7 +845,10 @@ export class ApiController {
     let data = await this.eventTransferRepository.find({
       where: queryClause,
       order: [order],
+      limit: req?.limit || 10,
+      skip: req?.offset || 0,
     });
+    console.log(data)
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
