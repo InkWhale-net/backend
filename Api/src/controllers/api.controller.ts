@@ -1,7 +1,8 @@
 import {inject} from '@loopback/core';
-import {post, Request, requestBody, RestBindings,} from '@loopback/rest';
+import {post, Request, requestBody, RestBindings} from '@loopback/rest';
 import {repository} from "@loopback/repository";
 import {
+  EventTransferRepository,
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
@@ -27,6 +28,7 @@ import {
   ReqGetPoolsType,
   ReqGetTokensType,
   ReqGetTokenType,
+  ReqGetTransactionHistoryType,
   ReqImportToken,
   ReqImportTokenBody,
   RequestGetLpPoolsBody,
@@ -37,6 +39,7 @@ import {
   RequestGetPoolsByOwnerBody,
   RequestGetTokenBody,
   RequestGetTokensBody,
+  RequestGetTransactionHistoryBody,
   RequestLpPoolsByAddressBody,
   RequestLpPoolsByOwnerBody,
   RequestPoolsBody,
@@ -73,6 +76,8 @@ export class ApiController {
       public lpPoolsSchemaRepository : LpPoolsSchemaRepository,
       @repository(NftPoolsSchemaRepository)
       public nftPoolsSchemaRepository : NftPoolsSchemaRepository,
+      @repository(EventTransferRepository)
+      public eventTransferRepository: EventTransferRepository,
       @inject(RestBindings.Http.REQUEST) private req: Request
   ) {}
 
@@ -792,6 +797,52 @@ export class ApiController {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
       ret: pool
+    };
+  }
+
+  @post('/getTransactionHistory')
+  async getTransactionHistory(
+      @requestBody(RequestGetTransactionHistoryBody)
+          req: ReqGetTransactionHistoryType,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+
+    let tokenContract = req?.tokenContract;
+    let queryAddress = req?.queryAddress;
+
+    const order = req?.sort ? 'blockNumber ASC' : 'blockNumber DESC';
+    let queryClause: any = {};
+
+    if (queryAddress != 'undefined') {
+      queryClause.or = [
+        req?.isFromOnly ? undefined : {toAddress: queryAddress},
+        req?.isToOnly ? undefined : {fromAddress: queryAddress},
+      ].filter(e => e);
+    }
+
+    if (tokenContract != 'undefined') {
+      queryClause.and = [{tokenAddress: tokenContract}];
+    }
+
+    let data = await this.eventTransferRepository.find({
+      where: queryClause,
+      order: [order],
+      limit: req?.limit || 10,
+      skip: req?.offset || 0,
+    });
+    let countDoc = await this.eventTransferRepository.count(queryClause);
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: {
+        dataArray: data,
+        total: countDoc?.count,
+      },
     };
   }
 }
