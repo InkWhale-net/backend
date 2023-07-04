@@ -89,13 +89,13 @@ export async function scanEventBlocks(
                     try {
                         await scannedBlocksCollection.updateOne({
                                 lastScanned: true,
-                            },{
-                                "$set": {
-                                    lastScanned: true,
-                                    blockNumber: to_scan,
-                                    updatedTime: new Date()
-                                }
-                            },
+                        },{
+                            "$set": {
+                                lastScanned: true,
+                                blockNumber: to_scan,
+                                updatedTime: new Date()
+                            }
+                        },
                             { upsert: true });
                     } catch (e) {
                         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
@@ -118,7 +118,7 @@ export async function reScanEventBlocks(
     startBlockNumber: number,
     endBlockNumber: number,
     api: ApiPromise,
-    scannedBlocksCollection: mongoDB.Collection,
+    reScannedBlocksCollection: mongoDB.Collection,
     eventTransferCollection: mongoDB.Collection,
     abi_inw_token_contract: Abi,
     abi_token_generator_contract: Abi,
@@ -126,8 +126,9 @@ export async function reScanEventBlocks(
 ) {
     try {
         const isDebug = false;
-        if (!isDebug) {
+        if (!isDebug && !global_event_vars.isReScanning) {
             try {
+                global_event_vars.isReScanning = true;
                 for (let to_scan = startBlockNumber; to_scan <= endBlockNumber; to_scan++) {
                     const blockHash = await api.rpc.chain.getBlockHash(to_scan);
                     const signedBlock = await api.rpc.chain.getBlock(blockHash);
@@ -145,15 +146,15 @@ export async function reScanEventBlocks(
                     );
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
-                        await scannedBlocksCollection.updateOne({
+                        await reScannedBlocksCollection.updateOne({
                                 lastScanned: true,
-                            },{
-                                "$set": {
-                                    lastScanned: true,
-                                    blockNumber: to_scan,
-                                    updatedTime: new Date()
-                                }
-                            },
+                        },{
+                            "$set": {
+                                lastScanned: true,
+                                blockNumber: to_scan,
+                                updatedTime: new Date()
+                            }
+                        },
                             { upsert: true });
                     } catch (e) {
                         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
@@ -162,6 +163,7 @@ export async function reScanEventBlocks(
             } catch (e) {
                 send_telegram_message("scanBlocks - " + e.message);
             }
+            global_event_vars.isReScanning = false;
         }
     } catch (e) {
         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
@@ -265,13 +267,13 @@ export async function processEventRecords(
                     });
                 } else {
                     await eventTransferCollection.updateMany(filter,{
-                            "$set": {
-                                ...filter,
-                                data: newData,
-                                createdTime: new Date(),
-                                updatedTime: new Date(),
-                            }
-                        },
+                        "$set": {
+                            ...filter,
+                            data: newData,
+                            createdTime: new Date(),
+                            updatedTime: new Date(),
+                        }
+                    },
                         { upsert: true });
                 }
             }
