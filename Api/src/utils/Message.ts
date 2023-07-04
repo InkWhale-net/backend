@@ -407,31 +407,31 @@ export type ReqGetTransactionHistoryType = {
     isToOnly: Boolean
 };
 const ReqGetTransactionHistorySchema: SchemaObject = {
-  type: 'object',
-  required: ['tokenContract'],
-  properties: {
-    tokenContract: {
-      type: 'string',
+    type: 'object',
+    required: ['tokenContract'],
+    properties: {
+        tokenContract: {
+            type: 'string',
+        },
+        queryAddress: {
+            type: 'string',
+        },
+        limit: {
+            type: 'number',
+        },
+        offset: {
+            type: 'number',
+        },
+        sort: {
+            type: 'boolean',
+        },
+        isFromOnly: {
+            type: 'boolean',
+        },
+        isToOnly: {
+            type: 'boolean',
+        },
     },
-    queryAddress: {
-      type: 'string',
-    },
-    limit: {
-      type: 'number',
-    },
-    offset: {
-      type: 'number',
-    },
-    sort: {
-      type: 'boolean',
-    },
-    isFromOnly: {
-      type: 'boolean',
-    },
-    isToOnly: {
-      type: 'boolean',
-    },
-  },
 };
 export const RequestGetTransactionHistoryBody = {
     description: 'The input of getTransactionHistory function',
