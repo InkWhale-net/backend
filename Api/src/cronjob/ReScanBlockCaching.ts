@@ -6,11 +6,12 @@ import {randomAsNumber} from "@polkadot/util-crypto";
 import {ApiPromise, WsProvider} from "@polkadot/api";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import {global_event_vars, SOCKET_STATUS} from "./global";
-import {scanEventBlocks} from "./Action";
+import {reScanEventBlocks, scanEventBlocks} from "./Action";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {inw_token} from "../contracts/inw_token";
 import * as inw_token_calls from "../contracts/inw_token_calls";
 import {token_generator_contract} from "../contracts/token_generator";
+import {RedisCache} from "./ScanBlockCaching";
 dotenv.config();
 
 export const collections: {
@@ -21,9 +22,10 @@ export const collections: {
 export async function connectToDatabase () {
     dotenv.config();
     const dbUrl:string = process.env.DB_URL ? process.env.DB_URL : `127.0.0.1:27017`;
+    const nodeBlockNumber = (process.env.NODE_BLOCK_NUMBER) ? process.env.NODE_BLOCK_NUMBER : `Default${Math.random()}`;
     const dbEventTransferCollection:string = `EventTransfer`;
     const dbScannedBlockCollection:string = `ScannedBlocks`;
-    const dbReScannedBlockCollection:string = `ReScannedBlocks`;
+    const dbReScannedBlockCollection:string = `ReScannedBlocks${nodeBlockNumber}`;
     const client: mongoDB.MongoClient = new mongoDB.MongoClient(dbUrl);
     await client.connect();
 
@@ -41,98 +43,18 @@ export async function connectToDatabase () {
     console.log(`Successfully connected to collection: ${reScannedBlockCollection.collectionName}`);
 }
 
-export class RedisCache {
-    private readonly cache: RedisClientType;
-    private ttl: number; // Time to Live
-
-    constructor(ttl: number) {
-        this.ttl = ttl;
-        this.cache = createClient({
-            url: process.env.REDIS_URL
-        });
-        this.cache.on("error", (error: any) => {
-            console.error(`Redis Client Error: ${error}`);
-        });
-        this.cache.on("connect", () => {
-            console.log(`Redis connection established`);
-        });
-    }
-
-    async connect() {
-        return await this.cache.connect();
-    }
-
-    async disconnect() {
-        return await this.cache.disconnect();
-    }
-
-    async multi() {
-        return await this.cache.multi();
-    }
-
-    async flushDb() {
-        return await this.cache.flushDb();
-    }
-
-    async get(arg: any) {
-        return await this.cache.get(arg);
-    }
-
-    async set(arg: any, data: any, opt?: any) {
-        return await this.cache.set(arg, data, opt);
-    }
-
-    async test() {
-        await this.connect();
-
-        // TODO: Add events Data into cache
-        for(let blockNumber = 0; blockNumber < 100; blockNumber++) {
-            const eventData = {
-                data: `blockNumberData_${blockNumber}`,
-                createdTime: new Date().getTime(),
-                updatedTime: new Date().getTime(),
-            };
-            await this.set(`blockNumber_${blockNumber}`, JSON.stringify(eventData));
-
-            if (collections?.eventTransfer) {
-                const eventDataObject = await collections.eventTransfer.findOne({
-                    blockNumber: blockNumber
-                });
-                if (eventDataObject) {
-                    console.log({eventData: eventDataObject});
-                } else {
-                    await collections.eventTransfer.insertOne({
-                        blockNumber: randomAsNumber(),
-                        data: {
-                            ...eventData,
-                            name: `test`,
-                            value: `test_${new Date().getTime()}`,
-                        },
-                        createdTime: new Date(),
-                        updatedTime: new Date(),
-                    });
-                }
-            }
-        }
-
-        let value = await this.get(`blockNumber_${12}`);
-        console.log({value: value});
-
-        await this.flushDb();
-
-        value = await this.get(`blockNumber_${17}`);
-        console.log({value: value});
-
-        await this.disconnect();
-    }
-}
-
-export async function mainScanBlockCaching():Promise<void> {
-    const newCache = new RedisCache(5000);
+export async function mainReScanBlockCaching():Promise<void> {
+    const redisCache = new RedisCache(5000);
     connectToDatabase().then(() => {
         const rpc = process.env.PROVIDER;
+        const startBlockNumber:number = process.env.START_BLOCK_NUMBER ? parseInt(process.env.START_BLOCK_NUMBER) : 0;
+        const endBlockNumber:number = process.env.END_BLOCK_NUMBER ? parseInt(process.env.END_BLOCK_NUMBER) : 0;
         if (!rpc) {
             console.log(`RPC not found! ${rpc}`);
+            return;
+        }
+        if (!startBlockNumber || !endBlockNumber || startBlockNumber > endBlockNumber) {
+            console.log(`BlockNumber not defined! startBlockNumber: ${startBlockNumber}, endBlockNumber: ${endBlockNumber}`);
             return;
         }
         const provider = new WsProvider(rpc);
@@ -158,8 +80,8 @@ export async function mainScanBlockCaching():Promise<void> {
                 console.log(`Global RPC Ready. start processing now: ${rpc}`);
 
                 // Config redis
-                await newCache.connect();
-                const multi: any = await newCache.multi();
+                await redisCache.connect();
+                const multi: any = await redisCache.multi();
 
                 const inw_contract = new ContractPromise(
                     eventApi,
@@ -178,15 +100,15 @@ export async function mainScanBlockCaching():Promise<void> {
                             && collections.scannedBlocks
                             && collections.reScannedBlocks
                         ) {
-                            console.log(`scanEventBlocks`);
-                            scanEventBlocks(
-                                newCache,
+                            console.log(`reScanEventBlocks`);
+                            reScanEventBlocks(
+                                redisCache,
                                 multi,
                                 header,
-                                parseInt(header.number.toString()),
-                                // 34765608,
+                                startBlockNumber,
+                                endBlockNumber,
                                 eventApi,
-                                collections.scannedBlocks,
+                                collections.reScannedBlocks,
                                 collections.eventTransfer,
                                 abi_inw_token_contract,
                                 abi_token_generator_contract,
@@ -194,7 +116,7 @@ export async function mainScanBlockCaching():Promise<void> {
                             );
                         }
                     } catch (e) {
-                        console.log(`mainScanBlockCaching - ERROR: ${e.message}`);
+                        console.log(`mainReScanBlockCaching - ERROR: ${e.message}`);
                     }
 
                 });
@@ -213,4 +135,4 @@ export async function mainScanBlockCaching():Promise<void> {
     });
 }
 
-mainScanBlockCaching().then();
+mainReScanBlockCaching().then();

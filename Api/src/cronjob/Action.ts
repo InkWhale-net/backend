@@ -1,14 +1,10 @@
 import {global_event_vars} from "./global";
 import {ApiPromise} from "@polkadot/api";
-import crypto from "crypto";
 import {CONFIG_TYPE_NAME} from "../utils/constant";
 import {convertToUTCTime} from "../utils/Tools";
-import {ScannedBlocksSchemaRepository} from "../repositories";
 import * as mongoDB from "mongodb";
 import {send_telegram_message} from "../utils/utils";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
-import * as inw_token_calls from "../contracts/inw_token_calls";
-import {inw_token} from "../contracts/inw_token";
 import {compactAddLength, hexToU8a} from "@polkadot/util";
 import {RedisCache} from "./ScanBlockCaching";
 
@@ -19,6 +15,7 @@ export function setContract(c: ContractPromise) {
 
 export async function scanEventBlocks(
     newCache: RedisCache,
+    multi: any,
     header: any,
     blockNumber: number,
     api: ApiPromise,
@@ -36,6 +33,7 @@ export async function scanEventBlocks(
             console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
             await processEventRecords(
                 newCache,
+                multi,
                 signedBlock,
                 blockNumber,
                 abi_inw_token_contract,
@@ -78,6 +76,7 @@ export async function scanEventBlocks(
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     await processEventRecords(
                         newCache,
+                        multi,
                         signedBlock,
                         to_scan,
                         abi_inw_token_contract,
@@ -112,8 +111,68 @@ export async function scanEventBlocks(
     }
 }
 
+export async function reScanEventBlocks(
+    newCache: RedisCache,
+    multi: any,
+    header: any,
+    startBlockNumber: number,
+    endBlockNumber: number,
+    api: ApiPromise,
+    reScannedBlocksCollection: mongoDB.Collection,
+    eventTransferCollection: mongoDB.Collection,
+    abi_inw_token_contract: Abi,
+    abi_token_generator_contract: Abi,
+    inw_contract: ContractPromise
+) {
+    try {
+        const isDebug = false;
+        if (!isDebug && !global_event_vars.isReScanning) {
+            try {
+                global_event_vars.isReScanning = true;
+                for (let to_scan = startBlockNumber; to_scan <= endBlockNumber; to_scan++) {
+                    const blockHash = await api.rpc.chain.getBlockHash(to_scan);
+                    const signedBlock = await api.rpc.chain.getBlock(blockHash);
+                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Start processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+                    await processEventRecords(
+                        newCache,
+                        multi,
+                        signedBlock,
+                        to_scan,
+                        abi_inw_token_contract,
+                        abi_token_generator_contract,
+                        api,
+                        inw_contract,
+                        eventTransferCollection
+                    );
+                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+                    try {
+                        await reScannedBlocksCollection.updateOne({
+                                lastScanned: true,
+                        },{
+                            "$set": {
+                                lastScanned: true,
+                                blockNumber: to_scan,
+                                updatedTime: new Date()
+                            }
+                        },
+                            { upsert: true });
+                    } catch (e) {
+                        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
+                    }
+                }
+            } catch (e) {
+                send_telegram_message("scanBlocks - " + e.message);
+            }
+            global_event_vars.isReScanning = false;
+        }
+    } catch (e) {
+        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
+    }
+}
+
 export async function processEventRecords(
     newCache: RedisCache,
+    multi: any,
     signedBlock: any,
     toScan: number,
     abi_inw_token_contract: Abi,
@@ -189,7 +248,7 @@ export async function processEventRecords(
                     }
                 }
 
-                // console.log(newData);
+                // TODO: Switch to redis caching here
                 const filter = {
                     blockNumber: toScan,
                     eventIndex: index,
