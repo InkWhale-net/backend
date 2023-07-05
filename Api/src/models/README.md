@@ -91,3 +91,17 @@ This directory contains code for models provided by this app.
 - maxStakingAmount
 - multiplier
 - owner
+
+## EventTransferRepository
+### Model:
+- EventTransfer
+### Command line:
+- db.EventTransfer.createIndex( { "blockNumber": 1, "eventIndex": 1, "fromAddress": 1, "toAddress": 1, "tokenAddress": 1, "amount": 1, "data": 1 }, { unique: true } )
+### Keys:
+- blockNumber
+- eventIndex
+- fromAddress
+- toAddress
+- tokenAddress
+- amount
+- data
