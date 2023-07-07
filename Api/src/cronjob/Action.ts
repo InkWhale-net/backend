@@ -132,7 +132,7 @@ export async function reScanEventBlocks(
                 for (let to_scan = startBlockNumber; to_scan <= endBlockNumber; to_scan++) {
                     const blockHash = await api.rpc.chain.getBlockHash(to_scan);
                     const signedBlock = await api.rpc.chain.getBlock(blockHash);
-                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Start processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Start reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     await processEventRecords(
                         newCache,
                         multi,
@@ -144,7 +144,7 @@ export async function reScanEventBlocks(
                         inw_contract,
                         eventTransferCollection
                     );
-                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
                         await reScannedBlocksCollection.updateOne({
                                 lastScanned: true,
@@ -213,6 +213,14 @@ export async function processEventRecords(
             newData.ex = ex.toHuman();
             const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
             if (isSigned) {
+                // console.log(ex.toHuman());
+                // let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+                // console.log(decodedMessage);
+                // if (decodedMessage?.args) {
+                //     for(const item of decodedMessage?.args) {
+                //         console.log(item.toHuman());
+                //     }
+                // }
                 if (args) {
                     newData.tokenContract = args.dest.Id;
                     newData.value = args.value;
@@ -236,10 +244,10 @@ export async function processEventRecords(
                     || true
                 ) {
                     let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
-                    const {identifier, method, path} = decodedMessage.message;
-                    if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
-                        continue;
-                    }
+                    // const {identifier, method, path} = decodedMessage.message;
+                    // if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
+                    //     continue;
+                    // }
                     if (decodedMessage?.args) {
                         newData.to = decodedMessage.args[0].toHuman();
                         newData.amount = decodedMessage.args[1].toHuman();

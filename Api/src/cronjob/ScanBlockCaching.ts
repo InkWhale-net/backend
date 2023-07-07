@@ -179,19 +179,19 @@ export async function mainScanBlockCaching():Promise<void> {
                             && collections.reScannedBlocks
                         ) {
                             console.log(`scanEventBlocks`);
-                            scanEventBlocks(
-                                newCache,
-                                multi,
-                                header,
-                                parseInt(header.number.toString()),
-                                // 34765608,
-                                eventApi,
-                                collections.scannedBlocks,
-                                collections.eventTransfer,
-                                abi_inw_token_contract,
-                                abi_token_generator_contract,
-                                inw_contract
-                            );
+                            // scanEventBlocks(
+                            //     newCache,
+                            //     multi,
+                            //     header,
+                            //     parseInt(header.number.toString()),
+                            //     // 34765608,
+                            //     eventApi,
+                            //     collections.scannedBlocks,
+                            //     collections.eventTransfer,
+                            //     abi_inw_token_contract,
+                            //     abi_token_generator_contract,
+                            //     inw_contract
+                            // );
                         }
                     } catch (e) {
                         console.log(`mainScanBlockCaching - ERROR: ${e.message}`);
