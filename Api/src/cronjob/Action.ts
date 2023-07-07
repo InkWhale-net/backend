@@ -189,6 +189,39 @@ export async function processEventRecords(
          * Token:       5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST
          * timestamp:   2023-06-27T06:50:58.421Z
          */
+        // const blockHash = await api.rpc.chain.getBlockHash(toScan);
+        // // @ts-ignore
+        // const eventRecords = await api.query.system.events.at(blockHash);
+        // if (eventRecords) {
+        //     // @ts-ignore
+        //     for (const record of eventRecords) {
+        //         const {phase, event: {data, method, section}} = record;
+        //         console.log(`section: ${section}, method: ${method}, phase: ${phase}`);
+        //         if ((section == "balances" && (method == "Transfer" || method == "Deposit" || method == "Reserved"))
+        //             || (section == "treasury" && (method == "Deposit"))
+        //         ) {
+        //             console.log(data.toHuman());
+        //             // const [from, to, bytes] = data.map((data: any, _: any) => data).slice(0, 2);
+        //             // const from_address = from.toString();
+        //             // const to_address = to.toString();
+        //             // console.log({
+        //             //     from_address: from_address,
+        //             //     to_address: to_address,
+        //             //     amount: bytes.toString(),
+        //             // })
+        //             // let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(bytes));
+        //             // if (decodedMessage?.args) {
+        //             //     for(const item of decodedMessage?.args) {
+        //             //         console.log(item.toHuman());
+        //             //     }
+        //             // }
+        //         }
+        //     }
+        // }
+
+
+
+
         let index=0;
         for (const ex of signedBlock.block.extrinsics) {
             index = index + 1;
@@ -212,15 +245,23 @@ export async function processEventRecords(
             } = {};
             newData.ex = ex.toHuman();
             const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
+
+            // if (isSigned) {
+            //     // console.log(ex.toHuman());
+            //     try {
+            //         let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+            //         // console.log(decodedMessage);
+            //         // if (decodedMessage?.args) {
+            //         //     for(const item of decodedMessage?.args) {
+            //         //         console.log(item.toHuman());
+            //         //     }
+            //         // }
+            //     } catch (e) {
+            //         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+            //     }
+            // }
+
             if (isSigned) {
-                // console.log(ex.toHuman());
-                // let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
-                // console.log(decodedMessage);
-                // if (decodedMessage?.args) {
-                //     for(const item of decodedMessage?.args) {
-                //         console.log(item.toHuman());
-                //     }
-                // }
                 if (args) {
                     newData.tokenContract = args.dest.Id;
                     newData.value = args.value;
