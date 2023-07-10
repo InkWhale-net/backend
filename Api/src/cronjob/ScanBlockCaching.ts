@@ -192,6 +192,8 @@ export async function mainScanBlockCaching():Promise<void> {
                         if (
                             collections.eventTransfer
                             && collections.eventPoolCollection
+                            && collections.poolsCollection
+                            && collections.nftPoolsCollection
                             && collections.scannedBlocks
                             && collections.reScannedBlocks
                         ) {
