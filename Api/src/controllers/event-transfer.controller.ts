@@ -20,7 +20,7 @@ import {
 import {EventTransfer} from '../models';
 import {EventTransferRepository} from '../repositories';
 
-export class EventTransferController {
+class EventTransferController {
   constructor(
     @repository(EventTransferRepository)
     public eventTransferRepository : EventTransferRepository,
