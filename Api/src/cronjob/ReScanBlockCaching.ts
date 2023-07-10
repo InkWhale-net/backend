@@ -2,11 +2,10 @@ import {createClient, RedisClientType} from "redis";
 import dotenv from "dotenv";
 import * as mongoDB from "mongodb";
 import {EventTransfer, ScannedBlocks} from "../models";
-import {randomAsNumber} from "@polkadot/util-crypto";
 import {ApiPromise, WsProvider} from "@polkadot/api";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import {global_event_vars, SOCKET_STATUS} from "./global";
-import {reScanEventBlocks, scanEventBlocks} from "./Action";
+import {reScanEventBlocks} from "./Action";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {inw_token} from "../contracts/inw_token";
 import * as inw_token_calls from "../contracts/inw_token_calls";
@@ -16,6 +15,9 @@ dotenv.config();
 
 export const collections: {
     eventTransfer?: mongoDB.Collection,
+    eventPoolCollection?: mongoDB.Collection,
+    poolsCollection?: mongoDB.Collection,
+    nftPoolsCollection?: mongoDB.Collection,
     scannedBlocks?: mongoDB.Collection,
     reScannedBlocks?: mongoDB.Collection,
 } = {}
@@ -24,6 +26,9 @@ export async function connectToDatabase () {
     const dbUrl:string = process.env.DB_URL ? process.env.DB_URL : `127.0.0.1:27017`;
     const nodeBlockNumber = (process.env.NODE_BLOCK_NUMBER) ? process.env.NODE_BLOCK_NUMBER : `Default${Math.random()}`;
     const dbEventTransferCollection:string = `EventTransfer`;
+    const dbEventPoolCollection:string = `EventPool`;
+    const dbPoolsCollection:string = `Pools`;
+    const dbNftPoolsCollection:string = `NftPools`;
     const dbScannedBlockCollection:string = `ScannedBlocks`;
     const dbReScannedBlockCollection:string = `ReScannedBlocks${nodeBlockNumber}`;
     const client: mongoDB.MongoClient = new mongoDB.MongoClient(dbUrl);
@@ -32,6 +37,12 @@ export async function connectToDatabase () {
     const db: mongoDB.Db = client.db(process.env.DB_URL_NAME);
     const eventTransferCollection: mongoDB.Collection = db.collection(dbEventTransferCollection);
     collections.eventTransfer = eventTransferCollection;
+    const eventPoolCollection: mongoDB.Collection = db.collection(dbEventPoolCollection);
+    collections.eventPoolCollection = eventPoolCollection;
+    const poolsCollection: mongoDB.Collection = db.collection(dbPoolsCollection);
+    collections.poolsCollection = poolsCollection;
+    const nftPoolsCollection: mongoDB.Collection = db.collection(dbNftPoolsCollection);
+    collections.nftPoolsCollection = nftPoolsCollection;
     const scannedBlockCollection: mongoDB.Collection = db.collection(dbScannedBlockCollection);
     collections.scannedBlocks = scannedBlockCollection;
     const reScannedBlockCollection: mongoDB.Collection = db.collection(dbReScannedBlockCollection);
@@ -39,6 +50,9 @@ export async function connectToDatabase () {
 
     console.log(`Successfully connected to database: ${db.databaseName}`);
     console.log(`Successfully connected to collection: ${eventTransferCollection.collectionName}`);
+    console.log(`Successfully connected to collection: ${eventPoolCollection.collectionName}`);
+    console.log(`Successfully connected to collection: ${poolsCollection.collectionName}`);
+    console.log(`Successfully connected to collection: ${nftPoolsCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${scannedBlockCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${reScannedBlockCollection.collectionName}`);
 }
@@ -97,6 +111,9 @@ export async function mainReScanBlockCaching():Promise<void> {
                     try {
                         if (
                             collections.eventTransfer
+                            && collections.eventPoolCollection
+                            && collections.poolsCollection
+                            && collections.nftPoolsCollection
                             && collections.scannedBlocks
                             && collections.reScannedBlocks
                         ) {
@@ -110,6 +127,9 @@ export async function mainReScanBlockCaching():Promise<void> {
                                 eventApi,
                                 collections.reScannedBlocks,
                                 collections.eventTransfer,
+                                collections.eventPoolCollection,
+                                collections.poolsCollection,
+                                collections.nftPoolsCollection,
                                 abi_inw_token_contract,
                                 abi_token_generator_contract,
                                 inw_contract
