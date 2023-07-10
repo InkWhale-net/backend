@@ -206,6 +206,8 @@ export async function mainScanBlockCaching():Promise<void> {
                                 collections.scannedBlocks,
                                 collections.eventTransfer,
                                 collections.eventPoolCollection,
+                                collections.poolsCollection,
+                                collections.nftPoolsCollection,
                                 abi_inw_token_contract,
                                 abi_token_generator_contract,
                                 inw_contract
