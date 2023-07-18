@@ -29,6 +29,9 @@ export const logger = winston.createLogger({
     ],
 });
 
+export function convertNumberWithoutCommas(input: string):string {
+    return input.replace(/,/g, "");
+}
 export function send_telegram_message(message: string) {
     try {
         new Promise(async () => {

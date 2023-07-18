@@ -3,7 +3,7 @@ import {ApiPromise} from "@polkadot/api";
 import {CONFIG_TYPE_NAME} from "../utils/constant";
 import {convertToUTCTime} from "../utils/Tools";
 import * as mongoDB from "mongodb";
-import {send_telegram_message} from "../utils/utils";
+import {convertNumberWithoutCommas, send_telegram_message} from "../utils/utils";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {compactAddLength, hexToU8a} from "@polkadot/util";
 import {RedisCache} from "./ScanBlockCaching";
@@ -269,7 +269,7 @@ export async function processEventRecords(
                                 poolAddress: eventValues[0]?.toString(),
                                 tokenAddress: eventValues[1]?.toString(),
                                 callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? eventValues[3].toString() : '',
+                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
                                 createdTime: new Date(),
                                 updatedTime: new Date()
                             });
@@ -280,7 +280,7 @@ export async function processEventRecords(
                                 poolAddress: eventValues[0]?.toString(),
                                 tokenAddress: eventValues[1]?.toString(),
                                 callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? eventValues[3].toString() : '',
+                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
                                 createdTime: new Date(),
                                 updatedTime: new Date()
                             });
@@ -291,7 +291,7 @@ export async function processEventRecords(
                                 poolAddress: eventValues[0]?.toString(),
                                 tokenAddress: eventValues[1]?.toString(),
                                 callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? eventValues[3].toString() : '',
+                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
                                 createdTime: new Date(),
                                 updatedTime: new Date()
                             });
@@ -333,7 +333,7 @@ export async function processEventRecords(
                                 nftContractAddress: obj.nftContractAddress ? obj.nftContractAddress : '',
                                 callerAddress: obj.callerAddress ? obj.callerAddress : '',
                                 nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
-                                amount: obj.amount ? obj.amount : '',
+                                amount: obj.amount ? convertNumberWithoutCommas(obj.amount) : '',
                             };
                         } else if (event_name == 'NFTPoolStakeEvent') {
                             obj = new EventPool({
@@ -353,7 +353,7 @@ export async function processEventRecords(
                                 nftContractAddress: obj.nftContractAddress ? obj.nftContractAddress : '',
                                 callerAddress: obj.callerAddress ? obj.callerAddress : '',
                                 nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
-                                amount: obj.amount ? obj.amount : '',
+                                amount: obj.amount ? convertNumberWithoutCommas(obj.amount) : '',
                             };
                         } else if (event_name == 'NFTPoolClaimEvent') {
                             obj = new EventPool({
@@ -362,7 +362,7 @@ export async function processEventRecords(
                                 poolAddress: eventValues[0]?.toString(),
                                 nftContractAddress: eventValues[1]?.toString(),
                                 callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? eventValues[3].toString() : '',
+                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
                                 createdTime: new Date(),
                                 updatedTime: new Date()
                             });
@@ -488,6 +488,11 @@ export async function processEventRecords(
                     // if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
                     //     continue;
                     // }
+                    // if (decodedMessage?.args) {
+                    //     for(const item of decodedMessage?.args) {
+                    //         console.log(item.toHuman());
+                    //     }
+                    // }
                     if (decodedMessage?.args) {
                         newData.to = decodedMessage.args[0].toHuman();
                         newData.amount = decodedMessage.args[1].toHuman();
@@ -496,6 +501,7 @@ export async function processEventRecords(
                     }
                 }
 
+
                 // TODO: Switch to redis caching here
                 const filter = {
                     blockNumber: toScan,
@@ -503,7 +509,7 @@ export async function processEventRecords(
                     fromAddress: newData.signer ? newData.signer.toString() : '',
                     toAddress: newData.to ? newData.to.toString() : '',
                     tokenAddress: newData.tokenContract ? newData.tokenContract.toString() : '',
-                    amount: newData.amount ? parseFloat(newData.amount.replace(`,`,'')) : 0,
+                    amount: newData.amount ? convertNumberWithoutCommas(newData.amount) : 0,
                 };
                 const eventData = await eventTransferCollection.findOne(filter);
                 if (!eventData) {
