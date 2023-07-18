@@ -484,10 +484,10 @@ export async function processEventRecords(
                     || true
                 ) {
                     let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
-                    // const {identifier, method, path} = decodedMessage.message;
-                    // if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
-                    //     continue;
-                    // }
+                    const {identifier, method, path} = decodedMessage.message;
+                    if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
+                        continue;
+                    }
                     if (decodedMessage?.args) {
                         newData.to = decodedMessage.args[0].toHuman();
                         newData.amount = decodedMessage.args[1].toHuman();
