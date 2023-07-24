@@ -441,3 +441,56 @@ export const RequestGetTransactionHistoryBody = {
         'application/x-www-form-urlencoded': {schema: ReqGetTransactionHistorySchema},
     },
 };
+
+// GET Launchpads
+export type ReqGetLaunchpadsType = {
+    limit?: number,
+    offset?: number,
+    sort?: number,
+};
+const ReqGetLaunchpadsSchema: SchemaObject = {
+    type: 'object',
+    required: [],
+    properties: {
+        limit: {
+            type: 'number',
+        },
+        offset: {
+            type: 'number',
+        },
+        sort: {
+            type: 'number',
+        },
+    },
+};
+export const RequestLaunchpadsBody = {
+    description: 'The input of getPools function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqGetLaunchpadsSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetLaunchpadsSchema},
+    },
+};
+
+
+// GET LAUNCHPAD BY ADDRESS
+export type ReqGetLaunchpadsByAddressType = {
+    launchpadContract?: string
+};
+const ReqGetLaunchpadsByAddressSchema: SchemaObject = {
+    type: 'object',
+    required: ['launchpadContract'],
+    properties: {
+        launchpadContract: {
+            type: 'string',
+        }
+    },
+};
+export const RequestGetLaunchpadsByAddressBody = {
+    description: 'The input of getLaunchpadByAddress function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqGetLaunchpadsByAddressSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetLaunchpadsByAddressSchema},
+    },
+};

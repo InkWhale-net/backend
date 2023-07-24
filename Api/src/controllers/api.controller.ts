@@ -18,6 +18,8 @@ import {
   STATUS,
 } from '../utils/constant';
 import {
+  ReqGetLaunchpadsByAddressType,
+  ReqGetLaunchpadsType,
   ReqGetLpPoolsByAddressType,
   ReqGetLpPoolsByOwnerType,
   ReqGetLpPoolsType,
@@ -32,6 +34,7 @@ import {
   ReqGetTransactionHistoryType,
   ReqImportToken,
   ReqImportTokenBody,
+  RequestGetLaunchpadsByAddressBody,
   RequestGetLpPoolsBody,
   RequestGetNftPoolsBody,
   RequestGetNftPoolsByAddressBody,
@@ -41,6 +44,7 @@ import {
   RequestGetTokenBody,
   RequestGetTokensBody,
   RequestGetTransactionHistoryBody,
+  RequestLaunchpadsBody,
   RequestLpPoolsByAddressBody,
   RequestLpPoolsByOwnerBody,
   RequestPoolsBody,
@@ -870,4 +874,64 @@ export class ApiController {
       },
     };
   }
+  
+  @post('/getLaunchpads')
+  async getLaunchpads(
+    @requestBody(RequestLaunchpadsBody) req: ReqGetLaunchpadsType,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+    let limit = req?.limit;
+    let offset = req?.offset;
+    if (!limit) limit = 100;
+    if (!offset) offset = 0;
+    const order = req?.sort ? 'startTime DESC' : 'startTime ASC';
+    let pools = [];
+    pools = await this.launchpadsSchemaRepository.find({
+      order: [order],
+      limit: limit,
+      skip: offset,
+    });
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: pools,
+    };
+  }
+
+  @post('/getLaunchpadByAddress')
+  async getLaunchpadByAddress(
+    @requestBody(RequestGetLaunchpadsByAddressBody) req: ReqGetLaunchpadsByAddressType,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+    let launchpadContract = req?.launchpadContract;
+    if (!launchpadContract) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
+        ret: [],
+      };
+    }
+    let pool = await this.launchpadsSchemaRepository.find({
+      where: {
+        launchpadContract: launchpadContract,
+      },
+    });
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: pool,
+    };
+  }
+
+
 }
