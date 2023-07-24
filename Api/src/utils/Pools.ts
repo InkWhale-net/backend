@@ -1,6 +1,7 @@
 import {ContractPromise} from "@polkadot/api-contract";
 import {ApiPromise} from "@polkadot/api";
 import {
+    LaunchpadsSchemaRepository,
     LpPoolsSchemaRepository,
     NftPoolsSchemaRepository,
     PoolsSchemaRepository,
@@ -19,6 +20,7 @@ import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
 import {convertToUTCTime, sleep} from "./Tools";
 import {global_vars} from "../cronjob/global";
+import { ProcessLaunchpad, checkNewLaunchpads } from "./Launchpads";
 dotenv.config();
 
 export const checkQueue = async (
@@ -31,11 +33,13 @@ export const checkQueue = async (
     nft_pool_contract_calls: ContractPromise,
     lp_pool_contract_calls: ContractPromise,
     pool_contract_calls: ContractPromise,
+    launchpad_generator_calls: ContractPromise,
     updateQueueSchemaRepository: UpdateQueueSchemaRepository,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository,
     tokensSchemaRepository: TokensSchemaRepository,
     poolsSchemaRepository: PoolsSchemaRepository,
-    lpPoolsSchemaRepository: LpPoolsSchemaRepository
+    lpPoolsSchemaRepository: LpPoolsSchemaRepository,
+    launchpadsRepo: LaunchpadsSchemaRepository
 ): Promise<boolean> => {
     console.log(`Start checkQueue at ${convertToUTCTime(new Date())}`);
     if (!isTrigger) {
@@ -70,6 +74,10 @@ export const checkQueue = async (
                     console.log(`Start checkNewTokens at ${convertToUTCTime(new Date())}`);
                     isRemoved = await checkNewTokens(isTrigger, false, api, tokensSchemaRepository, token_generator_calls);
                     console.log(`Stop checkNewTokens at ${convertToUTCTime(new Date())}`);
+                } else if (requestType == "launchpad") {
+                    console.log(`Start checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
+                    isRemoved = await checkNewLaunchpads(isTrigger, false, api, launchpad_generator_calls, tokensSchemaRepository);
+                    console.log(`Stop checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
                 }
             } else {
                 if (requestType == "nft") {
@@ -84,6 +92,10 @@ export const checkQueue = async (
                     console.log(`Start ProcessPool at ${convertToUTCTime(new Date())}`);
                     isRemoved = await ProcessPool(isTrigger, false, poolContract, api, pool_contract_calls, poolsSchemaRepository);
                     console.log(`Stop ProcessPool at ${convertToUTCTime(new Date())}`);
+                } else if (requestType == "launchpad") {
+                    console.log(`Start checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
+                    isRemoved = await ProcessLaunchpad(api, poolContract, poolsSchemaRepository);
+                    console.log(`Stop checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
                 }
             }
             if (isRemoved) {
@@ -748,22 +760,25 @@ export const checkAll = async (
     lp_pool_generator_calls: ContractPromise,
     lp_pool_contract_calls: ContractPromise,
     token_generator_calls: ContractPromise,
+    launchpad_generator_calls: ContractPromise,
     poolsSchemaRepository: PoolsSchemaRepository,
     nftPoolsSchemaRepository: NftPoolsSchemaRepository,
     lpPoolsSchemaRepository: LpPoolsSchemaRepository,
-    tokensSchemaRepository: TokensSchemaRepository
+    tokensSchemaRepository: TokensSchemaRepository,
+    launchpadsSchemaRepository: LaunchpadsSchemaRepository
 ) => {
-    console.log(`Start checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
-    await checkNewPools(false, true, api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
-    console.log(`Stop checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
-    console.log(`Start checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
-    await checkNewNFTPools(false, true, api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
-    console.log(`Stop checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
-    console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
-    await checkNewTokens(false, true, api, tokensSchemaRepository, token_generator_calls);
-    console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
+    // console.log(`Start checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
+    // await checkNewPools(false, true, api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
+    // console.log(`Stop checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
+    // console.log(`Start checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
+    // await checkNewNFTPools(false, true, api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
+    // console.log(`Stop checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
+    // console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
+    // await checkNewTokens(false, true, api, tokensSchemaRepository, token_generator_calls);
+    // console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
+    await checkNewLaunchpads(false, true, api, launchpad_generator_calls, launchpadsSchemaRepository);
+    console.log(`Stop checkAll - checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
 }
-
 
 const maxStakingAmount = async (
     api: ApiPromise,

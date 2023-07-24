@@ -3,6 +3,7 @@ import {post, Request, requestBody, RestBindings} from '@loopback/rest';
 import {repository} from '@loopback/repository';
 import {
   EventTransferRepository,
+  LaunchpadsSchemaRepository,
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
@@ -63,6 +64,7 @@ import {global_vars, SOCKET_STATUS} from '../cronjob/global';
 import {pool_contract} from '../contracts/pool';
 import {lp_pool_contract} from '../contracts/lp_pool';
 import {nft_pool_contract} from '../contracts/nft_pool';
+import { launchpad_generator_contract } from '../contracts/launchpad_generator';
 
 export class ApiController {
   constructor(
@@ -78,6 +80,8 @@ export class ApiController {
     public eventTransferRepository: EventTransferRepository,
     @repository(NftPoolsSchemaRepository)
     public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
+    @repository(LaunchpadsSchemaRepository)
+        public launchpadsSchemaRepository : LaunchpadsSchemaRepository,
     @inject(RestBindings.Http.REQUEST) private req: Request,
   ) {}
 
@@ -164,11 +168,17 @@ export class ApiController {
         token_generator_contract.CONTRACT_ABI,
         token_generator_contract.CONTRACT_ADDRESS,
       );
+      const launchpad_generator_calls = new ContractPromise(
+        globalApi,
+        launchpad_generator_contract.CONTRACT_ABI,
+        launchpad_generator_contract.CONTRACT_ADDRESS
+    );
       const updateQueueRepo = this.updateQueueSchemaRepository;
       const poolsRepo = this.poolsSchemaRepository;
       const lpPoolsRepo = this.lpPoolsSchemaRepository;
       const tokensRepo = this.tokensSchemaRepository;
       const nftPoolsRepo = this.nftPoolsSchemaRepository;
+      const launchpadsRepo = this.launchpadsSchemaRepository
       checkQueue(
         isTrigger,
         globalApi,
@@ -179,11 +189,13 @@ export class ApiController {
         nft_pool_contract_calls,
         lp_pool_contract_calls,
         pool_contract_calls,
+        launchpad_generator_calls,
         updateQueueRepo,
         nftPoolsRepo,
         tokensRepo,
         poolsRepo,
         lpPoolsRepo,
+        launchpadsRepo
       );
     }
 
