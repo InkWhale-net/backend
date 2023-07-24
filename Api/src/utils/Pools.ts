@@ -767,15 +767,15 @@ export const checkAll = async (
     tokensSchemaRepository: TokensSchemaRepository,
     launchpadsSchemaRepository: LaunchpadsSchemaRepository
 ) => {
-    // console.log(`Start checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
-    // await checkNewPools(false, true, api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
-    // console.log(`Stop checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
-    // console.log(`Start checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
-    // await checkNewNFTPools(false, true, api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
-    // console.log(`Stop checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
-    // console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
-    // await checkNewTokens(false, true, api, tokensSchemaRepository, token_generator_calls);
-    // console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
+    console.log(`Start checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
+    await checkNewPools(false, true, api, pool_generator_calls, pool_contract_calls, poolsSchemaRepository);
+    console.log(`Stop checkAll - checkNewPools at ${convertToUTCTime(new Date())}`);
+    console.log(`Start checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
+    await checkNewNFTPools(false, true, api, nft_pool_generator_calls, nft_pool_contract_calls, nftPoolsSchemaRepository);
+    console.log(`Stop checkAll - checkNewNFTPools at ${convertToUTCTime(new Date())}`);
+    console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
+    await checkNewTokens(false, true, api, tokensSchemaRepository, token_generator_calls);
+    console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
     await checkNewLaunchpads(false, true, api, launchpad_generator_calls, launchpadsSchemaRepository);
     console.log(`Stop checkAll - checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
 }
