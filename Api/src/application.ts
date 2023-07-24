@@ -29,9 +29,9 @@ export class InkWhaleBeApplication extends BootMixin(
     this.static('/', path.join(__dirname, '../public'));
 
     // Customize @loopback/rest-explorer configuration here
-    this.configure(RestExplorerBindings.COMPONENT).to({
-      path: '/explorer',
-    });
+    // this.configure(RestExplorerBindings.COMPONENT).to({
+    //   path: '/explorer',
+    // });
     if (IS_ENABLE_DOCS) {
       // Set up default home page
       this.static('/', path.join(__dirname, '../public'));
