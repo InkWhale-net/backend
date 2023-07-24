@@ -26,14 +26,14 @@ export const checkNewLaunchpads = async (
       `${process.env.CALLER_ACCOUNT}`,
       'launchpadGeneratorTrait::getLaunchpadCount',
     );
-    let totalPoolDb = (await launchpadsSchemaRepository.count()).count;
+    let totalLaunchpadDb = (await launchpadsSchemaRepository.count()).count;
     console.log({
       launchpadCount: launchpadCount,
-      totalPoolDb: totalPoolDb,
+      totalPoolDb: totalLaunchpadDb,
     });
 
-    totalPoolDb = isCheckAll ? 0 : totalPoolDb;
-    for (let index = launchpadCount; index > totalPoolDb; index--) {
+    totalLaunchpadDb = isCheckAll ? 0 : totalLaunchpadDb;
+    for (let index = launchpadCount; index > totalLaunchpadDb; index--) {
       let launchpadContract = await execContractQuery(
         api,
         launchpad_generator_calls,

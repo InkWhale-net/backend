@@ -39,7 +39,7 @@ export const checkQueue = async (
     tokensSchemaRepository: TokensSchemaRepository,
     poolsSchemaRepository: PoolsSchemaRepository,
     lpPoolsSchemaRepository: LpPoolsSchemaRepository,
-    launchpadsRepo: LaunchpadsSchemaRepository
+    launchpadSchemaRepository: LaunchpadsSchemaRepository
 ): Promise<boolean> => {
     console.log(`Start checkQueue at ${convertToUTCTime(new Date())}`);
     if (!isTrigger) {
@@ -76,7 +76,7 @@ export const checkQueue = async (
                     console.log(`Stop checkNewTokens at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "launchpad") {
                     console.log(`Start checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
-                    isRemoved = await checkNewLaunchpads(isTrigger, false, api, launchpad_generator_calls, tokensSchemaRepository);
+                    isRemoved = await checkNewLaunchpads(isTrigger, false, api, launchpad_generator_calls, launchpadSchemaRepository);
                     console.log(`Stop checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
                 }
             } else {
