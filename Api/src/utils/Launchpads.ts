@@ -77,50 +77,45 @@ export const ProcessLaunchpad = async (
     `${process.env.CALLER_ACCOUNT}`,
     'launchpadContractTrait::getProjectInfoUri',
   );
-  const projectInfo = await getIPFSData(projectInfoUri);
-  if (projectInfo) {
-    let tokenAddress = await execContractQuery(
-      api,
-      launchpad_contract_calls,
-      `${process.env.CALLER_ACCOUNT}`,
-      'launchpadContractTrait::getTokenAddress',
-    );
-    try {
-      let launchpad = await launchpadsSchemaRepository.findOne({
-        where: {
+  let tokenAddress = await execContractQuery(
+    api,
+    launchpad_contract_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'launchpadContractTrait::getTokenAddress',
+  );
+  try {
+    let launchpad = await launchpadsSchemaRepository.findOne({
+      where: {
+        launchpadContract: launchpadContract,
+      },
+    });
+    if (launchpad) {
+      try {
+        await launchpadsSchemaRepository.updateById(launchpad._id, {
+          projectInfoUri: projectInfoUri,
           launchpadContract: launchpadContract,
-        },
-      });
-      if (launchpad) {
-        try {
-          await launchpadsSchemaRepository.updateById(launchpad._id, {
-            projectInfo: JSON.stringify(projectInfo),
-            projectInfoUri: projectInfoUri,
-            launchpadContract: launchpadContract,
-            tokenContract: tokenAddress,
-          });
-        } catch (e) {
-          console.log(`ERROR: ProcessPool updateById - ${e.message}`);
-          return false;
-        }
-      } else {
-        try {
-          let create_collection = await launchpadsSchemaRepository.create({
-            projectInfo: JSON.stringify(projectInfo),
-            projectInfoUri: projectInfoUri,
-            launchpadContract: launchpadContract,
-            tokenContract: tokenAddress,
-          });
-          console.log({create_collection: create_collection});
-        } catch (e) {
-          console.log(`ERROR: ProcessPool create - ${e.message}`);
-          return false;
-        }
+          tokenContract: tokenAddress,
+        });
+      } catch (e) {
+        console.log(`ERROR: ProcessPool updateById - ${e.message}`);
+        return false;
       }
-    } catch (e) {
-      console.log(`ERROR: ProcessPool - ${e.message}`);
-      return false;
+    } else {
+      try {
+        let create_collection = await launchpadsSchemaRepository.create({
+          projectInfoUri: projectInfoUri,
+          launchpadContract: launchpadContract,
+          tokenContract: tokenAddress,
+        });
+        console.log({create_collection: create_collection});
+      } catch (e) {
+        console.log(`ERROR: ProcessPool create - ${e.message}`);
+        return false;
+      }
     }
+  } catch (e) {
+    console.log(`ERROR: ProcessPool - ${e.message}`);
+    return false;
   }
 
   return true;
