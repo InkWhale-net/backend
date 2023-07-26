@@ -890,8 +890,8 @@ export class ApiController {
     if (!limit) limit = 100;
     if (!offset) offset = 0;
     const order = req?.sort ? 'startTime DESC' : 'startTime ASC';
-    let pools = [];
-    pools = await this.launchpadsSchemaRepository.find({
+    let launchpads = [];
+    launchpads = await this.launchpadsSchemaRepository.find({
       order: [order],
       limit: limit,
       skip: offset,
@@ -899,7 +899,7 @@ export class ApiController {
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: pools,
+      ret: launchpads,
     };
   }
 
