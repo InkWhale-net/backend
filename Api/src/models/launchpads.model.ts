@@ -27,6 +27,11 @@ export class Launchpads extends Entity {
   @property({
     type: 'string',
   })
+  projectInfo?: string;
+
+  @property({
+    type: 'string',
+  })
   tokenContract?: string;
 
   @property({
