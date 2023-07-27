@@ -44,6 +44,11 @@ export class Launchpads extends Entity {
   })
   updatedTime?: Date;
 
+  @property({
+    type: 'boolean',
+  })
+  isDisabled?: Boolean;
+
 
   constructor(data?: Partial<Launchpads>) {
     super(data);

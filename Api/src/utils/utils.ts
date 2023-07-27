@@ -293,7 +293,7 @@ const toContractAbiMessage = (
     return {ok: true, value: abiMessages};
 };
 
-export const getIPFSData = async (uri: String) => {
+export const getIPFSData = async (uri: string) => {
   const ret = `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${uri}`;
 
   try {

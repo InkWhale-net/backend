@@ -61,7 +61,7 @@ import {pool_generator_contract} from '../contracts/pool_generator';
 import {UpdateQueue} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
-import {isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
+import {getIPFSData, isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
 import {ContractPromise} from '@polkadot/api-contract';
 import {checkQueue} from '../utils/Pools';
 import {global_vars, SOCKET_STATUS} from '../cronjob/global';
@@ -85,7 +85,7 @@ export class ApiController {
     @repository(NftPoolsSchemaRepository)
     public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
     @repository(LaunchpadsSchemaRepository)
-        public launchpadsSchemaRepository : LaunchpadsSchemaRepository,
+    public launchpadsSchemaRepository: LaunchpadsSchemaRepository,
     @inject(RestBindings.Http.REQUEST) private req: Request,
   ) {}
 
@@ -175,14 +175,14 @@ export class ApiController {
       const launchpad_generator_calls = new ContractPromise(
         globalApi,
         launchpad_generator_contract.CONTRACT_ABI,
-        launchpad_generator_contract.CONTRACT_ADDRESS
-    );
+        launchpad_generator_contract.CONTRACT_ADDRESS,
+      );
       const updateQueueRepo = this.updateQueueSchemaRepository;
       const poolsRepo = this.poolsSchemaRepository;
       const lpPoolsRepo = this.lpPoolsSchemaRepository;
       const tokensRepo = this.tokensSchemaRepository;
       const nftPoolsRepo = this.nftPoolsSchemaRepository;
-      const launchpadsRepo = this.launchpadsSchemaRepository
+      const launchpadsRepo = this.launchpadsSchemaRepository;
       checkQueue(
         isTrigger,
         globalApi,
@@ -199,7 +199,7 @@ export class ApiController {
         tokensRepo,
         poolsRepo,
         lpPoolsRepo,
-        launchpadsRepo
+        launchpadsRepo,
       );
     }
 
@@ -874,7 +874,7 @@ export class ApiController {
       },
     };
   }
-  
+
   @post('/getLaunchpads')
   async getLaunchpads(
     @requestBody(RequestLaunchpadsBody) req: ReqGetLaunchpadsType,
@@ -891,21 +891,51 @@ export class ApiController {
     if (!offset) offset = 0;
     const order = req?.sort ? 'startTime DESC' : 'startTime ASC';
     let launchpads = [];
+
+    const unDecodeLaunchpads = await this.launchpadsSchemaRepository.find({
+      where: {
+        isDisabled: {
+          nin: [true, false],
+        },
+      },
+    });
+
+    for (const launchpad of unDecodeLaunchpads) {
+      if (launchpad?.isDisabled == undefined) {
+        const projectinfor = await getIPFSData(launchpad?.projectInfoUri || '');
+        if (projectinfor) {
+          launchpad.isDisabled = false;
+          launchpad.projectInfo = JSON.stringify(projectinfor);
+        } else {
+          launchpad.isDisabled = true;
+        }
+        await this.launchpadsSchemaRepository.update(launchpad);
+      }
+    }
+
     launchpads = await this.launchpadsSchemaRepository.find({
+      where: {isDisabled: false},
       order: [order],
       limit: limit,
       skip: offset,
     });
+    let countDoc = await this.launchpadsSchemaRepository.count({
+      isDisabled: false,
+    });
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
-      ret: launchpads,
+      ret: {
+        dataArray: launchpads,
+        total: countDoc?.count,
+      },
     };
   }
 
   @post('/getLaunchpadByAddress')
   async getLaunchpadByAddress(
-    @requestBody(RequestGetLaunchpadsByAddressBody) req: ReqGetLaunchpadsByAddressType,
+    @requestBody(RequestGetLaunchpadsByAddressBody)
+    req: ReqGetLaunchpadsByAddressType,
   ): Promise<ResponseBody> {
     if (!req) {
       return {
@@ -932,6 +962,4 @@ export class ApiController {
       ret: pool,
     };
   }
-
-
 }
