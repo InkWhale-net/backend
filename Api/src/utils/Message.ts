@@ -444,6 +444,7 @@ export const RequestGetTransactionHistoryBody = {
 
 // GET Launchpads
 export type ReqGetLaunchpadsType = {
+    keyword?: string,
     limit?: number,
     offset?: number,
     sort?: number,
@@ -475,7 +476,8 @@ export const RequestLaunchpadsBody = {
 
 // GET LAUNCHPAD BY ADDRESS
 export type ReqGetLaunchpadsByAddressType = {
-    launchpadContract?: string
+    launchpadContract: string,
+    keyword: string
 };
 const ReqGetLaunchpadsByAddressSchema: SchemaObject = {
     type: 'object',

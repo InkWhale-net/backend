@@ -106,6 +106,7 @@ export const ProcessLaunchpad = async (
           projectInfoUri: projectInfoUri,
           launchpadContract: launchpadContract,
           tokenContract: tokenAddress,
+          createdTime: new Date(),
         });
         console.log({create_collection: create_collection});
       } catch (e) {

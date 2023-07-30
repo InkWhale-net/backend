@@ -61,14 +61,21 @@ import {pool_generator_contract} from '../contracts/pool_generator';
 import {UpdateQueue} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
-import {getIPFSData, isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
+import {
+  getIPFSData,
+  isValidSignature,
+  readOnlyGasLimit,
+  roundUp,
+} from '../utils/utils';
 import {ContractPromise} from '@polkadot/api-contract';
 import {checkQueue} from '../utils/Pools';
 import {global_vars, SOCKET_STATUS} from '../cronjob/global';
 import {pool_contract} from '../contracts/pool';
 import {lp_pool_contract} from '../contracts/lp_pool';
 import {nft_pool_contract} from '../contracts/nft_pool';
-import { launchpad_generator_contract } from '../contracts/launchpad_generator';
+import {launchpad_generator_contract} from '../contracts/launchpad_generator';
+import { execContractQuery } from '../utils/Launchpads';
+import { launchpad_contract } from '../contracts/launchpad';
 
 export class ApiController {
   constructor(
@@ -885,11 +892,27 @@ export class ApiController {
         message: MESSAGE.NO_INPUT,
       };
     }
+    let keyword =
+      req?.keyword != 'undefined' ? JSON.parse(req?.keyword || '') : {};
+    let projectInfoIpfs = keyword?.projectInfoIpfs;
+    
+    if (projectInfoIpfs) {
+      const foundLaunchpadWithIPFSUri =
+        await this.launchpadsSchemaRepository.findOne({
+          where: {projectInfoUri: projectInfoIpfs},
+        });
+      return {
+        status: STATUS.OK,
+        message: STATUS.SUCCESS,
+        ret: foundLaunchpadWithIPFSUri,
+      };
+    }
+
     let limit = req?.limit;
     let offset = req?.offset;
     if (!limit) limit = 100;
     if (!offset) offset = 0;
-    const order = req?.sort ? 'startTime DESC' : 'startTime ASC';
+    const order = req?.sort ? 'createdTime ASC' : 'createdTime DESC';
     let launchpads = [];
 
     const unDecodeLaunchpads = await this.launchpadsSchemaRepository.find({
@@ -901,15 +924,23 @@ export class ApiController {
     });
 
     for (const launchpad of unDecodeLaunchpads) {
-      if (launchpad?.isDisabled == undefined) {
-        const projectinfor = await getIPFSData(launchpad?.projectInfoUri || '');
-        if (projectinfor) {
-          launchpad.isDisabled = false;
-          launchpad.projectInfo = JSON.stringify(projectinfor);
-        } else {
-          launchpad.isDisabled = true;
+      try {
+        if (launchpad?.isDisabled == undefined) {
+          console.log(`getting ipfs data ${launchpad?.projectInfoUri}`);
+          
+          const projectinfor = await getIPFSData(
+            launchpad?.projectInfoUri || '',
+          );
+          if (projectinfor) {
+            launchpad.isDisabled = false;
+            launchpad.projectInfo = JSON.stringify(projectinfor);
+          } else {
+            launchpad.isDisabled = true;
+          }
+          await this.launchpadsSchemaRepository.update(launchpad);
         }
-        await this.launchpadsSchemaRepository.update(launchpad);
+      } catch (error) {
+        console.log(error);
       }
     }
 
@@ -943,6 +974,7 @@ export class ApiController {
         message: MESSAGE.NO_INPUT,
       };
     }
+
     let launchpadContract = req?.launchpadContract;
     if (!launchpadContract) {
       return {
