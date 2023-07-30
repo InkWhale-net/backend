@@ -33,7 +33,9 @@ export const checkNewLaunchpads = async (
     });
 
     totalLaunchpadDb = isCheckAll ? 0 : totalLaunchpadDb;
-    for (let index = launchpadCount; index > totalLaunchpadDb; index--) {
+    for (let index = launchpadCount; index > 0; index--) {
+      console.log('index******************', index);
+
       let launchpadContract = await execContractQuery(
         api,
         launchpad_generator_calls,
@@ -66,6 +68,7 @@ export const ProcessLaunchpad = async (
   launchpadContract: string,
   launchpadsSchemaRepository: LaunchpadsSchemaRepository,
 ) => {
+  let projectinfor;
   const launchpad_contract_calls = new ContractPromise(
     api,
     launchpad_contract.CONTRACT_ABI,
@@ -83,6 +86,9 @@ export const ProcessLaunchpad = async (
     `${process.env.CALLER_ACCOUNT}`,
     'launchpadContractTrait::getTokenAddress',
   );
+  if (projectInfoUri?.length == 46) {
+    projectinfor = await getIPFSData(projectInfoUri || '');
+  }
   try {
     let launchpad = await launchpadsSchemaRepository.findOne({
       where: {
@@ -95,6 +101,8 @@ export const ProcessLaunchpad = async (
           projectInfoUri: projectInfoUri,
           launchpadContract: launchpadContract,
           tokenContract: tokenAddress,
+          isDisabled: !projectinfor,
+          projectInfo: JSON.stringify(projectinfor),
         });
       } catch (e) {
         console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -106,6 +114,8 @@ export const ProcessLaunchpad = async (
           projectInfoUri: projectInfoUri,
           launchpadContract: launchpadContract,
           tokenContract: tokenAddress,
+          isDisabled: !projectinfor,
+          projectInfo: JSON.stringify(projectinfor),
           createdTime: new Date(),
         });
         console.log({create_collection: create_collection});

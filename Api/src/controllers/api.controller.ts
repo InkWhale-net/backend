@@ -74,8 +74,8 @@ import {pool_contract} from '../contracts/pool';
 import {lp_pool_contract} from '../contracts/lp_pool';
 import {nft_pool_contract} from '../contracts/nft_pool';
 import {launchpad_generator_contract} from '../contracts/launchpad_generator';
-import { execContractQuery } from '../utils/Launchpads';
-import { launchpad_contract } from '../contracts/launchpad';
+import {execContractQuery} from '../utils/Launchpads';
+import {launchpad_contract} from '../contracts/launchpad';
 
 export class ApiController {
   constructor(
@@ -895,7 +895,7 @@ export class ApiController {
     let keyword =
       req?.keyword != 'undefined' ? JSON.parse(req?.keyword || '') : {};
     let projectInfoIpfs = keyword?.projectInfoIpfs;
-    
+
     if (projectInfoIpfs) {
       const foundLaunchpadWithIPFSUri =
         await this.launchpadsSchemaRepository.findOne({
@@ -915,30 +915,25 @@ export class ApiController {
     const order = req?.sort ? 'createdTime ASC' : 'createdTime DESC';
     let launchpads = [];
 
-    const unDecodeLaunchpads = await this.launchpadsSchemaRepository.find({
-      where: {
-        isDisabled: {
-          nin: [true, false],
+    const unDecodeLaunchpads = (
+      await this.launchpadsSchemaRepository.find({
+        where: {
+          isDisabled: true,
         },
-      },
-    });
-
+      })
+    )?.filter(e => e?.projectInfoUri?.length == 46);
     for (const launchpad of unDecodeLaunchpads) {
       try {
-        if (launchpad?.isDisabled == undefined) {
-          console.log(`getting ipfs data ${launchpad?.projectInfoUri}`);
-          
-          const projectinfor = await getIPFSData(
-            launchpad?.projectInfoUri || '',
-          );
-          if (projectinfor) {
-            launchpad.isDisabled = false;
-            launchpad.projectInfo = JSON.stringify(projectinfor);
-          } else {
-            launchpad.isDisabled = true;
-          }
-          await this.launchpadsSchemaRepository.update(launchpad);
+        console.log(`getting ipfs data ${launchpad?.projectInfoUri}`);
+
+        const projectinfor = await getIPFSData(launchpad?.projectInfoUri || '');
+        if (projectinfor) {
+          launchpad.isDisabled = false;
+          launchpad.projectInfo = JSON.stringify(projectinfor);
+        } else {
+          launchpad.isDisabled = true;
         }
+        await this.launchpadsSchemaRepository.update(launchpad);
       } catch (error) {
         console.log(error);
       }
