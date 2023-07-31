@@ -85,6 +85,13 @@ export const ProcessLaunchpad = async (
     'launchpadContractTrait::getTokenAddress',
   );
 
+  let owner = await execContractQuery(
+    api,
+    launchpad_contract_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'ownable::owner',
+  );
+
   let startTime = await execContractQuery(
     api,
     launchpad_contract_calls,
@@ -136,6 +143,7 @@ export const ProcessLaunchpad = async (
           startTime,
           endTime,
           phaseList: JSON.stringify(phaseList),
+          owner
         });
       } catch (e) {
         console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -153,6 +161,7 @@ export const ProcessLaunchpad = async (
           startTime,
           endTime,
           phaseList: JSON.stringify(phaseList),
+          owner
         });
         console.log({create_collection: create_collection});
       } catch (e) {
