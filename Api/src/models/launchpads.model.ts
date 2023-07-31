@@ -49,6 +49,21 @@ export class Launchpads extends Entity {
   })
   isDisabled?: Boolean;
 
+  @property({
+    type: 'string',
+  })
+  startTime?: string;
+
+  @property({
+    type: 'string',
+  })
+  endTime?: string;
+
+  @property({
+    type: 'string',
+  })
+  phaseList?: string;
+
 
   constructor(data?: Partial<Launchpads>) {
     super(data);

@@ -33,9 +33,7 @@ export const checkNewLaunchpads = async (
     });
 
     totalLaunchpadDb = isCheckAll ? 0 : totalLaunchpadDb;
-    for (let index = launchpadCount; index > totalLaunchpadDb; index--) {
-      console.log('index******************', index);
-
+    for (let index = launchpadCount; index > 0; index--) {
       let launchpadContract = await execContractQuery(
         api,
         launchpad_generator_calls,
@@ -86,6 +84,38 @@ export const ProcessLaunchpad = async (
     `${process.env.CALLER_ACCOUNT}`,
     'launchpadContractTrait::getTokenAddress',
   );
+
+  let startTime = await execContractQuery(
+    api,
+    launchpad_contract_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'launchpadContractTrait::getProjectStartTime',
+  );
+  let endTime = await execContractQuery(
+    api,
+    launchpad_contract_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'launchpadContractTrait::getProjectEndTime',
+  );
+  let phaseList: any = [];
+  let totalPhase = await execContractQuery(
+    api,
+    launchpad_contract_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'launchpadContractTrait::getTotalPhase',
+  );
+
+  for (let phaseID = 0; phaseID < totalPhase; phaseID++) {
+    let phaseData = await execContractQuery(
+      api,
+      launchpad_contract_calls,
+      `${process.env.CALLER_ACCOUNT}`,
+      'launchpadContractTrait::getPhase',
+      phaseID,
+    );
+    phaseList.push(phaseData);
+  }
+
   if (projectInfoUri?.length == 46) {
     projectinfor = await getIPFSData(projectInfoUri || '');
   }
@@ -103,6 +133,9 @@ export const ProcessLaunchpad = async (
           tokenContract: tokenAddress,
           isDisabled: !projectinfor,
           projectInfo: JSON.stringify(projectinfor),
+          startTime,
+          endTime,
+          phaseList: JSON.stringify(phaseList),
         });
       } catch (e) {
         console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -117,6 +150,9 @@ export const ProcessLaunchpad = async (
           isDisabled: !projectinfor,
           projectInfo: JSON.stringify(projectinfor),
           createdTime: new Date(),
+          startTime,
+          endTime,
+          phaseList: JSON.stringify(phaseList),
         });
         console.log({create_collection: create_collection});
       } catch (e) {
