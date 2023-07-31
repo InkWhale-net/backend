@@ -33,7 +33,7 @@ export const checkNewLaunchpads = async (
     });
 
     totalLaunchpadDb = isCheckAll ? 0 : totalLaunchpadDb;
-    for (let index = launchpadCount; index > 0; index--) {
+    for (let index = launchpadCount; index > totalLaunchpadDb; index--) {
       console.log('index******************', index);
 
       let launchpadContract = await execContractQuery(
