@@ -294,12 +294,12 @@ const toContractAbiMessage = (
 };
 
 export const getIPFSData = async (uri: string) => {
-  const ret = `${process.env.REACT_APP_IPFS_PUBLIC_URL}/${uri}`;
+  const ret = `${process.env.IPFS_PUBLIC_URL}/${uri}`;
 
   try {
     const response = await axios.get(ret);
     return response?.data;
   } catch (error) {
-    console.error('get ipfs data error', error.message);
+    console.error('get ipfs data error', error.message, `\n${ret}`);
   }
 };
