@@ -64,6 +64,10 @@ export class Launchpads extends Entity {
   })
   phaseList?: string;
 
+  @property({
+    type: 'boolean',
+  })
+  isActive?: Boolean;
 
   constructor(data?: Partial<Launchpads>) {
     super(data);

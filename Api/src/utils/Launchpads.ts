@@ -45,6 +45,7 @@ export const checkNewLaunchpads = async (
       await ProcessLaunchpad(
         api,
         launchpadContract,
+        launchpad_generator_calls,
         launchpadsSchemaRepository,
       );
     }
@@ -64,6 +65,7 @@ export const checkNewLaunchpads = async (
 export const ProcessLaunchpad = async (
   api: ApiPromise,
   launchpadContract: string,
+  launchpad_generator_calls: ContractPromise,
   launchpadsSchemaRepository: LaunchpadsSchemaRepository,
 ) => {
   let projectinfor;
@@ -150,6 +152,13 @@ export const ProcessLaunchpad = async (
     phaseList.push({...phaseData, whitelist: WL});
   }
 
+  const isActive = await execContractQuery(
+    api,
+    launchpad_generator_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'launchpadGeneratorTrait::getIsActiveLaunchpad',
+    launchpadContract,
+  );
   if (projectInfoUri?.length == 46) {
     projectinfor = await getIPFSData(projectInfoUri || '');
   }
@@ -171,6 +180,7 @@ export const ProcessLaunchpad = async (
           endTime,
           phaseList: JSON.stringify(phaseList),
           owner,
+          isActive
         });
       } catch (e) {
         console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -189,6 +199,7 @@ export const ProcessLaunchpad = async (
           endTime,
           phaseList: JSON.stringify(phaseList),
           owner,
+          isActive
         });
         console.log({create_collection: create_collection});
       } catch (e) {
