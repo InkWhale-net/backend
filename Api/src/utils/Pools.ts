@@ -93,9 +93,9 @@ export const checkQueue = async (
                     isRemoved = await ProcessPool(isTrigger, false, poolContract, api, pool_contract_calls, poolsSchemaRepository);
                     console.log(`Stop ProcessPool at ${convertToUTCTime(new Date())}`);
                 } else if (requestType == "launchpad") {
-                    console.log(`Start checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
+                    console.log(`Start ProcessLaunchpad at ${convertToUTCTime(new Date())}`);
                     isRemoved = await ProcessLaunchpad(api, poolContract, launchpad_generator_calls, launchpadSchemaRepository);
-                    console.log(`Stop checkNewLaunchpads at ${convertToUTCTime(new Date())}`);
+                    console.log(`Stop ProcessLaunchpad at ${convertToUTCTime(new Date())}`);
                 }
             }
             if (isRemoved) {

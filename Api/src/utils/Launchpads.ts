@@ -1,7 +1,10 @@
 import {ApiPromise} from '@polkadot/api';
 import {ContractPromise} from '@polkadot/api-contract';
 import {getIPFSData, readOnlyGasLimit} from './utils';
-import {LaunchpadsSchemaRepository} from '../repositories';
+import {
+  LaunchpadsSchemaRepository,
+  UpdateQueueSchemaRepository,
+} from '../repositories';
 import {global_vars} from '../cronjob/global';
 import {launchpad_contract} from '../contracts/launchpad';
 
@@ -180,7 +183,8 @@ export const ProcessLaunchpad = async (
           endTime,
           phaseList: JSON.stringify(phaseList),
           owner,
-          isActive
+          isActive,
+          updatedTime: new Date(),
         });
       } catch (e) {
         console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -199,7 +203,7 @@ export const ProcessLaunchpad = async (
           endTime,
           phaseList: JSON.stringify(phaseList),
           owner,
-          isActive
+          isActive,
         });
         console.log({create_collection: create_collection});
       } catch (e) {
