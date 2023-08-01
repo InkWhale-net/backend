@@ -111,7 +111,6 @@ export const ProcessLaunchpad = async (
     `${process.env.CALLER_ACCOUNT}`,
     'launchpadContractTrait::getTotalPhase',
   );
-
   for (let phaseID = 0; phaseID < totalPhase; phaseID++) {
     let phaseData = await execContractQuery(
       api,
@@ -120,7 +119,35 @@ export const ProcessLaunchpad = async (
       'launchpadContractTrait::getPhase',
       phaseID,
     );
-    phaseList.push(phaseData);
+    let countWL = await execContractQuery(
+      api,
+      launchpad_contract_calls,
+      `${process.env.CALLER_ACCOUNT}`,
+      'launchpadContractTrait::getWhitelistAccountCount',
+      phaseID,
+    );
+    const WL = [];
+    for (let wlID = 0; wlID < countWL; wlID++) {
+      let wlAccount = await execContractQuery(
+        api,
+        launchpad_contract_calls,
+        `${process.env.CALLER_ACCOUNT}`,
+        'launchpadContractTrait::getWhitelistAccount',
+        phaseID,
+        wlID,
+      );
+      let buyer = await execContractQuery(
+        api,
+        launchpad_contract_calls,
+        `${process.env.CALLER_ACCOUNT}`,
+        'launchpadContractTrait::getWhitelistBuyer',
+        phaseID,
+        wlAccount,
+      );
+      WL.push({...buyer, account: wlAccount});
+    }
+
+    phaseList.push({...phaseData, whitelist: WL});
   }
 
   if (projectInfoUri?.length == 46) {
@@ -143,7 +170,7 @@ export const ProcessLaunchpad = async (
           startTime,
           endTime,
           phaseList: JSON.stringify(phaseList),
-          owner
+          owner,
         });
       } catch (e) {
         console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -161,7 +188,7 @@ export const ProcessLaunchpad = async (
           startTime,
           endTime,
           phaseList: JSON.stringify(phaseList),
-          owner
+          owner,
         });
         console.log({create_collection: create_collection});
       } catch (e) {
