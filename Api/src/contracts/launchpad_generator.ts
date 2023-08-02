@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ? {
-	CONTRACT_ADDRESS: "5EEZWZoLN3tVXBnPTY2ma5xBCndQNwEuRjbPBvgqUXcsqZbA",
+	CONTRACT_ADDRESS: "5CGQmYbV8RJabemeVjZmNDdJLJYoXPze3LLk6gi4YxYbKmhD",
 	CONTRACT_ABI: {
 		"source": {
-		  "hash": "0x8b810ec696dd48ddcbc163573c68196613aaea2cab3c24aaff1904642b3d5d3e",
+		  "hash": "0x26c67b9df65903fb2b1df4fca6b186059947b32b128568d2386b414f64eb0055",
 		  "language": "ink! 4.1.0",
 		  "compiler": "rustc 1.70.0-nightly",
 		  "build_info": {
@@ -322,6 +322,23 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [],
 			  "docs": [
+				" Returns the address of the current owner."
+			  ],
+			  "label": "Ownable::owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 27
+			  },
+			  "selector": "0x4fa43c8c"
+			},
+			{
+			  "args": [],
+			  "docs": [
 				" Leaves the contract without owner. It will not be possible to call",
 				" owner's functions anymore. Can only be called by the current owner.",
 				"",
@@ -347,21 +364,30 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0x5e228753"
 			},
 			{
-			  "args": [],
-			  "docs": [
-				" Returns the address of the current owner."
+			  "args": [
+				{
+				  "label": "inw_contract",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "SetInwContractInput1"
+					],
+					"type": 0
+				  }
+				}
 			  ],
-			  "label": "Ownable::owner",
-			  "mutates": false,
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_inw_contract",
+			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
 				"displayName": [
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 10
 			  },
-			  "selector": "0x4fa43c8c"
+			  "selector": "0x159c7a23"
 			},
 			{
 			  "args": [
@@ -405,6 +431,32 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0xd6f68769"
 			},
 			{
+			  "args": [
+				{
+				  "label": "address",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "GetIsActiveLaunchpadInput1"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_is_active_launchpad",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 29
+			  },
+			  "selector": "0xe638edfe"
+			},
+			{
 			  "args": [],
 			  "docs": [],
 			  "label": "LaunchpadGeneratorTrait::get_launchpad_count",
@@ -415,9 +467,24 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 29
+				"type": 31
 			  },
 			  "selector": "0xf0cb2510"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 27
+			  },
+			  "selector": "0x356faef0"
 			},
 			{
 			  "args": [
@@ -441,91 +508,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 30
-			  },
-			  "selector": "0x165393dc"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 29
-			  },
-			  "selector": "0xbc14706d"
-			},
-			{
-			  "args": [
-				{
-				  "label": "inw_contract",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetInwContractInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_inw_contract",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0x159c7a23"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
 				"type": 32
 			  },
-			  "selector": "0xbf42ec1e"
-			},
-			{
-			  "args": [
-				{
-				  "label": "launchpad_hash",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetLaunchpadHashInput1"
-					],
-					"type": 4
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0x7fe531cc"
+			  "selector": "0x165393dc"
 			},
 			{
 			  "args": [
@@ -592,7 +577,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
+			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -600,24 +585,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 31
 			  },
-			  "selector": "0x356faef0"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 33
-			  },
-			  "selector": "0x151595a1"
+			  "selector": "0xbc14706d"
 			},
 			{
 			  "args": [
@@ -646,20 +616,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0xd06c43d4"
 			},
 			{
-			  "args": [
-				{
-				  "label": "address",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "GetIsActiveLaunchpadInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
+			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_is_active_launchpad",
+			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -669,35 +628,38 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 35
 			  },
-			  "selector": "0xe638edfe"
+			  "selector": "0x151595a1"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 36
+			  },
+			  "selector": "0xbf42ec1e"
 			},
 			{
 			  "args": [
 				{
-				  "label": "value",
+				  "label": "launchpad_hash",
 				  "type": {
 					"displayName": [
-					  "admintrait_external",
-					  "WithdrawFeeInput1"
+					  "launchpadgeneratortrait_external",
+					  "SetLaunchpadHashInput1"
 					],
-					"type": 5
-				  }
-				},
-				{
-				  "label": "receiver",
-				  "type": {
-					"displayName": [
-					  "admintrait_external",
-					  "WithdrawFeeInput2"
-					],
-					"type": 0
+					"type": 4
 				  }
 				}
 			  ],
-			  "docs": [
-				" This function allows contract owner to withdraw contract balance to his account."
-			  ],
-			  "label": "AdminTrait::withdraw_fee",
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
 			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
@@ -707,7 +669,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 10
 			  },
-			  "selector": "0x07573e99"
+			  "selector": "0x7fe531cc"
 			},
 			{
 			  "args": [],
@@ -777,6 +739,44 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [
 				{
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "admintrait_external",
+					  "WithdrawFeeInput1"
+					],
+					"type": 5
+				  }
+				},
+				{
+				  "label": "receiver",
+				  "type": {
+					"displayName": [
+					  "admintrait_external",
+					  "WithdrawFeeInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [
+				" This function allows contract owner to withdraw contract balance to his account."
+			  ],
+			  "label": "AdminTrait::withdraw_fee",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 10
+			  },
+			  "selector": "0x07573e99"
+			},
+			{
+			  "args": [
+				{
 				  "label": "code_hash",
 				  "type": {
 					"displayName": [
@@ -801,34 +801,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"type": 10
 			  },
 			  "selector": "0x9e32fab2"
-			},
-			{
-			  "args": [
-				{
-				  "label": "role",
-				  "type": {
-					"displayName": [
-					  "accesscontrol_external",
-					  "GetRoleAdminInput1"
-					],
-					"type": 6
-				  }
-				}
-			  ],
-			  "docs": [
-				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
-			  ],
-			  "label": "AccessControl::get_role_admin",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 33
-			  },
-			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -867,6 +839,82 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"type": 39
 			  },
 			  "selector": "0xc1d9ac18"
+			},
+			{
+			  "args": [
+				{
+				  "label": "role",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "RenounceRoleInput1"
+					],
+					"type": 6
+				  }
+				},
+				{
+				  "label": "account",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "RenounceRoleInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [
+				" Revokes `role` from the calling account.",
+				" Roles are often managed via `grant_role` and `revoke_role`: this function's",
+				" purpose is to provide a mechanism for accounts to lose their privileges",
+				" if they are compromised (such as when a trusted device is misplaced).",
+				"",
+				" On success a `RoleRevoked` event is emitted.",
+				"",
+				" # Errors",
+				"",
+				" Returns with `InvalidCaller` error if caller is not `account`.",
+				" Returns with `MissingRole` error if `account` doesn't have `role`."
+			  ],
+			  "label": "AccessControl::renounce_role",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 40
+			  },
+			  "selector": "0xeaf1248a"
+			},
+			{
+			  "args": [
+				{
+				  "label": "role",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "GetRoleAdminInput1"
+					],
+					"type": 6
+				  }
+				}
+			  ],
+			  "docs": [
+				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
+			  ],
+			  "label": "AccessControl::get_role_admin",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 35
+			  },
+			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -963,54 +1011,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "label": "role",
 				  "type": {
 					"displayName": [
-					  "accesscontrol_external",
-					  "RenounceRoleInput1"
-					],
-					"type": 6
-				  }
-				},
-				{
-				  "label": "account",
-				  "type": {
-					"displayName": [
-					  "accesscontrol_external",
-					  "RenounceRoleInput2"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "docs": [
-				" Revokes `role` from the calling account.",
-				" Roles are often managed via `grant_role` and `revoke_role`: this function's",
-				" purpose is to provide a mechanism for accounts to lose their privileges",
-				" if they are compromised (such as when a trusted device is misplaced).",
-				"",
-				" On success a `RoleRevoked` event is emitted.",
-				"",
-				" # Errors",
-				"",
-				" Returns with `InvalidCaller` error if caller is not `account`.",
-				" Returns with `MissingRole` error if `account` doesn't have `role`."
-			  ],
-			  "label": "AccessControl::renounce_role",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 40
-			  },
-			  "selector": "0xeaf1248a"
-			},
-			{
-			  "args": [
-				{
-				  "label": "role",
-				  "type": {
-					"displayName": [
 					  "accesscontrolenumerable_external",
 					  "GetRoleMemberInput1"
 					],
@@ -1042,7 +1042,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 30
+				"type": 32
 			  },
 			  "selector": "0x163469e0"
 			},
@@ -1072,7 +1072,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 33
+				"type": 35
 			  },
 			  "selector": "0xf1b1a9d7"
 			}
@@ -2414,6 +2414,81 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
+						  "type": 30
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 30
+				},
+				{
+				  "name": "E",
+				  "type": 19
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 30,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "index": 0,
+					  "name": "None"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 9
+						}
+					  ],
+					  "index": 1,
+					  "name": "Some"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 9
+				}
+			  ],
+			  "path": [
+				"Option"
+			  ]
+			}
+		  },
+		  {
+			"id": 31,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
 						  "type": 7
 						}
 					  ],
@@ -2448,7 +2523,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			}
 		  },
 		  {
-			"id": 30,
+			"id": 32,
 			"type": {
 			  "def": {
 				"variant": {
@@ -2456,7 +2531,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 31
+						  "type": 33
 						}
 					  ],
 					  "index": 0,
@@ -2477,7 +2552,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 31
+				  "type": 33
 				},
 				{
 				  "name": "E",
@@ -2490,7 +2565,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			}
 		  },
 		  {
-			"id": 31,
+			"id": 33,
 			"type": {
 			  "def": {
 				"variant": {
@@ -2519,90 +2594,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  ],
 			  "path": [
 				"Option"
-			  ]
-			}
-		  },
-		  {
-			"id": 32,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 4
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 4
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 33,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 6
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 6
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
 			  ]
 			}
 		  },
@@ -2657,7 +2648,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 36
+						  "type": 6
 						}
 					  ],
 					  "index": 0,
@@ -2678,7 +2669,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 36
+				  "type": 6
 				},
 				{
 				  "name": "E",
@@ -2697,17 +2688,22 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"variant": {
 				  "variants": [
 					{
+					  "fields": [
+						{
+						  "type": 4
+						}
+					  ],
 					  "index": 0,
-					  "name": "None"
+					  "name": "Ok"
 					},
 					{
 					  "fields": [
 						{
-						  "type": 9
+						  "type": 19
 						}
 					  ],
 					  "index": 1,
-					  "name": "Some"
+					  "name": "Err"
 					}
 				  ]
 				}
@@ -2715,11 +2711,15 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 9
+				  "type": 4
+				},
+				{
+				  "name": "E",
+				  "type": 19
 				}
 			  ],
 			  "path": [
-				"Option"
+				"Result"
 			  ]
 			}
 		  },
@@ -2937,10 +2937,10 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 		"version": "4"
 	  }
 } : {
-	CONTRACT_ADDRESS: "5EEZWZoLN3tVXBnPTY2ma5xBCndQNwEuRjbPBvgqUXcsqZbA",
+	CONTRACT_ADDRESS: "5CGQmYbV8RJabemeVjZmNDdJLJYoXPze3LLk6gi4YxYbKmhD",
 	CONTRACT_ABI: {
 		"source": {
-		  "hash": "0x8b810ec696dd48ddcbc163573c68196613aaea2cab3c24aaff1904642b3d5d3e",
+		  "hash": "0x26c67b9df65903fb2b1df4fca6b186059947b32b128568d2386b414f64eb0055",
 		  "language": "ink! 4.1.0",
 		  "compiler": "rustc 1.70.0-nightly",
 		  "build_info": {
@@ -3258,6 +3258,23 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [],
 			  "docs": [
+				" Returns the address of the current owner."
+			  ],
+			  "label": "Ownable::owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 27
+			  },
+			  "selector": "0x4fa43c8c"
+			},
+			{
+			  "args": [],
+			  "docs": [
 				" Leaves the contract without owner. It will not be possible to call",
 				" owner's functions anymore. Can only be called by the current owner.",
 				"",
@@ -3283,21 +3300,30 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0x5e228753"
 			},
 			{
-			  "args": [],
-			  "docs": [
-				" Returns the address of the current owner."
+			  "args": [
+				{
+				  "label": "inw_contract",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "SetInwContractInput1"
+					],
+					"type": 0
+				  }
+				}
 			  ],
-			  "label": "Ownable::owner",
-			  "mutates": false,
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_inw_contract",
+			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
 				"displayName": [
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 10
 			  },
-			  "selector": "0x4fa43c8c"
+			  "selector": "0x159c7a23"
 			},
 			{
 			  "args": [
@@ -3341,6 +3367,32 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0xd6f68769"
 			},
 			{
+			  "args": [
+				{
+				  "label": "address",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "GetIsActiveLaunchpadInput1"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_is_active_launchpad",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 29
+			  },
+			  "selector": "0xe638edfe"
+			},
+			{
 			  "args": [],
 			  "docs": [],
 			  "label": "LaunchpadGeneratorTrait::get_launchpad_count",
@@ -3351,9 +3403,24 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 29
+				"type": 31
 			  },
 			  "selector": "0xf0cb2510"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 27
+			  },
+			  "selector": "0x356faef0"
 			},
 			{
 			  "args": [
@@ -3377,91 +3444,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 30
-			  },
-			  "selector": "0x165393dc"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 29
-			  },
-			  "selector": "0xbc14706d"
-			},
-			{
-			  "args": [
-				{
-				  "label": "inw_contract",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetInwContractInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_inw_contract",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0x159c7a23"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
 				"type": 32
 			  },
-			  "selector": "0xbf42ec1e"
-			},
-			{
-			  "args": [
-				{
-				  "label": "launchpad_hash",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetLaunchpadHashInput1"
-					],
-					"type": 4
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0x7fe531cc"
+			  "selector": "0x165393dc"
 			},
 			{
 			  "args": [
@@ -3528,7 +3513,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
+			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -3536,24 +3521,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 31
 			  },
-			  "selector": "0x356faef0"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 33
-			  },
-			  "selector": "0x151595a1"
+			  "selector": "0xbc14706d"
 			},
 			{
 			  "args": [
@@ -3582,20 +3552,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0xd06c43d4"
 			},
 			{
-			  "args": [
-				{
-				  "label": "address",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "GetIsActiveLaunchpadInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
+			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_is_active_launchpad",
+			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -3605,35 +3564,38 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 35
 			  },
-			  "selector": "0xe638edfe"
+			  "selector": "0x151595a1"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 36
+			  },
+			  "selector": "0xbf42ec1e"
 			},
 			{
 			  "args": [
 				{
-				  "label": "value",
+				  "label": "launchpad_hash",
 				  "type": {
 					"displayName": [
-					  "admintrait_external",
-					  "WithdrawFeeInput1"
+					  "launchpadgeneratortrait_external",
+					  "SetLaunchpadHashInput1"
 					],
-					"type": 5
-				  }
-				},
-				{
-				  "label": "receiver",
-				  "type": {
-					"displayName": [
-					  "admintrait_external",
-					  "WithdrawFeeInput2"
-					],
-					"type": 0
+					"type": 4
 				  }
 				}
 			  ],
-			  "docs": [
-				" This function allows contract owner to withdraw contract balance to his account."
-			  ],
-			  "label": "AdminTrait::withdraw_fee",
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
 			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
@@ -3643,7 +3605,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 10
 			  },
-			  "selector": "0x07573e99"
+			  "selector": "0x7fe531cc"
 			},
 			{
 			  "args": [],
@@ -3713,6 +3675,44 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [
 				{
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "admintrait_external",
+					  "WithdrawFeeInput1"
+					],
+					"type": 5
+				  }
+				},
+				{
+				  "label": "receiver",
+				  "type": {
+					"displayName": [
+					  "admintrait_external",
+					  "WithdrawFeeInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [
+				" This function allows contract owner to withdraw contract balance to his account."
+			  ],
+			  "label": "AdminTrait::withdraw_fee",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 10
+			  },
+			  "selector": "0x07573e99"
+			},
+			{
+			  "args": [
+				{
 				  "label": "code_hash",
 				  "type": {
 					"displayName": [
@@ -3737,34 +3737,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"type": 10
 			  },
 			  "selector": "0x9e32fab2"
-			},
-			{
-			  "args": [
-				{
-				  "label": "role",
-				  "type": {
-					"displayName": [
-					  "accesscontrol_external",
-					  "GetRoleAdminInput1"
-					],
-					"type": 6
-				  }
-				}
-			  ],
-			  "docs": [
-				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
-			  ],
-			  "label": "AccessControl::get_role_admin",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 33
-			  },
-			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -3803,6 +3775,82 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"type": 39
 			  },
 			  "selector": "0xc1d9ac18"
+			},
+			{
+			  "args": [
+				{
+				  "label": "role",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "RenounceRoleInput1"
+					],
+					"type": 6
+				  }
+				},
+				{
+				  "label": "account",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "RenounceRoleInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "docs": [
+				" Revokes `role` from the calling account.",
+				" Roles are often managed via `grant_role` and `revoke_role`: this function's",
+				" purpose is to provide a mechanism for accounts to lose their privileges",
+				" if they are compromised (such as when a trusted device is misplaced).",
+				"",
+				" On success a `RoleRevoked` event is emitted.",
+				"",
+				" # Errors",
+				"",
+				" Returns with `InvalidCaller` error if caller is not `account`.",
+				" Returns with `MissingRole` error if `account` doesn't have `role`."
+			  ],
+			  "label": "AccessControl::renounce_role",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 40
+			  },
+			  "selector": "0xeaf1248a"
+			},
+			{
+			  "args": [
+				{
+				  "label": "role",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "GetRoleAdminInput1"
+					],
+					"type": 6
+				  }
+				}
+			  ],
+			  "docs": [
+				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
+			  ],
+			  "label": "AccessControl::get_role_admin",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 35
+			  },
+			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -3899,54 +3947,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "label": "role",
 				  "type": {
 					"displayName": [
-					  "accesscontrol_external",
-					  "RenounceRoleInput1"
-					],
-					"type": 6
-				  }
-				},
-				{
-				  "label": "account",
-				  "type": {
-					"displayName": [
-					  "accesscontrol_external",
-					  "RenounceRoleInput2"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "docs": [
-				" Revokes `role` from the calling account.",
-				" Roles are often managed via `grant_role` and `revoke_role`: this function's",
-				" purpose is to provide a mechanism for accounts to lose their privileges",
-				" if they are compromised (such as when a trusted device is misplaced).",
-				"",
-				" On success a `RoleRevoked` event is emitted.",
-				"",
-				" # Errors",
-				"",
-				" Returns with `InvalidCaller` error if caller is not `account`.",
-				" Returns with `MissingRole` error if `account` doesn't have `role`."
-			  ],
-			  "label": "AccessControl::renounce_role",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 40
-			  },
-			  "selector": "0xeaf1248a"
-			},
-			{
-			  "args": [
-				{
-				  "label": "role",
-				  "type": {
-					"displayName": [
 					  "accesscontrolenumerable_external",
 					  "GetRoleMemberInput1"
 					],
@@ -3978,7 +3978,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 30
+				"type": 32
 			  },
 			  "selector": "0x163469e0"
 			},
@@ -4008,7 +4008,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 33
+				"type": 35
 			  },
 			  "selector": "0xf1b1a9d7"
 			}
@@ -5350,6 +5350,81 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
+						  "type": 30
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 30
+				},
+				{
+				  "name": "E",
+				  "type": 19
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 30,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "index": 0,
+					  "name": "None"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 9
+						}
+					  ],
+					  "index": 1,
+					  "name": "Some"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 9
+				}
+			  ],
+			  "path": [
+				"Option"
+			  ]
+			}
+		  },
+		  {
+			"id": 31,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
 						  "type": 7
 						}
 					  ],
@@ -5384,7 +5459,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			}
 		  },
 		  {
-			"id": 30,
+			"id": 32,
 			"type": {
 			  "def": {
 				"variant": {
@@ -5392,7 +5467,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 31
+						  "type": 33
 						}
 					  ],
 					  "index": 0,
@@ -5413,7 +5488,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 31
+				  "type": 33
 				},
 				{
 				  "name": "E",
@@ -5426,7 +5501,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			}
 		  },
 		  {
-			"id": 31,
+			"id": 33,
 			"type": {
 			  "def": {
 				"variant": {
@@ -5455,90 +5530,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  ],
 			  "path": [
 				"Option"
-			  ]
-			}
-		  },
-		  {
-			"id": 32,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 4
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 4
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 33,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 6
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 6
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
 			  ]
 			}
 		  },
@@ -5593,7 +5584,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 36
+						  "type": 6
 						}
 					  ],
 					  "index": 0,
@@ -5614,7 +5605,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 36
+				  "type": 6
 				},
 				{
 				  "name": "E",
@@ -5633,17 +5624,22 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"variant": {
 				  "variants": [
 					{
+					  "fields": [
+						{
+						  "type": 4
+						}
+					  ],
 					  "index": 0,
-					  "name": "None"
+					  "name": "Ok"
 					},
 					{
 					  "fields": [
 						{
-						  "type": 9
+						  "type": 19
 						}
 					  ],
 					  "index": 1,
-					  "name": "Some"
+					  "name": "Err"
 					}
 				  ]
 				}
@@ -5651,11 +5647,15 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 9
+				  "type": 4
+				},
+				{
+				  "name": "E",
+				  "type": 19
 				}
 			  ],
 			  "path": [
-				"Option"
+				"Result"
 			  ]
 			}
 		  },
