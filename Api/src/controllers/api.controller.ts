@@ -895,7 +895,11 @@ export class ApiController {
     let keyword =
       req?.keyword != 'undefined' ? JSON.parse(req?.keyword || '') : {};
     let projectInfoIpfs = keyword?.projectInfoIpfs;
-
+    // isActive
+    // 0: true
+    // 1: none
+    let isActive = req?.isActive;
+    
     if (projectInfoIpfs) {
       const foundLaunchpadWithIPFSUri =
         await this.launchpadsSchemaRepository.findOne({
@@ -940,14 +944,17 @@ export class ApiController {
     }
 
     launchpads = await this.launchpadsSchemaRepository.find({
-      where: {isDisabled: false},
+      where:
+        isActive == 0
+          ? {isDisabled: false, isActive: true}
+          : {isDisabled: false},
       order: [order],
       limit: limit,
       skip: offset,
     });
-    let countDoc = await this.launchpadsSchemaRepository.count({
-      isDisabled: false,
-    });
+    let countDoc = await this.launchpadsSchemaRepository.count(
+      isActive == 0 ? {isDisabled: false, isActive: true} : {isDisabled: false},
+    );
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,

@@ -445,6 +445,7 @@ export const RequestGetTransactionHistoryBody = {
 // GET Launchpads
 export type ReqGetLaunchpadsType = {
     keyword?: string,
+    isActive: number,
     limit?: number,
     offset?: number,
     sort?: number,
@@ -455,6 +456,9 @@ const ReqGetLaunchpadsSchema: SchemaObject = {
     properties: {
         limit: {
             type: 'number',
+        },
+        isActive: {
+            type: 'number'
         },
         offset: {
             type: 'number',
