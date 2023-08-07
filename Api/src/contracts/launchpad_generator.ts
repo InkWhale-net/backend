@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ? {
-	CONTRACT_ADDRESS: "5CGQmYbV8RJabemeVjZmNDdJLJYoXPze3LLk6gi4YxYbKmhD",
+	CONTRACT_ADDRESS: "5G3dKJ6Y7q4pmePF7KCTwDcwW1S2biYzXVaBW3B9g9YGnRUA",
 	CONTRACT_ABI: {
 		"source": {
-		  "hash": "0x26c67b9df65903fb2b1df4fca6b186059947b32b128568d2386b414f64eb0055",
+		  "hash": "0xecbe18298580c64b924c36ce6956bcf87d1a62c9c7d69a3b5eadf33471f48950",
 		  "language": "ink! 4.1.0",
 		  "compiler": "rustc 1.70.0-nightly",
 		  "build_info": {
@@ -283,6 +283,50 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0xfee9221d"
 			},
 			{
+			  "args": [],
+			  "docs": [
+				" Returns the address of the current owner."
+			  ],
+			  "label": "Ownable::owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 25
+			  },
+			  "selector": "0x4fa43c8c"
+			},
+			{
+			  "args": [],
+			  "docs": [
+				" Leaves the contract without owner. It will not be possible to call",
+				" owner's functions anymore. Can only be called by the current owner.",
+				"",
+				" NOTE: Renouncing ownership will leave the contract without an owner,",
+				" thereby removing any functionality that is only available to the owner.",
+				"",
+				" On success a `OwnershipTransferred` event is emitted.",
+				"",
+				" # Errors",
+				"",
+				" Panics with `CallerIsNotOwner` error if caller is not owner"
+			  ],
+			  "label": "Ownable::renounce_ownership",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 26
+			  },
+			  "selector": "0x5e228753"
+			},
+			{
 			  "args": [
 				{
 				  "label": "new_owner",
@@ -315,16 +359,14 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 25
+				"type": 26
 			  },
 			  "selector": "0x11f43efd"
 			},
 			{
 			  "args": [],
-			  "docs": [
-				" Returns the address of the current owner."
-			  ],
-			  "label": "Ownable::owner",
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_creation_fee",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -332,26 +374,40 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 28
 			  },
-			  "selector": "0x4fa43c8c"
+			  "selector": "0xd6f68769"
 			},
 			{
 			  "args": [],
-			  "docs": [
-				" Leaves the contract without owner. It will not be possible to call",
-				" owner's functions anymore. Can only be called by the current owner.",
-				"",
-				" NOTE: Renouncing ownership will leave the contract without an owner,",
-				" thereby removing any functionality that is only available to the owner.",
-				"",
-				" On success a `OwnershipTransferred` event is emitted.",
-				"",
-				" # Errors",
-				"",
-				" Panics with `CallerIsNotOwner` error if caller is not owner"
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 29
+			  },
+			  "selector": "0xbf42ec1e"
+			},
+			{
+			  "args": [
+				{
+				  "label": "launchpad_hash",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "SetLaunchpadHashInput1"
+					],
+					"type": 4
+				  }
+				}
 			  ],
-			  "label": "Ownable::renounce_ownership",
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
 			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
@@ -359,9 +415,24 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 25
+				"type": 10
 			  },
-			  "selector": "0x5e228753"
+			  "selector": "0x7fe531cc"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 30
+			  },
+			  "selector": "0x151595a1"
 			},
 			{
 			  "args": [
@@ -390,35 +461,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0x159c7a23"
 			},
 			{
-			  "args": [
-				{
-				  "label": "tx_rate",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetTxRateInput1"
-					],
-					"type": 6
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_tx_rate",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0xdd198c6e"
-			},
-			{
 			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_creation_fee",
+			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -426,9 +471,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 28
+				"type": 31
 			  },
-			  "selector": "0xd6f68769"
+			  "selector": "0xbc14706d"
 			},
 			{
 			  "args": [
@@ -452,65 +497,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 29
-			  },
-			  "selector": "0xe638edfe"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_count",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 31
-			  },
-			  "selector": "0xf0cb2510"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 27
-			  },
-			  "selector": "0x356faef0"
-			},
-			{
-			  "args": [
-				{
-				  "label": "id",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "GetLaunchpadByIdInput1"
-					],
-					"type": 7
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_by_id",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
 				"type": 32
 			  },
-			  "selector": "0x165393dc"
+			  "selector": "0xe638edfe"
 			},
 			{
 			  "args": [
@@ -577,7 +566,74 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
+			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 25
+			  },
+			  "selector": "0x356faef0"
+			},
+			{
+			  "args": [
+				{
+				  "label": "id",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "GetLaunchpadByIdInput1"
+					],
+					"type": 7
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_by_id",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 34
+			  },
+			  "selector": "0x165393dc"
+			},
+			{
+			  "args": [
+				{
+				  "label": "tx_rate",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "SetTxRateInput1"
+					],
+					"type": 6
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_tx_rate",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 10
+			  },
+			  "selector": "0xdd198c6e"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_count",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -587,7 +643,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 31
 			  },
-			  "selector": "0xbc14706d"
+			  "selector": "0xf0cb2510"
 			},
 			{
 			  "args": [
@@ -611,82 +667,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 34
-			  },
-			  "selector": "0xd06c43d4"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 35
-			  },
-			  "selector": "0x151595a1"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
 				"type": 36
 			  },
-			  "selector": "0xbf42ec1e"
-			},
-			{
-			  "args": [
-				{
-				  "label": "launchpad_hash",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetLaunchpadHashInput1"
-					],
-					"type": 4
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0x7fe531cc"
-			},
-			{
-			  "args": [],
-			  "docs": [
-				" Get Azero balance"
-			  ],
-			  "label": "AdminTrait::get_balance",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 37
-			  },
-			  "selector": "0xc4360570"
+			  "selector": "0xd06c43d4"
 			},
 			{
 			  "args": [
@@ -735,6 +718,23 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"type": 10
 			  },
 			  "selector": "0xd9aad284"
+			},
+			{
+			  "args": [],
+			  "docs": [
+				" Get Azero balance"
+			  ],
+			  "label": "AdminTrait::get_balance",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 37
+			  },
+			  "selector": "0xc4360570"
 			},
 			{
 			  "args": [
@@ -809,27 +809,33 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "HasRoleInput1"
+					  "RevokeRoleInput1"
 					],
 					"type": 6
 				  }
 				},
 				{
-				  "label": "address",
+				  "label": "account",
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "HasRoleInput2"
+					  "RevokeRoleInput2"
 					],
 					"type": 0
 				  }
 				}
 			  ],
 			  "docs": [
-				" Returns `true` if `account` has been granted `role`."
+				" Revokes `role` from `account`.",
+				"",
+				" On success a `RoleRevoked` event is emitted.",
+				"",
+				" # Errors",
+				"",
+				" Returns with `MissingRole` error if caller can't grant the `role` or if `account` doesn't have `role`."
 			  ],
-			  "label": "AccessControl::has_role",
-			  "mutates": false,
+			  "label": "AccessControl::revoke_role",
+			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
 				"displayName": [
@@ -838,7 +844,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 39
 			  },
-			  "selector": "0xc1d9ac18"
+			  "selector": "0x6e4f0991"
 			},
 			{
 			  "args": [
@@ -884,37 +890,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 40
+				"type": 39
 			  },
 			  "selector": "0xeaf1248a"
-			},
-			{
-			  "args": [
-				{
-				  "label": "role",
-				  "type": {
-					"displayName": [
-					  "accesscontrol_external",
-					  "GetRoleAdminInput1"
-					],
-					"type": 6
-				  }
-				}
-			  ],
-			  "docs": [
-				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
-			  ],
-			  "label": "AccessControl::get_role_admin",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 35
-			  },
-			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -957,7 +935,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 40
+				"type": 39
 			  },
 			  "selector": "0x4ac062fd"
 			},
@@ -968,42 +946,64 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "RevokeRoleInput1"
+					  "HasRoleInput1"
 					],
 					"type": 6
 				  }
 				},
 				{
-				  "label": "account",
+				  "label": "address",
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "RevokeRoleInput2"
+					  "HasRoleInput2"
 					],
 					"type": 0
 				  }
 				}
 			  ],
 			  "docs": [
-				" Revokes `role` from `account`.",
-				"",
-				" On success a `RoleRevoked` event is emitted.",
-				"",
-				" # Errors",
-				"",
-				" Returns with `MissingRole` error if caller can't grant the `role` or if `account` doesn't have `role`."
+				" Returns `true` if `account` has been granted `role`."
 			  ],
-			  "label": "AccessControl::revoke_role",
-			  "mutates": true,
+			  "label": "AccessControl::has_role",
+			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
 				"displayName": [
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 40
+				"type": 41
 			  },
-			  "selector": "0x6e4f0991"
+			  "selector": "0xc1d9ac18"
+			},
+			{
+			  "args": [
+				{
+				  "label": "role",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "GetRoleAdminInput1"
+					],
+					"type": 6
+				  }
+				}
+			  ],
+			  "docs": [
+				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
+			  ],
+			  "label": "AccessControl::get_role_admin",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 30
+			  },
+			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -1042,7 +1042,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 32
+				"type": 34
 			  },
 			  "selector": "0x163469e0"
 			},
@@ -1072,7 +1072,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 35
+				"type": 30
 			  },
 			  "selector": "0xf1b1a9d7"
 			}
@@ -1873,106 +1873,110 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					},
 					{
 					  "index": 46,
-					  "name": "InvalidPhaseData"
+					  "name": "InvalidTxRate"
 					},
 					{
 					  "index": 47,
-					  "name": "CannotTopupToken"
+					  "name": "InvalidPhaseData"
 					},
 					{
 					  "index": 48,
-					  "name": "InvalidStartTimeAndEndTime"
+					  "name": "CannotTopupToken"
 					},
 					{
 					  "index": 49,
-					  "name": "InvalidPhaseCount"
+					  "name": "InvalidStartTimeAndEndTime"
 					},
 					{
 					  "index": 50,
-					  "name": "InvalidMaxStakingAmount"
+					  "name": "InvalidPhaseCount"
 					},
 					{
 					  "index": 51,
-					  "name": "InvalidApy"
+					  "name": "InvalidMaxStakingAmount"
 					},
 					{
 					  "index": 52,
-					  "name": "InvalidMultiplier"
+					  "name": "InvalidApy"
 					},
 					{
 					  "index": 53,
-					  "name": "InvalidWhitelistData"
+					  "name": "InvalidMultiplier"
 					},
 					{
 					  "index": 54,
-					  "name": "PhaseNotExist"
+					  "name": "InvalidWhitelistData"
 					},
 					{
 					  "index": 55,
-					  "name": "PhaseNotActive"
+					  "name": "PhaseNotExist"
 					},
 					{
 					  "index": 56,
-					  "name": "WhitelistBuyerInfoNotExist"
+					  "name": "PhaseNotActive"
 					},
 					{
 					  "index": 57,
-					  "name": "WhitelistBuyerInfoExist"
+					  "name": "WhitelistBuyerInfoNotExist"
 					},
 					{
 					  "index": 58,
-					  "name": "WhitelistBuyerPurchased"
+					  "name": "WhitelistBuyerInfoExist"
 					},
 					{
 					  "index": 59,
-					  "name": "WhitelistSaleInfoNotExist"
+					  "name": "WhitelistBuyerPurchased"
 					},
 					{
 					  "index": 60,
-					  "name": "WhitelistPhaseAccountNotExist"
+					  "name": "WhitelistSaleInfoNotExist"
 					},
 					{
 					  "index": 61,
-					  "name": "PublicSaleInfoNotExist"
+					  "name": "WhitelistPhaseAccountNotExist"
 					},
 					{
 					  "index": 62,
-					  "name": "InvalidSetActive"
+					  "name": "PublicSaleInfoNotExist"
 					},
 					{
 					  "index": 63,
-					  "name": "InvalidTotalAmount"
+					  "name": "InvalidSetActive"
 					},
 					{
 					  "index": 64,
-					  "name": "CannotTransferTxFee"
+					  "name": "InvalidTotalAmount"
 					},
 					{
 					  "index": 65,
-					  "name": "ActiveLaunchpadStatusNotFound"
+					  "name": "CannotTransferTxFee"
 					},
 					{
 					  "index": 66,
-					  "name": "LaunchpadNotActive"
+					  "name": "ActiveLaunchpadStatusNotFound"
 					},
 					{
 					  "index": 67,
-					  "name": "InvalidCaller"
+					  "name": "LaunchpadNotActive"
 					},
 					{
 					  "index": 68,
-					  "name": "NoPhaseActive"
+					  "name": "InvalidCaller"
 					},
 					{
 					  "index": 69,
-					  "name": "InvalidTotalSupply"
+					  "name": "NoPhaseActive"
 					},
 					{
 					  "index": 70,
-					  "name": "PhaseNotPublic"
+					  "name": "InvalidTotalSupply"
 					},
 					{
 					  "index": 71,
+					  "name": "PhaseNotPublic"
+					},
+					{
+					  "index": 72,
 					  "name": "InvalidSetPublic"
 					}
 				  ]
@@ -2246,7 +2250,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 26
+						  "type": 0
 						}
 					  ],
 					  "index": 0,
@@ -2267,7 +2271,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 26
+				  "type": 0
 				},
 				{
 				  "name": "E",
@@ -2281,6 +2285,48 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 		  },
 		  {
 			"id": 26,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 27
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 27
+				},
+				{
+				  "name": "E",
+				  "type": 19
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 27,
 			"type": {
 			  "def": {
 				"variant": {
@@ -2314,48 +2360,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				{
 				  "name": "E",
 				  "type": 14
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 27,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 0
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 0
-				},
-				{
-				  "name": "E",
-				  "type": 19
 				}
 			  ],
 			  "path": [
@@ -2414,7 +2418,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 30
+						  "type": 4
 						}
 					  ],
 					  "index": 0,
@@ -2435,7 +2439,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 30
+				  "type": 4
 				},
 				{
 				  "name": "E",
@@ -2454,17 +2458,22 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"variant": {
 				  "variants": [
 					{
+					  "fields": [
+						{
+						  "type": 6
+						}
+					  ],
 					  "index": 0,
-					  "name": "None"
+					  "name": "Ok"
 					},
 					{
 					  "fields": [
 						{
-						  "type": 9
+						  "type": 19
 						}
 					  ],
 					  "index": 1,
-					  "name": "Some"
+					  "name": "Err"
 					}
 				  ]
 				}
@@ -2472,11 +2481,15 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 9
+				  "type": 6
+				},
+				{
+				  "name": "E",
+				  "type": 19
 				}
 			  ],
 			  "path": [
-				"Option"
+				"Result"
 			  ]
 			}
 		  },
@@ -2577,6 +2590,81 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
+						  "type": 9
+						}
+					  ],
+					  "index": 1,
+					  "name": "Some"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 9
+				}
+			  ],
+			  "path": [
+				"Option"
+			  ]
+			}
+		  },
+		  {
+			"id": 34,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 35
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 35
+				},
+				{
+				  "name": "E",
+				  "type": 19
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 35,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "index": 0,
+					  "name": "None"
+					},
+					{
+					  "fields": [
+						{
 						  "type": 0
 						}
 					  ],
@@ -2598,7 +2686,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			}
 		  },
 		  {
-			"id": 34,
+			"id": 36,
 			"type": {
 			  "def": {
 				"variant": {
@@ -2628,90 +2716,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				{
 				  "name": "T",
 				  "type": 8
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 35,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 6
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 6
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 36,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 4
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 4
 				},
 				{
 				  "name": "E",
@@ -2816,7 +2820,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 9
+						  "type": 40
 						}
 					  ],
 					  "index": 0,
@@ -2837,7 +2841,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 9
+				  "type": 40
 				},
 				{
 				  "name": "E",
@@ -2851,48 +2855,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 		  },
 		  {
 			"id": 40,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 41
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 41
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 41,
 			"type": {
 			  "def": {
 				"variant": {
@@ -2926,6 +2888,48 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				{
 				  "name": "E",
 				  "type": 15
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 41,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 9
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 9
+				},
+				{
+				  "name": "E",
+				  "type": 19
 				}
 			  ],
 			  "path": [
@@ -2937,10 +2941,10 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 		"version": "4"
 	  }
 } : {
-	CONTRACT_ADDRESS: "5CGQmYbV8RJabemeVjZmNDdJLJYoXPze3LLk6gi4YxYbKmhD",
+	CONTRACT_ADDRESS: "5G3dKJ6Y7q4pmePF7KCTwDcwW1S2biYzXVaBW3B9g9YGnRUA",
 	CONTRACT_ABI: {
 		"source": {
-		  "hash": "0x26c67b9df65903fb2b1df4fca6b186059947b32b128568d2386b414f64eb0055",
+		  "hash": "0xecbe18298580c64b924c36ce6956bcf87d1a62c9c7d69a3b5eadf33471f48950",
 		  "language": "ink! 4.1.0",
 		  "compiler": "rustc 1.70.0-nightly",
 		  "build_info": {
@@ -3219,6 +3223,50 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0xfee9221d"
 			},
 			{
+			  "args": [],
+			  "docs": [
+				" Returns the address of the current owner."
+			  ],
+			  "label": "Ownable::owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 25
+			  },
+			  "selector": "0x4fa43c8c"
+			},
+			{
+			  "args": [],
+			  "docs": [
+				" Leaves the contract without owner. It will not be possible to call",
+				" owner's functions anymore. Can only be called by the current owner.",
+				"",
+				" NOTE: Renouncing ownership will leave the contract without an owner,",
+				" thereby removing any functionality that is only available to the owner.",
+				"",
+				" On success a `OwnershipTransferred` event is emitted.",
+				"",
+				" # Errors",
+				"",
+				" Panics with `CallerIsNotOwner` error if caller is not owner"
+			  ],
+			  "label": "Ownable::renounce_ownership",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 26
+			  },
+			  "selector": "0x5e228753"
+			},
+			{
 			  "args": [
 				{
 				  "label": "new_owner",
@@ -3251,16 +3299,14 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 25
+				"type": 26
 			  },
 			  "selector": "0x11f43efd"
 			},
 			{
 			  "args": [],
-			  "docs": [
-				" Returns the address of the current owner."
-			  ],
-			  "label": "Ownable::owner",
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_creation_fee",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -3268,26 +3314,40 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 27
+				"type": 28
 			  },
-			  "selector": "0x4fa43c8c"
+			  "selector": "0xd6f68769"
 			},
 			{
 			  "args": [],
-			  "docs": [
-				" Leaves the contract without owner. It will not be possible to call",
-				" owner's functions anymore. Can only be called by the current owner.",
-				"",
-				" NOTE: Renouncing ownership will leave the contract without an owner,",
-				" thereby removing any functionality that is only available to the owner.",
-				"",
-				" On success a `OwnershipTransferred` event is emitted.",
-				"",
-				" # Errors",
-				"",
-				" Panics with `CallerIsNotOwner` error if caller is not owner"
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 29
+			  },
+			  "selector": "0xbf42ec1e"
+			},
+			{
+			  "args": [
+				{
+				  "label": "launchpad_hash",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "SetLaunchpadHashInput1"
+					],
+					"type": 4
+				  }
+				}
 			  ],
-			  "label": "Ownable::renounce_ownership",
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
 			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
@@ -3295,9 +3355,24 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 25
+				"type": 10
 			  },
-			  "selector": "0x5e228753"
+			  "selector": "0x7fe531cc"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 30
+			  },
+			  "selector": "0x151595a1"
 			},
 			{
 			  "args": [
@@ -3326,35 +3401,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "selector": "0x159c7a23"
 			},
 			{
-			  "args": [
-				{
-				  "label": "tx_rate",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetTxRateInput1"
-					],
-					"type": 6
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_tx_rate",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0xdd198c6e"
-			},
-			{
 			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_creation_fee",
+			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -3362,9 +3411,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 28
+				"type": 31
 			  },
-			  "selector": "0xd6f68769"
+			  "selector": "0xbc14706d"
 			},
 			{
 			  "args": [
@@ -3388,65 +3437,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 29
-			  },
-			  "selector": "0xe638edfe"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_count",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 31
-			  },
-			  "selector": "0xf0cb2510"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 27
-			  },
-			  "selector": "0x356faef0"
-			},
-			{
-			  "args": [
-				{
-				  "label": "id",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "GetLaunchpadByIdInput1"
-					],
-					"type": 7
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_by_id",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
 				"type": 32
 			  },
-			  "selector": "0x165393dc"
+			  "selector": "0xe638edfe"
 			},
 			{
 			  "args": [
@@ -3513,7 +3506,74 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			{
 			  "args": [],
 			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_active_launchpad_count",
+			  "label": "LaunchpadGeneratorTrait::get_inw_contract",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 25
+			  },
+			  "selector": "0x356faef0"
+			},
+			{
+			  "args": [
+				{
+				  "label": "id",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "GetLaunchpadByIdInput1"
+					],
+					"type": 7
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_by_id",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 34
+			  },
+			  "selector": "0x165393dc"
+			},
+			{
+			  "args": [
+				{
+				  "label": "tx_rate",
+				  "type": {
+					"displayName": [
+					  "launchpadgeneratortrait_external",
+					  "SetTxRateInput1"
+					],
+					"type": 6
+				  }
+				}
+			  ],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::set_tx_rate",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 10
+			  },
+			  "selector": "0xdd198c6e"
+			},
+			{
+			  "args": [],
+			  "docs": [],
+			  "label": "LaunchpadGeneratorTrait::get_launchpad_count",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -3523,7 +3583,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 31
 			  },
-			  "selector": "0xbc14706d"
+			  "selector": "0xf0cb2510"
 			},
 			{
 			  "args": [
@@ -3547,82 +3607,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 34
-			  },
-			  "selector": "0xd06c43d4"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_tx_rate",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 35
-			  },
-			  "selector": "0x151595a1"
-			},
-			{
-			  "args": [],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::get_launchpad_hash",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
 				"type": 36
 			  },
-			  "selector": "0xbf42ec1e"
-			},
-			{
-			  "args": [
-				{
-				  "label": "launchpad_hash",
-				  "type": {
-					"displayName": [
-					  "launchpadgeneratortrait_external",
-					  "SetLaunchpadHashInput1"
-					],
-					"type": 4
-				  }
-				}
-			  ],
-			  "docs": [],
-			  "label": "LaunchpadGeneratorTrait::set_launchpad_hash",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 10
-			  },
-			  "selector": "0x7fe531cc"
-			},
-			{
-			  "args": [],
-			  "docs": [
-				" Get Azero balance"
-			  ],
-			  "label": "AdminTrait::get_balance",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 37
-			  },
-			  "selector": "0xc4360570"
+			  "selector": "0xd06c43d4"
 			},
 			{
 			  "args": [
@@ -3671,6 +3658,23 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"type": 10
 			  },
 			  "selector": "0xd9aad284"
+			},
+			{
+			  "args": [],
+			  "docs": [
+				" Get Azero balance"
+			  ],
+			  "label": "AdminTrait::get_balance",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 37
+			  },
+			  "selector": "0xc4360570"
 			},
 			{
 			  "args": [
@@ -3745,27 +3749,33 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "HasRoleInput1"
+					  "RevokeRoleInput1"
 					],
 					"type": 6
 				  }
 				},
 				{
-				  "label": "address",
+				  "label": "account",
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "HasRoleInput2"
+					  "RevokeRoleInput2"
 					],
 					"type": 0
 				  }
 				}
 			  ],
 			  "docs": [
-				" Returns `true` if `account` has been granted `role`."
+				" Revokes `role` from `account`.",
+				"",
+				" On success a `RoleRevoked` event is emitted.",
+				"",
+				" # Errors",
+				"",
+				" Returns with `MissingRole` error if caller can't grant the `role` or if `account` doesn't have `role`."
 			  ],
-			  "label": "AccessControl::has_role",
-			  "mutates": false,
+			  "label": "AccessControl::revoke_role",
+			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
 				"displayName": [
@@ -3774,7 +3784,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				],
 				"type": 39
 			  },
-			  "selector": "0xc1d9ac18"
+			  "selector": "0x6e4f0991"
 			},
 			{
 			  "args": [
@@ -3820,37 +3830,9 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 40
+				"type": 39
 			  },
 			  "selector": "0xeaf1248a"
-			},
-			{
-			  "args": [
-				{
-				  "label": "role",
-				  "type": {
-					"displayName": [
-					  "accesscontrol_external",
-					  "GetRoleAdminInput1"
-					],
-					"type": 6
-				  }
-				}
-			  ],
-			  "docs": [
-				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
-			  ],
-			  "label": "AccessControl::get_role_admin",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 35
-			  },
-			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -3893,7 +3875,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 40
+				"type": 39
 			  },
 			  "selector": "0x4ac062fd"
 			},
@@ -3904,42 +3886,64 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "RevokeRoleInput1"
+					  "HasRoleInput1"
 					],
 					"type": 6
 				  }
 				},
 				{
-				  "label": "account",
+				  "label": "address",
 				  "type": {
 					"displayName": [
 					  "accesscontrol_external",
-					  "RevokeRoleInput2"
+					  "HasRoleInput2"
 					],
 					"type": 0
 				  }
 				}
 			  ],
 			  "docs": [
-				" Revokes `role` from `account`.",
-				"",
-				" On success a `RoleRevoked` event is emitted.",
-				"",
-				" # Errors",
-				"",
-				" Returns with `MissingRole` error if caller can't grant the `role` or if `account` doesn't have `role`."
+				" Returns `true` if `account` has been granted `role`."
 			  ],
-			  "label": "AccessControl::revoke_role",
-			  "mutates": true,
+			  "label": "AccessControl::has_role",
+			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
 				"displayName": [
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 40
+				"type": 41
 			  },
-			  "selector": "0x6e4f0991"
+			  "selector": "0xc1d9ac18"
+			},
+			{
+			  "args": [
+				{
+				  "label": "role",
+				  "type": {
+					"displayName": [
+					  "accesscontrol_external",
+					  "GetRoleAdminInput1"
+					],
+					"type": 6
+				  }
+				}
+			  ],
+			  "docs": [
+				" Returns the admin role that controls `role`. See `grant_role` and `revoke_role`."
+			  ],
+			  "label": "AccessControl::get_role_admin",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 30
+			  },
+			  "selector": "0x83da3bb2"
 			},
 			{
 			  "args": [
@@ -3978,7 +3982,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 32
+				"type": 34
 			  },
 			  "selector": "0x163469e0"
 			},
@@ -4008,7 +4012,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 35
+				"type": 30
 			  },
 			  "selector": "0xf1b1a9d7"
 			}
@@ -4809,106 +4813,110 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					},
 					{
 					  "index": 46,
-					  "name": "InvalidPhaseData"
+					  "name": "InvalidTxRate"
 					},
 					{
 					  "index": 47,
-					  "name": "CannotTopupToken"
+					  "name": "InvalidPhaseData"
 					},
 					{
 					  "index": 48,
-					  "name": "InvalidStartTimeAndEndTime"
+					  "name": "CannotTopupToken"
 					},
 					{
 					  "index": 49,
-					  "name": "InvalidPhaseCount"
+					  "name": "InvalidStartTimeAndEndTime"
 					},
 					{
 					  "index": 50,
-					  "name": "InvalidMaxStakingAmount"
+					  "name": "InvalidPhaseCount"
 					},
 					{
 					  "index": 51,
-					  "name": "InvalidApy"
+					  "name": "InvalidMaxStakingAmount"
 					},
 					{
 					  "index": 52,
-					  "name": "InvalidMultiplier"
+					  "name": "InvalidApy"
 					},
 					{
 					  "index": 53,
-					  "name": "InvalidWhitelistData"
+					  "name": "InvalidMultiplier"
 					},
 					{
 					  "index": 54,
-					  "name": "PhaseNotExist"
+					  "name": "InvalidWhitelistData"
 					},
 					{
 					  "index": 55,
-					  "name": "PhaseNotActive"
+					  "name": "PhaseNotExist"
 					},
 					{
 					  "index": 56,
-					  "name": "WhitelistBuyerInfoNotExist"
+					  "name": "PhaseNotActive"
 					},
 					{
 					  "index": 57,
-					  "name": "WhitelistBuyerInfoExist"
+					  "name": "WhitelistBuyerInfoNotExist"
 					},
 					{
 					  "index": 58,
-					  "name": "WhitelistBuyerPurchased"
+					  "name": "WhitelistBuyerInfoExist"
 					},
 					{
 					  "index": 59,
-					  "name": "WhitelistSaleInfoNotExist"
+					  "name": "WhitelistBuyerPurchased"
 					},
 					{
 					  "index": 60,
-					  "name": "WhitelistPhaseAccountNotExist"
+					  "name": "WhitelistSaleInfoNotExist"
 					},
 					{
 					  "index": 61,
-					  "name": "PublicSaleInfoNotExist"
+					  "name": "WhitelistPhaseAccountNotExist"
 					},
 					{
 					  "index": 62,
-					  "name": "InvalidSetActive"
+					  "name": "PublicSaleInfoNotExist"
 					},
 					{
 					  "index": 63,
-					  "name": "InvalidTotalAmount"
+					  "name": "InvalidSetActive"
 					},
 					{
 					  "index": 64,
-					  "name": "CannotTransferTxFee"
+					  "name": "InvalidTotalAmount"
 					},
 					{
 					  "index": 65,
-					  "name": "ActiveLaunchpadStatusNotFound"
+					  "name": "CannotTransferTxFee"
 					},
 					{
 					  "index": 66,
-					  "name": "LaunchpadNotActive"
+					  "name": "ActiveLaunchpadStatusNotFound"
 					},
 					{
 					  "index": 67,
-					  "name": "InvalidCaller"
+					  "name": "LaunchpadNotActive"
 					},
 					{
 					  "index": 68,
-					  "name": "NoPhaseActive"
+					  "name": "InvalidCaller"
 					},
 					{
 					  "index": 69,
-					  "name": "InvalidTotalSupply"
+					  "name": "NoPhaseActive"
 					},
 					{
 					  "index": 70,
-					  "name": "PhaseNotPublic"
+					  "name": "InvalidTotalSupply"
 					},
 					{
 					  "index": 71,
+					  "name": "PhaseNotPublic"
+					},
+					{
+					  "index": 72,
 					  "name": "InvalidSetPublic"
 					}
 				  ]
@@ -5182,7 +5190,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 26
+						  "type": 0
 						}
 					  ],
 					  "index": 0,
@@ -5203,7 +5211,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 26
+				  "type": 0
 				},
 				{
 				  "name": "E",
@@ -5217,6 +5225,48 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 		  },
 		  {
 			"id": 26,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 27
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 27
+				},
+				{
+				  "name": "E",
+				  "type": 19
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 27,
 			"type": {
 			  "def": {
 				"variant": {
@@ -5250,48 +5300,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				{
 				  "name": "E",
 				  "type": 14
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 27,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 0
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 0
-				},
-				{
-				  "name": "E",
-				  "type": 19
 				}
 			  ],
 			  "path": [
@@ -5350,7 +5358,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 30
+						  "type": 4
 						}
 					  ],
 					  "index": 0,
@@ -5371,7 +5379,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 30
+				  "type": 4
 				},
 				{
 				  "name": "E",
@@ -5390,17 +5398,22 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				"variant": {
 				  "variants": [
 					{
+					  "fields": [
+						{
+						  "type": 6
+						}
+					  ],
 					  "index": 0,
-					  "name": "None"
+					  "name": "Ok"
 					},
 					{
 					  "fields": [
 						{
-						  "type": 9
+						  "type": 19
 						}
 					  ],
 					  "index": 1,
-					  "name": "Some"
+					  "name": "Err"
 					}
 				  ]
 				}
@@ -5408,11 +5421,15 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 9
+				  "type": 6
+				},
+				{
+				  "name": "E",
+				  "type": 19
 				}
 			  ],
 			  "path": [
-				"Option"
+				"Result"
 			  ]
 			}
 		  },
@@ -5513,6 +5530,81 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
+						  "type": 9
+						}
+					  ],
+					  "index": 1,
+					  "name": "Some"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 9
+				}
+			  ],
+			  "path": [
+				"Option"
+			  ]
+			}
+		  },
+		  {
+			"id": 34,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 35
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 35
+				},
+				{
+				  "name": "E",
+				  "type": 19
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 35,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "index": 0,
+					  "name": "None"
+					},
+					{
+					  "fields": [
+						{
 						  "type": 0
 						}
 					  ],
@@ -5534,7 +5626,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			}
 		  },
 		  {
-			"id": 34,
+			"id": 36,
 			"type": {
 			  "def": {
 				"variant": {
@@ -5564,90 +5656,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				{
 				  "name": "T",
 				  "type": 8
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 35,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 6
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 6
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 36,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 4
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 4
 				},
 				{
 				  "name": "E",
@@ -5752,7 +5760,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 					{
 					  "fields": [
 						{
-						  "type": 9
+						  "type": 40
 						}
 					  ],
 					  "index": 0,
@@ -5773,7 +5781,7 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 9
+				  "type": 40
 				},
 				{
 				  "name": "E",
@@ -5787,48 +5795,6 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 		  },
 		  {
 			"id": 40,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 41
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 19
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 41
-				},
-				{
-				  "name": "E",
-				  "type": 19
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 41,
 			"type": {
 			  "def": {
 				"variant": {
@@ -5862,6 +5828,48 @@ export const launchpad_generator_contract = (process.env.IS_MAINNET == "true") ?
 				{
 				  "name": "E",
 				  "type": 15
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 41,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 9
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 19
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 9
+				},
+				{
+				  "name": "E",
+				  "type": 19
 				}
 			  ],
 			  "path": [
