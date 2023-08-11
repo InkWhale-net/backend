@@ -3,7 +3,7 @@ import {ApiPromise} from "@polkadot/api";
 import {CONFIG_TYPE_NAME} from "../utils/constant";
 import {convertToUTCTime} from "../utils/Tools";
 import * as mongoDB from "mongodb";
-import {convertNumberWithoutCommas, send_telegram_message} from "../utils/utils";
+import {convertNumberWithoutCommas, getAllFloorPriceArtZero, getAzeroPrice, send_telegram_message} from "../utils/utils";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {compactAddLength, hexToU8a} from "@polkadot/util";
 import {RedisCache} from "./ScanBlockCaching";
@@ -13,6 +13,8 @@ import {nft_pool_contract} from "../contracts/nft_pool";
 import {EventPool} from "../models";
 import {pool_generator_contract} from "../contracts/pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
+import { NftPoolsSchemaRepository, PoolsSchemaRepository, StatsSchemaRepository } from "../repositories";
+import prices from '../utils/prices.json'
 
 let inw_contract: ContractPromise;
 export function setContract(c: ContractPromise) {
@@ -548,5 +550,53 @@ export async function processEventRecords(
         console.log(`====================================COMPLETED====================================================`);
     } catch (e) {
         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+    }
+}
+
+export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepository,poolsSchemaRepository: PoolsSchemaRepository, nftPoolsSchemaRepository: NftPoolsSchemaRepository) {
+    try {
+        const pools = await poolsSchemaRepository.find({
+            where: {
+                tokenContract:
+              process.env.INW_ADDRESS ||
+              '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
+            },
+          })
+          const totalINWLocked = pools.reduce((total, pool) => total + Number(pool.totalStaked) , 0)
+          const inwValueAzero = prices.inw * totalINWLocked
+          const ret = await getAllFloorPriceArtZero()
+          const calculatedValues = await Promise.all(ret.map((async (collection: any) => {
+            const nftPoolSchemaEntry = await nftPoolsSchemaRepository.find({
+                where: {
+                    NFTtokenContract:
+                  collection.collection,
+                },
+              });
+              
+              if (nftPoolSchemaEntry.length > 0) {
+                const totalNftVal = nftPoolSchemaEntry.reduce((total, pool) => total + (collection.floorPrice * Number(pool.totalStaked)) , 0)
+                return totalNftVal;
+              }
+            
+              return 0;
+          })))
+          const sumNftValue = calculatedValues.reduce((acc, value) => acc + value, 0);
+          const totalValue = sumNftValue + inwValueAzero
+          const priceA0 = await getAzeroPrice("AZERO")
+          const statsList = await statsSchemaRepository.find()
+          if(statsList?.length > 0) {
+            await statsSchemaRepository.updateById(statsList[0]._id, {
+                tvlInAzero: Number(totalValue / 10**12).toString(),
+            tvlInUSD: Number((priceA0*totalValue || totalValue)/ 10**12).toString()
+              })
+          } else {
+          await statsSchemaRepository.create({
+            tvlInAzero: Number(totalValue / 10**12).toString(),
+            tvlInUSD: Number((priceA0*totalValue || totalValue)/ 10**12).toString()
+          })
+        }
+
+    } catch (e) {
+        console.log(`${CONFIG_TYPE_NAME.STATS} - ERROR: ${e.message}`);
     }
 }

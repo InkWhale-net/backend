@@ -83,3 +83,4 @@ module.exports.readOnlyGasLimit = function (api) {
     proofSize: MAX_CALL_WEIGHT,
   });
 }
+

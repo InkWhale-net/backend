@@ -303,3 +303,34 @@ export const getIPFSData = async (uri: string) => {
     console.error('get ipfs data error', error.message, `\n${ret}`);
   }
 };
+export const getAzeroPrice = async (symbol: string) => {
+    const { data } = await axios({
+      baseURL: "https://pro-api.coinmarketcap.com/v2",
+      url: `/cryptocurrency/quotes/latest?symbol=${symbol}&convert=USD`,
+      method: "get",
+      headers: {
+        "Accept": "application/json",
+        "X-CMC_PRO_API_KEY": process.env.X_CMC_PRO_API_KEY
+      },
+    });
+  
+    let obj = data.data;
+    let keys = Object.keys(obj);
+    let result = obj[keys[0]];
+    
+    let price = result.filter((item: any) => item.symbol === symbol)[0].quote.USD.price;
+    return price
+  }
+  
+export const getAllFloorPriceArtZero = async () => {
+    const { data } = await axios({
+      baseURL: process.env.ARTZERO_API_BASE_URL,
+      url: `/getAllCollectionsFloorPrice`,
+      method: "post",
+      headers: {
+        "Accept": "application/json",
+      },
+    });
+    return data?.ret?.filter((data: any) => data?.floorPrice)
+  }
+  

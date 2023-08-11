@@ -24,6 +24,7 @@ export const EACH_30_SECONDS = '*/30 * * * * *';                // Every 30 seco
 export const CRONJOB_TIME = {
     INW_POOL: process.env.CRONJOB_TIME_INW_POOL ?? EACH_15_SECONDS,
     INW_POOL_SCAN_ALL: process.env.CRONJOB_TIME_INW_POOL_SCAN_ALL ?? EACH_5_MINUTES,
+    STATS: process.env.CRONJOB_TIME_STATS ?? EACH_10_SECONDS,
 };
 
 export const CRONJOB_ENABLE = {
@@ -85,6 +86,7 @@ export const CONFIG_TYPE_NAME = {
     INW_POOL_SCAN_ALL: "CronJobUpdateAllPools",
     INW_POOL_EVENT_SCANNED: "ScanBlockCaching",
     INW_POOL_EVENT_RE_SCANNED: "ReScanBlockCaching",
+    STATS: "CronJobUpdateStats",
 };
 
 export const ADDRESSES_INW = {

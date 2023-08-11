@@ -7,6 +7,7 @@ import {
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
+  StatsSchemaRepository,
   TokensSchemaRepository,
   UpdateQueueSchemaRepository,
 } from '../repositories';
@@ -61,12 +62,7 @@ import {pool_generator_contract} from '../contracts/pool_generator';
 import {UpdateQueue} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
-import {
-  getIPFSData,
-  isValidSignature,
-  readOnlyGasLimit,
-  roundUp,
-} from '../utils/utils';
+import {getIPFSData, isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
 import {ContractPromise} from '@polkadot/api-contract';
 import {checkQueue} from '../utils/Pools';
 import {global_vars, SOCKET_STATUS} from '../cronjob/global';
@@ -92,7 +88,9 @@ export class ApiController {
     @repository(NftPoolsSchemaRepository)
     public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
     @repository(LaunchpadsSchemaRepository)
-    public launchpadsSchemaRepository: LaunchpadsSchemaRepository,
+    public launchpadsSchemaRepository : LaunchpadsSchemaRepository,
+    @repository(StatsSchemaRepository)
+    public statsSchemaRepository : StatsSchemaRepository,
     @inject(RestBindings.Http.REQUEST) private req: Request,
   ) {}
 
@@ -996,4 +994,16 @@ export class ApiController {
       ret: pool,
     };
   }
+
+  @post('/getTotalValueLocked')
+  async getTotalValueLocked(): Promise<ResponseBody> {
+    const ret = await this.statsSchemaRepository.findOne()
+    
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: ret,
+    };
+  }
+
 }

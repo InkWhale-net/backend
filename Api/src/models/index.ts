@@ -8,3 +8,4 @@ export * from './scanned-blocks-schema.model';
 export * from './rescanned-blocks-schema.model';
 export * from './event-pool.model';
 export * from './launchpads.model'
+export * from './stats.model'
