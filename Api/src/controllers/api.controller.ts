@@ -6,6 +6,7 @@ import {
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
+  StatsSchemaRepository,
   TokensSchemaRepository,
   UpdateQueueSchemaRepository
 } from "../repositories";
@@ -78,6 +79,8 @@ export class ApiController {
       public nftPoolsSchemaRepository : NftPoolsSchemaRepository,
       @repository(EventTransferRepository)
       public eventTransferRepository: EventTransferRepository,
+      @repository(StatsSchemaRepository)
+      public statsSchemaRepository : StatsSchemaRepository,
       @inject(RestBindings.Http.REQUEST) private req: Request
   ) {}
 
@@ -855,6 +858,16 @@ export class ApiController {
         dataArray: data,
         total: countDoc?.count,
       },
+    };
+  }
+  @post('/getTotalValueLocked')
+  async getTotalValueLocked(): Promise<ResponseBody> {
+    const ret = await this.statsSchemaRepository.findOne()
+    
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: ret,
     };
   }
 }

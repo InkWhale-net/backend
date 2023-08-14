@@ -7,6 +7,7 @@ import {CronJobUpdateAllPools} from "./cronjob/ScanAllJob";
 import {ApiPromise, WsProvider} from "@polkadot/api";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import {global_vars, SOCKET_STATUS} from "./cronjob/global";
+import { CronJobUpdateStats } from './cronjob/StatsJob';
 dotenv.config();
 
 export let globalApi: ApiPromise;
@@ -20,6 +21,11 @@ export async function main(options: ApplicationConfig = {}) {
   const cronJobUpdateAllPools = createBindingFromClass(CronJobUpdateAllPools);
   app.add(cronJobUpdateAllPools);
   app.configure(cronJobUpdateAllPools.key);
+
+  const cronJobUpdateStats = createBindingFromClass(CronJobUpdateStats);
+  app.add(cronJobUpdateStats);
+  app.configure(cronJobUpdateStats.key);
+
 
   await app.boot();
   await app.start();
