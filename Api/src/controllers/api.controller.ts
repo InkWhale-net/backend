@@ -62,7 +62,12 @@ import {pool_generator_contract} from '../contracts/pool_generator';
 import {UpdateQueue} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
-import {getIPFSData, isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
+import {
+  getIPFSData,
+  isValidSignature,
+  readOnlyGasLimit,
+  roundUp,
+} from '../utils/utils';
 import {ContractPromise} from '@polkadot/api-contract';
 import {checkQueue} from '../utils/Pools';
 import {global_vars, SOCKET_STATUS} from '../cronjob/global';
@@ -72,6 +77,7 @@ import {nft_pool_contract} from '../contracts/nft_pool';
 import {launchpad_generator_contract} from '../contracts/launchpad_generator';
 import {execContractQuery} from '../utils/Launchpads';
 import {launchpad_contract} from '../contracts/launchpad';
+import {psp22_contract_old} from '../contracts/psp22_old';
 
 export class ApiController {
   constructor(
@@ -88,9 +94,9 @@ export class ApiController {
     @repository(NftPoolsSchemaRepository)
     public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
     @repository(LaunchpadsSchemaRepository)
-    public launchpadsSchemaRepository : LaunchpadsSchemaRepository,
+    public launchpadsSchemaRepository: LaunchpadsSchemaRepository,
     @repository(StatsSchemaRepository)
-    public statsSchemaRepository : StatsSchemaRepository,
+    public statsSchemaRepository: StatsSchemaRepository,
     @inject(RestBindings.Http.REQUEST) private req: Request,
   ) {}
 
@@ -322,19 +328,22 @@ export class ApiController {
     const token = await this.tokensSchemaRepository.findOne({
       where: {contractAddress: req.tokenAddress},
     });
+
     if (token) {
       return {
         status: STATUS.FAILED,
         message: MESSAGE.DUPLICATED_TOKEN,
       };
     }
+
     const contract_to_call = new ContractPromise(
       globalApi,
-      psp22_contract.CONTRACT_ABI,
+      psp22_contract_old.CONTRACT_ABI,
       req.tokenAddress || '',
     );
 
     const gasLimit = readOnlyGasLimit(globalApi);
+
     const queryResult: any = await contract_to_call.query['ownable::owner'](
       process.env.CALLER_ACCOUNT ||
         '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
@@ -388,7 +397,7 @@ export class ApiController {
         isManagedByTokenGenerator: false,
         createdTime: new Date(),
         updatedTime: new Date(),
-        isNew: false
+        isNew: false,
       });
     } catch (e) {
       console.log(`ERROR: ProcessTokens create - ${e.message}`);
@@ -898,7 +907,7 @@ export class ApiController {
     // 0: true
     // 1: none
     let isActive = req?.isActive;
-    
+
     if (projectInfoIpfs) {
       const foundLaunchpadWithIPFSUri =
         await this.launchpadsSchemaRepository.findOne({
@@ -998,13 +1007,12 @@ export class ApiController {
 
   @post('/getTotalValueLocked')
   async getTotalValueLocked(): Promise<ResponseBody> {
-    const ret = await this.statsSchemaRepository.findOne()
-    
+    const ret = await this.statsSchemaRepository.findOne();
+
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
       ret: ret,
     };
   }
-
 }
