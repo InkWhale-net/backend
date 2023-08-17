@@ -1,5 +1,5 @@
 export const inw_token = {
-	CONTRACT_ADDRESS: "5ECCC35Zd3h9rt4vzjUm6KYfggpr5BMfYR8t2d1BZUB1LMqw", // testnet
+	CONTRACT_ADDRESS: "5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX", // testnet
 	// CONTRACT_ADDRESS: "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST", // mainnet
 	CONTRACT_ABI: {
 		source: {
