@@ -495,7 +495,8 @@ const ProcessTokens = async (
                         tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
                         isManagedByTokenGenerator: true,
                         createdTime: new Date(),
-                        updatedTime: new Date()
+                        updatedTime: new Date(),
+                        isNew: true
                     });
                 } catch (e) {
                     console.log(`ERROR: ProcessTokens create - ${e.message}`);
