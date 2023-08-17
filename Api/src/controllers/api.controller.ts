@@ -388,6 +388,7 @@ export class ApiController {
         isManagedByTokenGenerator: false,
         createdTime: new Date(),
         updatedTime: new Date(),
+        isNew: false
       });
     } catch (e) {
       console.log(`ERROR: ProcessTokens create - ${e.message}`);
