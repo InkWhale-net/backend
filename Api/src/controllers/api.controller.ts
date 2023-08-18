@@ -325,6 +325,7 @@ export class ApiController {
         message: MESSAGE.NO_INPUT,
       };
     }
+
     const token = await this.tokensSchemaRepository.findOne({
       where: {contractAddress: req.tokenAddress},
     });
@@ -338,7 +339,9 @@ export class ApiController {
 
     const contract_to_call = new ContractPromise(
       globalApi,
-      psp22_contract_old.CONTRACT_ABI,
+      req?.isNew
+        ? psp22_contract.CONTRACT_ABI
+        : psp22_contract_old.CONTRACT_ABI,
       req.tokenAddress || '',
     );
 

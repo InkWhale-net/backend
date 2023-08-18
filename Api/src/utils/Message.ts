@@ -101,6 +101,7 @@ export type ReqImportToken = {
     decimal?: number,
     creator?: string,
     signature?: string,
+    isNew?: boolean
 }
 const ReqUpdateTokenIconSchema: SchemaObject = {
     type: 'object',
@@ -143,6 +144,9 @@ const ReqImportTokenSchema: SchemaObject = {
         signature: {
             type: 'string',
         },
+        isNew: {
+            type: 'boolean'
+        }
     },
 };
 export const ReqUpdateTokenIconBody = {
