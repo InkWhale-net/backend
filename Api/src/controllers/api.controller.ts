@@ -400,7 +400,7 @@ export class ApiController {
         isManagedByTokenGenerator: false,
         createdTime: new Date(),
         updatedTime: new Date(),
-        isNew: false,
+        isNew: req?.isNew,
       });
     } catch (e) {
       console.log(`ERROR: ProcessTokens create - ${e.message}`);
