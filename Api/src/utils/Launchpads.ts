@@ -138,7 +138,6 @@ export const ProcessLaunchpad = async (
       'launchpadContractTrait::getPublicSaleInfo',
       phaseID,
     );
-    console.log('publicSaleInfor', publicSaleInfor)
     const WL = [];
     for (let wlID = 0; wlID < countWL; wlID++) {
       let wlAccount = await execContractQuery(
@@ -160,7 +159,12 @@ export const ProcessLaunchpad = async (
       WL.push({...buyer, account: wlAccount});
     }
 
-    phaseList.push({...phaseData, whitelist: WL, publicSaleInfor: publicSaleInfor});
+    phaseList.push({
+      ...phaseData,
+      phaseID,
+      whitelist: WL,
+      publicSaleInfor: publicSaleInfor,
+    });
   }
 
   const isActive = await execContractQuery(
