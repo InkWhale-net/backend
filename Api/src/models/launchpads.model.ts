@@ -58,6 +58,16 @@ export class Launchpads extends Entity {
     type: 'string',
   })
   endTime?: string;
+  
+  @property({
+    type: 'string',
+  })
+  totalSupply?: string;
+
+  @property({
+    type: 'string',
+  })
+  availableTokenAmount?: string;
 
   @property({
     type: 'string',
