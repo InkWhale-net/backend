@@ -90,6 +90,20 @@ export const ProcessLaunchpad = async (
     'launchpadContractTrait::getTokenAddress',
   );
 
+  let totalSupply = await execContractQuery(
+    api,
+    launchpad_contract_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'launchpadContractTrait::getTotalSupply',
+  );
+
+  let availableTokenAmount = await execContractQuery(
+    api,
+    launchpad_contract_calls,
+    `${process.env.CALLER_ACCOUNT}`,
+    'launchpadContractTrait::getAvailableTokenAmount',
+  );
+
   let owner = await execContractQuery(
     api,
     launchpad_contract_calls,
@@ -195,6 +209,8 @@ export const ProcessLaunchpad = async (
           endTime,
           phaseList: JSON.stringify(phaseList),
           owner,
+          totalSupply,
+          availableTokenAmount,
           isActive,
           updatedTime: new Date(),
         });
@@ -215,6 +231,8 @@ export const ProcessLaunchpad = async (
           endTime,
           phaseList: JSON.stringify(phaseList),
           owner,
+          totalSupply,
+          availableTokenAmount,
           isActive,
         });
         console.log({create_collection: create_collection});
