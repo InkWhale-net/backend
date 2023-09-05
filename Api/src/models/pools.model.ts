@@ -60,9 +60,9 @@ export class Pools extends Entity {
   rewardPool?: number;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  totalStaked?: number;
+  totalStaked?: string;
 
   @property({
     type: 'number',
