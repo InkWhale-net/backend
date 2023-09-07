@@ -385,6 +385,7 @@ const ProcessLP = async (
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
                     owner: _owner,
+                    createdTime: new Date(),
                     lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
                 });
             } catch (e) {
@@ -413,6 +414,7 @@ const ProcessLP = async (
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
                         multiplier: _multiplier,
                         owner: _owner,
+                        createdTime: new Date(),
                         lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
                     }
                 );
