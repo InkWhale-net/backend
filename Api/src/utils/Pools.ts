@@ -373,6 +373,7 @@ const ProcessLP = async (
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
                     multiplier: _multiplier,
                     owner: _owner,
+                    createdTime: new Date(),
                     lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
                 });
             } catch (e) {
@@ -401,6 +402,7 @@ const ProcessLP = async (
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
                         multiplier: _multiplier,
                         owner: _owner,
+                        createdTime: new Date(),
                         lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
                     }
                 );
@@ -1041,10 +1043,10 @@ const totalStaked = async (
     contract_to_call: ContractPromise,
     caller_account: string,
     is_nft: boolean
-): Promise<number> => {
+): Promise<any> => {
     if (!contract_to_call) {
         console.log("invalid", contract_to_call);
-        return 0;
+        return '0';
     }
     if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
@@ -1058,7 +1060,7 @@ const totalStaked = async (
         );
         if (result.isOk && output) {
             // @ts-ignore
-            const totalStaked = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""));
+            const totalStaked = output.toHuman()?.Ok.replace(/,/g, "");
             // let totalStaked: number;
             // if (is_nft) {
             //     totalStaked = a;
@@ -1069,9 +1071,9 @@ const totalStaked = async (
         }
     } catch (e) {
         console.log(`ERROR: totalStaked - ${e.message}`);
-        return 0;
+        return '0';
     }
-    return 0;
+    return '0';
 }
 
 const getStakeInfo = async (
