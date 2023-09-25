@@ -8,7 +8,7 @@ import {
     TokensSchemaRepository,
     UpdateQueueSchemaRepository
 } from "../repositories";
-import {isInwWhaleDisabledCollections, readOnlyGasLimit} from "./utils";
+import {getTokenOwner, isInwWhaleDisabledCollections, readOnlyGasLimit} from "./utils";
 import {lp_pool_contract} from "../contracts/lp_pool";
 import {psp22_contract} from "../contracts/psp22";
 import dotenv from "dotenv";
@@ -454,7 +454,7 @@ const ProcessTokens = async (
                 psp22_contract.CONTRACT_ABI,
                 contractAddress,
             );
-            let _owner = await owner(api, psp22_contract_calls, '');
+            let _owner = await getTokenOwner(api, contractAddress);
             // let _mintTo = await mintTo(api, psp22_contract_calls, '');
             let _tokenName = await tokenName(api, '', psp22_contract_calls);
             let _tokenSymbol = await tokenSymbol(api, '', psp22_contract_calls);
