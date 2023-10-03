@@ -1,6 +1,6 @@
 import {inject} from '@loopback/core';
-import {post, Request, requestBody, RestBindings} from '@loopback/rest';
-import {repository} from '@loopback/repository';
+import {post, Request, requestBody, RestBindings, param} from '@loopback/rest';
+import {Filter, repository} from '@loopback/repository';
 import {
   EventTransferRepository,
   LaunchpadsSchemaRepository,
@@ -10,6 +10,7 @@ import {
   StatsSchemaRepository,
   TokensSchemaRepository,
   UpdateQueueSchemaRepository,
+  KycAddressSchemaRepository,
 } from '../repositories';
 import {
   ADDRESSES_INW,
@@ -56,12 +57,14 @@ import {
   ResponseBody,
   ReqAddKycAddressBody,
   ReqAddKycAddress,
+  ReqGetKycAddress,
+  ReqGetKycAddressBody,
 } from '../utils/Message';
 import {token_generator_contract} from '../contracts/token_generator';
 import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
 import {nft_pool_generator_contract} from '../contracts/nft_pool_generator';
 import {pool_generator_contract} from '../contracts/pool_generator';
-import {UpdateQueue} from '../models';
+import {UpdateQueue, KycAddress} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
 import {
@@ -80,7 +83,6 @@ import {launchpad_generator_contract} from '../contracts/launchpad_generator';
 import {execContractQuery} from '../utils/Launchpads';
 import {launchpad_contract} from '../contracts/launchpad';
 import {psp22_contract_old} from '../contracts/psp22_old';
-import { KycAddressSchemaRepository } from '../repositories/kyc-address.repository';
 
 export class ApiController {
   constructor(
@@ -102,7 +104,7 @@ export class ApiController {
     public statsSchemaRepository: StatsSchemaRepository,
     @inject(RestBindings.Http.REQUEST) private req: Request,
     @repository(KycAddressSchemaRepository)
-    public kycAddressSchemaRepository: LaunchpadsSchemaRepository,
+    public kycAddressSchemaRepository: KycAddressSchemaRepository,
   ) {}
 
   @post('/update')
@@ -1033,9 +1035,58 @@ export class ApiController {
     const headers = this.req.headers;
     console.log('>>> headers', headers);
 
+    const record = await this.kycAddressSchemaRepository.findOne({
+      where: {clientId: req?.clientId, refId: req?.refId},
+    });
+
+    if (record) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.DUPLICATED_RECORD,
+      };
+    }
+
+    try {
+      await this.kycAddressSchemaRepository.create({
+        clientId: req?.clientId,
+        event: req?.event,
+        recordId: req?.recordId,
+        status: req?.status,
+        refId: req?.refId,
+        submitCount: req?.submitCount,
+        blockPassID: req?.blockPassID,
+        inreviewDate: req?.inreviewDate,
+        waitingDate: req?.waitingDate,
+        approvedDate: req?.approvedDate,
+      });
+    } catch (e) {
+      console.log(`ERROR: ADD_KYC - ${e.message}`);
+      return {
+        status: STATUS.FAILED,
+        message: `${MESSAGE.UNKNOW_ERROR} when ADD_KYC`,
+      };
+    }
+
     return {
       status: STATUS.OK,
       message: MESSAGE.ADD_KYC_ADDRESS,
+    };
+  }
+
+  @post('/getKycAddress')
+  async getKycAddress(
+    @param.filter(KycAddress) filter?: Filter<KycAddress>,
+  ): Promise<ResponseBody> {
+    console.log('>>> filter', filter);
+
+    const records = await this.kycAddressSchemaRepository.find({
+      ...filter,
+    });
+
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: records,
     };
   }
 }
