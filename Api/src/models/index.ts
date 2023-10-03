@@ -9,3 +9,4 @@ export * from './rescanned-blocks-schema.model';
 export * from './event-pool.model';
 export * from './launchpads.model'
 export * from './stats.model'
+export * from './kyc-address.model';

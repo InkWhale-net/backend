@@ -54,6 +54,8 @@ import {
   ReqUpdateTokenIconType,
   ReqUpdateType,
   ResponseBody,
+  ReqAddKycAddressBody,
+  ReqAddKycAddress,
 } from '../utils/Message';
 import {token_generator_contract} from '../contracts/token_generator';
 import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
@@ -78,6 +80,7 @@ import {launchpad_generator_contract} from '../contracts/launchpad_generator';
 import {execContractQuery} from '../utils/Launchpads';
 import {launchpad_contract} from '../contracts/launchpad';
 import {psp22_contract_old} from '../contracts/psp22_old';
+import { KycAddressSchemaRepository } from '../repositories/kyc-address.repository';
 
 export class ApiController {
   constructor(
@@ -98,6 +101,8 @@ export class ApiController {
     @repository(StatsSchemaRepository)
     public statsSchemaRepository: StatsSchemaRepository,
     @inject(RestBindings.Http.REQUEST) private req: Request,
+    @repository(KycAddressSchemaRepository)
+    public kycAddressSchemaRepository: LaunchpadsSchemaRepository,
   ) {}
 
   @post('/update')
@@ -1016,6 +1021,21 @@ export class ApiController {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
       ret: ret,
+    };
+  }
+
+  @post('/addKycAddress')
+  async addKycAddress(
+    @requestBody(ReqAddKycAddressBody) req: ReqAddKycAddress,
+  ): Promise<ResponseBody> {
+    console.log('>>> req', req);
+
+    const headers = this.req.headers;
+    console.log('>>> headers', headers);
+
+    return {
+      status: STATUS.OK,
+      message: MESSAGE.ADD_KYC_ADDRESS,
     };
   }
 }

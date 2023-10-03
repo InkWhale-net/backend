@@ -103,6 +103,20 @@ export type ReqImportToken = {
     signature?: string,
     isNew?: boolean
 }
+
+export type ReqAddKycAddress = {
+  clientId?: string;
+  event?: string;
+  recordId?: string;
+  status?: string;
+  refId?: string;
+  submitCount?: number;
+  blockPassID?: string;
+  inreviewDate?: string;
+  waitingDate?: string;
+  approvedDate?: string;
+};
+
 const ReqUpdateTokenIconSchema: SchemaObject = {
     type: 'object',
     properties: {
@@ -149,6 +163,41 @@ const ReqImportTokenSchema: SchemaObject = {
         }
     },
 };
+const ReqAddKycAddressSchema: SchemaObject = {
+  type: 'object',
+  properties: {
+    clientId: {
+      type: 'string',
+    },
+    event: {
+      type: 'string',
+    },
+    recordId: {
+      type: 'string',
+    },
+    status: {
+      type: 'string',
+    },
+    refId: {
+      type: 'string',
+    },
+    submitCount: {
+      type: 'number',
+    },
+    blockPassID: {
+      type: 'string',
+    },
+    inreviewDate: {
+      type: 'string',
+    },
+    waitingDate: {
+      type: 'string',
+    },
+    approvedDate: {
+      type: 'string',
+    },
+  },
+};
 export const ReqUpdateTokenIconBody = {
     description: 'The input of getTokens function',
     required: true,
@@ -165,6 +214,15 @@ export const ReqImportTokenBody = {
         'application/json': {schema: ReqImportTokenSchema},
         'application/x-www-form-urlencoded': {schema: ReqImportTokenSchema},
     },
+};
+
+export const ReqAddKycAddressBody = {
+  description: 'The input of addKycAddress function',
+  required: true,
+  content: {
+    'application/json': {schema: ReqAddKycAddressSchema},
+    'application/x-www-form-urlencoded': {schema: ReqAddKycAddressSchema},
+  },
 };
 
 // GET LP POOLS
