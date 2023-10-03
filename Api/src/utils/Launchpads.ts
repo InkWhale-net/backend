@@ -213,6 +213,8 @@ export const ProcessLaunchpad = async (
           availableTokenAmount,
           isActive,
           updatedTime: new Date(),
+          requireKyc: projectinfor?.requireKyc,
+          kycUrl: projectinfor?.kycUrl,
         });
       } catch (e) {
         console.log(`ERROR: ProcessPool updateById - ${e.message}`);
@@ -234,6 +236,8 @@ export const ProcessLaunchpad = async (
           totalSupply,
           availableTokenAmount,
           isActive,
+          requireKyc: projectinfor?.requireKyc,
+          kycUrl: projectinfor?.kycUrl,
         });
         console.log({create_collection: create_collection});
       } catch (e) {

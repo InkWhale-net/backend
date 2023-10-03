@@ -58,7 +58,7 @@ export class Launchpads extends Entity {
     type: 'string',
   })
   endTime?: string;
-  
+
   @property({
     type: 'string',
   })
@@ -78,6 +78,16 @@ export class Launchpads extends Entity {
     type: 'boolean',
   })
   isActive?: Boolean;
+
+  @property({
+    type: 'string',
+  })
+  kycUrl?: string;
+
+  @property({
+    type: 'boolean',
+  })
+  requireKyc?: Boolean;
 
   constructor(data?: Partial<Launchpads>) {
     super(data);
