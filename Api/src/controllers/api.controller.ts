@@ -1036,16 +1036,12 @@ export class ApiController {
     const headers = this.req.headers;
 
     console.log('>>> headers', headers);
-    console.log('>>> headers["x-hub-signature"]', headers['x-hub-signature']);
 
-    const xHub = new XHubSignature('sha256', 'my_secret_is_artzero_io');
-    const signature = xHub.sign(new Buffer(JSON.stringify(req)));
-
-    console.log('>>> signature', signature);
+    // const xHub = new XHubSignature('sha256', 'my_secret_is_artzero_io');
+    const xHub = new XHubSignature('sha256', process.env.SECRECT_BLOCKPASS);
+    const signature = xHub.sign(Buffer.from(JSON.stringify(req)));
 
     const hash = signature?.replace('sha256=', '');
-    console.log('>>> hash', hash);
-    console.log('>>> headers hash', headers['x-hub-signature'] !== hash);
 
     if (headers['x-hub-signature'] !== hash) {
       return {
@@ -1057,7 +1053,7 @@ export class ApiController {
     const record = await this.kycAddressSchemaRepository.findOne({
       where: {clientId: req?.clientId, refId: req?.refId},
     });
-    
+
     console.log('>>> record', record);
 
     if (record) {
