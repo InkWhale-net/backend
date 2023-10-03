@@ -57,8 +57,6 @@ import {
   ResponseBody,
   ReqAddKycAddressBody,
   ReqAddKycAddress,
-  ReqGetKycAddress,
-  ReqGetKycAddressBody,
 } from '../utils/Message';
 import {token_generator_contract} from '../contracts/token_generator';
 import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
