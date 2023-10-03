@@ -82,6 +82,9 @@ import {execContractQuery} from '../utils/Launchpads';
 import {launchpad_contract} from '../contracts/launchpad';
 import {psp22_contract_old} from '../contracts/psp22_old';
 
+import {Buffer} from 'buffer';
+const XHubSignature = require('x-hub-signature');
+
 export class ApiController {
   constructor(
     @repository(PoolsSchemaRepository)
@@ -1032,10 +1035,22 @@ export class ApiController {
 
     const headers = this.req.headers;
     console.log('>>> headers', headers);
+    console.log('>>> headers["x-hub-signature"]', headers['x-hub-signature']);
+
+    const xHub = new XHubSignature('sha256', 'my_little_secret');
+    const signature = xHub.sign(new Buffer(JSON.stringify(req)));
+    console.log('>>> signature', signature);
+    
+    const verify = xHub.verify(
+      headers['x-hub-signature'],
+      new Buffer(JSON.stringify(req)),
+    );
+    console.log('>>> verify', verify);
 
     const record = await this.kycAddressSchemaRepository.findOne({
       where: {clientId: req?.clientId, refId: req?.refId},
     });
+    console.log('>>> record', record);
 
     if (record) {
       return {
