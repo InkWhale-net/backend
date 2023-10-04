@@ -9,6 +9,9 @@ import winston from "winston";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {inw_token} from "../contracts/inw_token";
 import {ApiBase} from "@polkadot/api/base";
+import { psp22_contract_old } from "../contracts/psp22_old";
+import { owner } from "./Pools";
+import { psp22_contract } from "../contracts/psp22";
 
 dotenv.config();
 
@@ -324,4 +327,37 @@ export const getAllFloorPriceArtZero = async () => {
     });
     return data?.ret?.filter((data: any) => data?.floorPrice)
   }
-  
+
+const getOldTokenOwner = async (api: any, contractAddress: any) => {
+  try {
+    const psp22_contract_old_calls = new ContractPromise(
+      api,
+      psp22_contract_old.CONTRACT_ABI,
+      contractAddress,
+    );
+    let _owner = await owner(api, psp22_contract_old_calls, '');
+    return _owner;
+  } catch (error) {
+    console.log(
+      'Error: can not get token owner',
+    );
+    console.log(error);
+  }
+};
+export const getTokenOwner = async (api: any, contractAddress: any) => {
+  try {
+    const psp22_contract_calls = new ContractPromise(
+      api,
+      psp22_contract.CONTRACT_ABI,
+      contractAddress,
+    );
+
+    let _owner = await owner(api, psp22_contract_calls, '');
+    return _owner;
+  } catch (error) {
+    //   console.log(
+    //     'WARNING: can not get token owner, trying get with old contract',
+    //   );
+    return getOldTokenOwner(api, contractAddress);
+  }
+};

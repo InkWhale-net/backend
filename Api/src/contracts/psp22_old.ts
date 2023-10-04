@@ -1,4 +1,4 @@
-export const psp22_contract = {
+export const psp22_contract_old = {
   CONTRACT_ADDRESS: "5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST",
   CONTRACT_ABI: {
 	  "source": {
