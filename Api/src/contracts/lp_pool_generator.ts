@@ -1932,10 +1932,10 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 		"version": "4"
 	}
 } : {
-	CONTRACT_ADDRESS: "5CfQKC1yH1xvAzNuZU1wpanQpDa8Z6VR77FX81wwqSMsCbPo",
+	CONTRACT_ADDRESS: "5EVBFxHMTWadGSkQTx8B8mW454bfkAxsY25so8JGxH6AptYp",
 	CONTRACT_ABI: {
 		"source": {
-		  "hash": "0xdc6d32a07ae9e5efca7b460a4e4683df4a736e4008a664412631d30f085ff2ec",
+		  "hash": "0x16cb993256e7ace0f585845ce496d7a7deeda2370e5b573f0bcbe4139da6f7f4",
 		  "language": "ink! 4.3.0",
 		  "compiler": "rustc 1.68.0",
 		  "build_info": {
@@ -2202,6 +2202,33 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  "selector": "0x2393fe3a"
 			},
 			{
+			  "args": [
+				{
+				  "label": "creation_fee",
+				  "type": {
+					"displayName": [
+					  "genericpoolgeneratortrait_external",
+					  "SetCreationFeeInput1"
+					],
+					"type": 5
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::set_creation_fee",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 9
+			  },
+			  "selector": "0x3cd3873c"
+			},
+			{
 			  "args": [],
 			  "default": false,
 			  "docs": [],
@@ -2218,6 +2245,60 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  "selector": "0xea416566"
 			},
 			{
+			  "args": [
+				{
+				  "label": "unstake_fee",
+				  "type": {
+					"displayName": [
+					  "genericpoolgeneratortrait_external",
+					  "SetUnstakeFeeInput1"
+					],
+					"type": 5
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::set_unstake_fee",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 9
+			  },
+			  "selector": "0xfd8d8fda"
+			},
+			{
+			  "args": [
+				{
+				  "label": "index",
+				  "type": {
+					"displayName": [
+					  "genericpoolgeneratortrait_external",
+					  "GetPoolInput1"
+					],
+					"type": 4
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_pool",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 18
+			  },
+			  "selector": "0xd8207f36"
+			},
+			{
 			  "args": [],
 			  "default": false,
 			  "docs": [],
@@ -2229,9 +2310,52 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 18
+				"type": 20
 			  },
 			  "selector": "0x38b09ecb"
+			},
+			{
+			  "args": [
+				{
+				  "label": "contract_owner",
+				  "type": {
+					"displayName": [
+					  "genericpoolgeneratortrait_external",
+					  "GetPoolCountByOwnerInput1"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_pool_count_by_owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 20
+			  },
+			  "selector": "0xa4cef8cd"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "GenericPoolGeneratorTrait::get_inw_contract",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 21
+			  },
+			  "selector": "0xd6b47e7a"
 			},
 			{
 			  "args": [
@@ -2266,63 +2390,9 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 19
+				"type": 22
 			  },
 			  "selector": "0x476bc739"
-			},
-			{
-			  "args": [
-				{
-				  "label": "contract_owner",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "GetPoolCountByOwnerInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool_count_by_owner",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 18
-			  },
-			  "selector": "0xa4cef8cd"
-			},
-			{
-			  "args": [
-				{
-				  "label": "inw_contract",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetInwContractInput1"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_inw_contract",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0xf71a1217"
 			},
 			{
 			  "args": [],
@@ -2336,7 +2406,7 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 21
+				"type": 24
 			  },
 			  "selector": "0x79f903bb"
 			},
@@ -2344,7 +2414,7 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  "args": [],
 			  "default": false,
 			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_inw_contract",
+			  "label": "GenericPoolGeneratorTrait::get_unstake_fee",
 			  "mutates": false,
 			  "payable": false,
 			  "returnType": {
@@ -2352,63 +2422,9 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 22
+				"type": 17
 			  },
-			  "selector": "0xd6b47e7a"
-			},
-			{
-			  "args": [
-				{
-				  "label": "creation_fee",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetCreationFeeInput1"
-					],
-					"type": 5
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_creation_fee",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0x3cd3873c"
-			},
-			{
-			  "args": [
-				{
-				  "label": "unstake_fee",
-				  "type": {
-					"displayName": [
-					  "genericpoolgeneratortrait_external",
-					  "SetUnstakeFeeInput1"
-					],
-					"type": 5
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::set_unstake_fee",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0xfd8d8fda"
+			  "selector": "0xa4395f88"
 			},
 			{
 			  "args": [
@@ -2438,47 +2454,88 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  "selector": "0xc49c451f"
 			},
 			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_unstake_fee",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 17
-			  },
-			  "selector": "0xa4395f88"
-			},
-			{
 			  "args": [
 				{
-				  "label": "index",
+				  "label": "inw_contract",
 				  "type": {
 					"displayName": [
 					  "genericpoolgeneratortrait_external",
-					  "GetPoolInput1"
+					  "SetInwContractInput1"
 					],
-					"type": 4
+					"type": 0
 				  }
 				}
 			  ],
 			  "default": false,
 			  "docs": [],
-			  "label": "GenericPoolGeneratorTrait::get_pool",
-			  "mutates": false,
+			  "label": "GenericPoolGeneratorTrait::set_inw_contract",
+			  "mutates": true,
 			  "payable": false,
 			  "returnType": {
 				"displayName": [
 				  "ink",
 				  "MessageResult"
 				],
-				"type": 23
+				"type": 9
 			  },
-			  "selector": "0xd8207f36"
+			  "selector": "0xf71a1217"
+			},
+			{
+			  "args": [
+				{
+				  "label": "value",
+				  "type": {
+					"displayName": [
+					  "admintrait_external",
+					  "WithdrawFeeInput1"
+					],
+					"type": 5
+				  }
+				},
+				{
+				  "label": "receiver",
+				  "type": {
+					"displayName": [
+					  "admintrait_external",
+					  "WithdrawFeeInput2"
+					],
+					"type": 0
+				  }
+				}
+			  ],
+			  "default": false,
+			  "docs": [
+				" This function allows contract owner to withdraw contract balance to his account."
+			  ],
+			  "label": "AdminTrait::withdraw_fee",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 9
+			  },
+			  "selector": "0x07573e99"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [
+				" Get Azero balance"
+			  ],
+			  "label": "AdminTrait::get_balance",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 25
+			  },
+			  "selector": "0xc4360570"
 			},
 			{
 			  "args": [
@@ -2530,63 +2587,6 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  "selector": "0xd9aad284"
 			},
 			{
-			  "args": [],
-			  "default": false,
-			  "docs": [
-				" Get Azero balance"
-			  ],
-			  "label": "AdminTrait::get_balance",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 25
-			  },
-			  "selector": "0xc4360570"
-			},
-			{
-			  "args": [
-				{
-				  "label": "value",
-				  "type": {
-					"displayName": [
-					  "admintrait_external",
-					  "WithdrawFeeInput1"
-					],
-					"type": 5
-				  }
-				},
-				{
-				  "label": "receiver",
-				  "type": {
-					"displayName": [
-					  "admintrait_external",
-					  "WithdrawFeeInput2"
-					],
-					"type": 0
-				  }
-				}
-			  ],
-			  "default": false,
-			  "docs": [
-				" This function allows contract owner to withdraw contract balance to his account."
-			  ],
-			  "label": "AdminTrait::withdraw_fee",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 9
-			  },
-			  "selector": "0x07573e99"
-			},
-			{
 			  "args": [
 				{
 				  "label": "code_hash",
@@ -2616,6 +2616,38 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  "selector": "0x9e32fab2"
 			},
 			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "Ownable::renounce_ownership",
+			  "mutates": true,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 27
+			  },
+			  "selector": "0x5e228753"
+			},
+			{
+			  "args": [],
+			  "default": false,
+			  "docs": [],
+			  "label": "Ownable::owner",
+			  "mutates": false,
+			  "payable": false,
+			  "returnType": {
+				"displayName": [
+				  "ink",
+				  "MessageResult"
+				],
+				"type": 18
+			  },
+			  "selector": "0x4fa43c8c"
+			},
+			{
 			  "args": [
 				{
 				  "label": "new_owner",
@@ -2641,38 +2673,6 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 				"type": 27
 			  },
 			  "selector": "0x11f43efd"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "Ownable::owner",
-			  "mutates": false,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 23
-			  },
-			  "selector": "0x4fa43c8c"
-			},
-			{
-			  "args": [],
-			  "default": false,
-			  "docs": [],
-			  "label": "Ownable::renounce_ownership",
-			  "mutates": true,
-			  "payable": false,
-			  "returnType": {
-				"displayName": [
-				  "ink",
-				  "MessageResult"
-				],
-				"type": 27
-			  },
-			  "selector": "0x5e228753"
 			}
 		  ]
 		},
@@ -3649,6 +3649,81 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 					{
 					  "fields": [
 						{
+						  "type": 19
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 8
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 19
+				},
+				{
+				  "name": "E",
+				  "type": 8
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 19,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "index": 0,
+					  "name": "None"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 0
+						}
+					  ],
+					  "index": 1,
+					  "name": "Some"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 0
+				}
+			  ],
+			  "path": [
+				"Option"
+			  ]
+			}
+		  },
+		  {
+			"id": 20,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
 						  "type": 4
 						}
 					  ],
@@ -3683,7 +3758,7 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			}
 		  },
 		  {
-			"id": 19,
+			"id": 21,
 			"type": {
 			  "def": {
 				"variant": {
@@ -3691,7 +3766,7 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 					{
 					  "fields": [
 						{
-						  "type": 20
+						  "type": 0
 						}
 					  ],
 					  "index": 0,
@@ -3712,7 +3787,7 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  "params": [
 				{
 				  "name": "T",
-				  "type": 20
+				  "type": 0
 				},
 				{
 				  "name": "E",
@@ -3725,7 +3800,49 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			}
 		  },
 		  {
-			"id": 20,
+			"id": 22,
+			"type": {
+			  "def": {
+				"variant": {
+				  "variants": [
+					{
+					  "fields": [
+						{
+						  "type": 23
+						}
+					  ],
+					  "index": 0,
+					  "name": "Ok"
+					},
+					{
+					  "fields": [
+						{
+						  "type": 8
+						}
+					  ],
+					  "index": 1,
+					  "name": "Err"
+					}
+				  ]
+				}
+			  },
+			  "params": [
+				{
+				  "name": "T",
+				  "type": 23
+				},
+				{
+				  "name": "E",
+				  "type": 8
+				}
+			  ],
+			  "path": [
+				"Result"
+			  ]
+			}
+		  },
+		  {
+			"id": 23,
 			"type": {
 			  "def": {
 				"variant": {
@@ -3758,7 +3875,7 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			}
 		  },
 		  {
-			"id": 21,
+			"id": 24,
 			"type": {
 			  "def": {
 				"variant": {
@@ -3796,123 +3913,6 @@ export const lp_pool_generator_contract = (process.env.IS_MAINNET == "true") ? {
 			  ],
 			  "path": [
 				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 22,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 0
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 8
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 0
-				},
-				{
-				  "name": "E",
-				  "type": 8
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 23,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "fields": [
-						{
-						  "type": 24
-						}
-					  ],
-					  "index": 0,
-					  "name": "Ok"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 8
-						}
-					  ],
-					  "index": 1,
-					  "name": "Err"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 24
-				},
-				{
-				  "name": "E",
-				  "type": 8
-				}
-			  ],
-			  "path": [
-				"Result"
-			  ]
-			}
-		  },
-		  {
-			"id": 24,
-			"type": {
-			  "def": {
-				"variant": {
-				  "variants": [
-					{
-					  "index": 0,
-					  "name": "None"
-					},
-					{
-					  "fields": [
-						{
-						  "type": 0
-						}
-					  ],
-					  "index": 1,
-					  "name": "Some"
-					}
-				  ]
-				}
-			  },
-			  "params": [
-				{
-				  "name": "T",
-				  "type": 0
-				}
-			  ],
-			  "path": [
-				"Option"
 			  ]
 			}
 		  },
