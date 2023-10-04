@@ -1,5 +1,12 @@
 import {inject} from '@loopback/core';
-import {post, Request, requestBody, RestBindings, param} from '@loopback/rest';
+import {
+  get,
+  post,
+  Request,
+  requestBody,
+  RestBindings,
+  param,
+} from '@loopback/rest';
 import {Filter, repository} from '@loopback/repository';
 import {
   EventTransferRepository,
@@ -1090,7 +1097,7 @@ export class ApiController {
     };
   }
 
-  @post('/getKycAddress')
+  @get('/getKycAddress')
   async getKycAddress(
     @param.filter(KycAddress) filter?: Filter<KycAddress>,
   ): Promise<ResponseBody> {
