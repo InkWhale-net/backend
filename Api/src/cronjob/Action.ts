@@ -556,6 +556,14 @@ export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepos
               '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
             },
           })
+          const poolsWazero = await poolsSchemaRepository.find({
+            where: {
+                tokenContract:
+              process.env.WAZERO_ADDRESS ||
+              '5DFyBccr73S1fjzszo9u4nGtB9gcc3FeWQBLKc1rtjZFrULS',
+            },
+          })
+          const totalWAzeroLocked = poolsWazero.reduce((total, pool) => total + Number(pool.totalStaked) , 0)
           const totalINWLocked = pools.reduce((total, pool) => total + Number(pool.totalStaked) , 0)
           const inwValueAzero = prices.inw * totalINWLocked
           const ret = await getAllFloorPriceArtZero()
@@ -575,13 +583,13 @@ export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepos
               return 0;
           })))
           const sumNftValue = calculatedValues.reduce((acc, value) => acc + value, 0);
-          const totalValue = sumNftValue + inwValueAzero
+          const totalValue = sumNftValue + inwValueAzero + totalWAzeroLocked
           const priceA0 = await getAzeroPrice("AZERO")
           const statsList = await statsSchemaRepository.find()
           if(statsList?.length > 0) {
             await statsSchemaRepository.updateById(statsList[0]._id, {
                 tvlInAzero: Number(totalValue / 10**12).toString(),
-            tvlInUSD: Number((priceA0*totalValue || totalValue)/ 10**12).toString()
+                tvlInUSD: Number((priceA0*totalValue || totalValue)/ 10**12).toString()
               })
           } else {
           await statsSchemaRepository.create({
