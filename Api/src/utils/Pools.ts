@@ -371,7 +371,7 @@ const ProcessLP = async (
                     rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
-                    multiplier: _multiplier,
+                    multiplier: _multiplier / 1000000,
                     owner: _owner,
                     createdTime: new Date(),
                     lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
@@ -400,7 +400,7 @@ const ProcessLP = async (
                         rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
-                        multiplier: _multiplier,
+                        multiplier: _multiplier / 1000000,
                         owner: _owner,
                         createdTime: new Date(),
                         lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
