@@ -553,26 +553,26 @@ export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepos
   
           const totalLocked = pools.reduce((total, pool) => {
             if(pool.tokenContract === process.env.INW_ADDRESS) {
-                total.totalInw = total.totalInw + Number(pool.totalStaked) + Number(pool.rewardPool)
+                total.totalInw = total.totalInw + Number(pool.totalStaked) + Number(pool.rewardPool) * 10**12
             }
             if(pool.tokenContract === process.env.WAZERO_ADDRESS) {
-             total.totalwAzero = total.totalwAzero + Number(pool.totalStaked) + Number(pool.rewardPool)
+             total.totalwAzero = total.totalwAzero + Number(pool.totalStaked) + Number(pool.rewardPool) * 10**12
             }
             return total
           } , {
             totalInw: 0,
             totalwAzero: 0
           })
-          const valueInAzero = prices.inw * totalLocked.totalInw + totalLocked.totalwAzero * 10**12
+          const valueInAzero = prices.inw * totalLocked.totalInw + totalLocked.totalwAzero
           
           const poolsLp = await lpPoolsSchemaRepository.find({})
           
           const totalLpLocked = poolsLp.reduce((total, pool) => {
             if(pool.tokenContract === process.env.INW_ADDRESS) {
-                total.totalInw += Number(pool.rewardPool)
+                total.totalInw += Number(pool.rewardPool) * 10**12
             }
             if(pool.tokenContract === process.env.WAZERO_ADDRESS) {
-             total.totalwAzero += Number(pool.rewardPool)
+             total.totalwAzero += Number(pool.rewardPool) * 10**12
             }
             if(pool.lptokenContract === process.env.INW_ADDRESS) {
                 total.totalInw += Number(pool.totalStaked)
@@ -585,7 +585,7 @@ export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepos
             totalInw: 0,
             totalwAzero: 0
           })
-          const valueLpInAzero = prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero * 10**12
+          const valueLpInAzero = prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero 
         
           const ret = await getAllFloorPriceArtZero()
           const calculatedValues = await Promise.all(ret.map((async (collection: any) => {
