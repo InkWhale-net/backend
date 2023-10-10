@@ -13,7 +13,7 @@ import {nft_pool_contract} from "../contracts/nft_pool";
 import {EventPool} from "../models";
 import {pool_generator_contract} from "../contracts/pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
-import { NftPoolsSchemaRepository, PoolsSchemaRepository, StatsSchemaRepository } from "../repositories";
+import { LpPoolsSchemaRepository, NftPoolsSchemaRepository, PoolsSchemaRepository, StatsSchemaRepository } from "../repositories";
 import prices from '../utils/prices.json'
 
 let inw_contract: ContractPromise;
@@ -547,25 +547,46 @@ export async function processEventRecords(
     }
 }
 
-export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepository,poolsSchemaRepository: PoolsSchemaRepository, nftPoolsSchemaRepository: NftPoolsSchemaRepository) {
+export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepository,poolsSchemaRepository: PoolsSchemaRepository, nftPoolsSchemaRepository: NftPoolsSchemaRepository, lpPoolsSchemaRepository: LpPoolsSchemaRepository) {
     try {
-        const pools = await poolsSchemaRepository.find({
-            where: {
-                tokenContract:
-              process.env.INW_ADDRESS ||
-              '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
-            },
+        const pools = await poolsSchemaRepository.find({})
+  
+          const totalLocked = pools.reduce((total, pool) => {
+            if(pool.tokenContract === process.env.INW_ADDRESS) {
+                total.totalInw = total.totalInw + Number(pool.totalStaked) + Number(pool.rewardPool)
+            }
+            if(pool.tokenContract === process.env.WAZERO_ADDRESS) {
+             total.totalwAzero = total.totalwAzero + Number(pool.totalStaked) + Number(pool.rewardPool)
+            }
+            return total
+          } , {
+            totalInw: 0,
+            totalwAzero: 0
           })
-          const poolsWazero = await poolsSchemaRepository.find({
-            where: {
-                tokenContract:
-              process.env.WAZERO_ADDRESS ||
-              '5DFyBccr73S1fjzszo9u4nGtB9gcc3FeWQBLKc1rtjZFrULS',
-            },
+          const valueInAzero = prices.inw * totalLocked.totalInw + totalLocked.totalwAzero * 10**12
+          
+          const poolsLp = await lpPoolsSchemaRepository.find({})
+          
+          const totalLpLocked = poolsLp.reduce((total, pool) => {
+            if(pool.tokenContract === process.env.INW_ADDRESS) {
+                total.totalInw += Number(pool.rewardPool)
+            }
+            if(pool.tokenContract === process.env.WAZERO_ADDRESS) {
+             total.totalwAzero += Number(pool.rewardPool)
+            }
+            if(pool.lptokenContract === process.env.INW_ADDRESS) {
+                total.totalInw += Number(pool.totalStaked)
+            }
+            if(pool.lptokenContract === process.env.WAZERO_ADDRESS) {
+                total.totalwAzero += Number(pool.totalStaked)
+            }
+            return total
+          } , {
+            totalInw: 0,
+            totalwAzero: 0
           })
-          const totalWAzeroLocked = poolsWazero.reduce((total, pool) => total + Number(pool.totalStaked) , 0)
-          const totalINWLocked = pools.reduce((total, pool) => total + Number(pool.totalStaked) , 0)
-          const inwValueAzero = prices.inw * totalINWLocked
+          const valueLpInAzero = prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero * 10**12
+        
           const ret = await getAllFloorPriceArtZero()
           const calculatedValues = await Promise.all(ret.map((async (collection: any) => {
             const nftPoolSchemaEntry = await nftPoolsSchemaRepository.find({
@@ -583,7 +604,7 @@ export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepos
               return 0;
           })))
           const sumNftValue = calculatedValues.reduce((acc, value) => acc + value, 0);
-          const totalValue = sumNftValue + inwValueAzero + totalWAzeroLocked
+          const totalValue = sumNftValue + valueInAzero + valueLpInAzero
           const priceA0 = await getAzeroPrice("AZERO")
           const statsList = await statsSchemaRepository.find()
           if(statsList?.length > 0) {
