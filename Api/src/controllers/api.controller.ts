@@ -1044,7 +1044,6 @@ export class ApiController {
 
     console.log('>>> headers', headers);
 
-    // const xHub = new XHubSignature('sha256', 'my_secret_is_artzero_io');
     const xHub = new XHubSignature('sha256', process.env.SECRECT_BLOCKPASS);
     const signature = xHub.sign(Buffer.from(JSON.stringify(req)));
 
@@ -1063,32 +1062,42 @@ export class ApiController {
 
     console.log('>>> record', record);
 
-    if (record) {
-      return {
-        status: STATUS.FAILED,
-        message: MESSAGE.DUPLICATED_RECORD,
-      };
-    }
+    const newRecord = {
+      clientId: req?.clientId,
+      event: req?.event,
+      recordId: req?.recordId,
+      status: req?.status,
+      refId: req?.refId,
+      submitCount: req?.submitCount,
+      blockPassID: req?.blockPassID,
+      inreviewDate: req?.inreviewDate,
+      waitingDate: req?.waitingDate,
+      approvedDate: req?.approvedDate,
+    };
 
-    try {
-      await this.kycAddressSchemaRepository.create({
-        clientId: req?.clientId,
-        event: req?.event,
-        recordId: req?.recordId,
-        status: req?.status,
-        refId: req?.refId,
-        submitCount: req?.submitCount,
-        blockPassID: req?.blockPassID,
-        inreviewDate: req?.inreviewDate,
-        waitingDate: req?.waitingDate,
-        approvedDate: req?.approvedDate,
-      });
-    } catch (e) {
-      console.log(`ERROR: ADD_KYC - ${e.message}`);
-      return {
-        status: STATUS.FAILED,
-        message: `${MESSAGE.UNKNOW_ERROR} when ADD_KYC`,
-      };
+    if (record) {
+      try {
+        await this.kycAddressSchemaRepository.replaceById(
+          record._id,
+          newRecord,
+        );
+      } catch (e) {
+        console.log(`ERROR: ADD_KYC - ${e.message}`);
+        return {
+          status: STATUS.FAILED,
+          message: `${MESSAGE.UNKNOW_ERROR} when UPDATE_KYC`,
+        };
+      }
+    } else {
+      try {
+        await this.kycAddressSchemaRepository.create(newRecord);
+      } catch (e) {
+        console.log(`ERROR: ADD_KYC - ${e.message}`);
+        return {
+          status: STATUS.FAILED,
+          message: `${MESSAGE.UNKNOW_ERROR} when ADD_KYC`,
+        };
+      }
     }
 
     return {
