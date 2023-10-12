@@ -764,6 +764,9 @@ export const checkAll = async (
     console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
     await checkNewTokens(false, true, api, tokensSchemaRepository, token_generator_calls);
     console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
+    console.log(`Start checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
+    await checkNewLPPools(false, true, api, lp_pool_generator_calls, lp_pool_contract_calls, lpPoolsSchemaRepository);
+    console.log(`Stop checkAll - checkNewTokens at ${convertToUTCTime(new Date())}`);
 }
 
 

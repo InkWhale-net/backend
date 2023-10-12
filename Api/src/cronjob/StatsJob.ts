@@ -20,7 +20,7 @@ export class CronJobUpdateStats implements Provider<CronJob> {
     public poolsSchemaRepository: PoolsSchemaRepository,
     @repository(NftPoolsSchemaRepository)
     public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
-    @repository(NftPoolsSchemaRepository)
+    @repository(LpPoolsSchemaRepository)
     public lpPoolsSchemaRepository: LpPoolsSchemaRepository,
   ) {}
 
