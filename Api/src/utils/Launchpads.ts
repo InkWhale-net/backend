@@ -138,6 +138,16 @@ export const ProcessLaunchpad = async (
       'launchpadContractTrait::getPhase',
       phaseID,
     );
+    console.log('phaseData####################################################')
+    console.log('phaseData##')
+    console.log('phaseData##')
+    console.log('phaseData##')
+    console.log( phaseID, 'launchpadContract', launchpadContract);
+    console.log( phaseID, 'phaseData', phaseData)
+    console.log('phaseData##')
+    console.log('phaseData##')
+    console.log('phaseData##')
+    console.log('phaseData####################################################')
     let countWL = await execContractQuery(
       api,
       launchpad_contract_calls,
