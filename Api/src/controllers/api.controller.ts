@@ -64,6 +64,7 @@ import {global_vars, SOCKET_STATUS} from "../cronjob/global";
 import {pool_contract} from "../contracts/pool";
 import {lp_pool_contract} from "../contracts/lp_pool";
 import {nft_pool_contract} from "../contracts/nft_pool";
+import { psp22_contract_old } from '../contracts/psp22_old';
 
 export class ApiController {
   constructor(
@@ -300,6 +301,7 @@ export class ApiController {
         message: MESSAGE.NO_INPUT,
       };
     }
+
     const token = await this.tokensSchemaRepository.findOne({
       where: {contractAddress: req.tokenAddress},
     });
@@ -311,7 +313,9 @@ export class ApiController {
     }
     const contract_to_call = new ContractPromise(
       globalApi,
-      psp22_contract.CONTRACT_ABI,
+      req?.isNew == 'false'
+        ? psp22_contract_old.CONTRACT_ABI
+        : psp22_contract.CONTRACT_ABI,
       req.tokenAddress || '',
     );
 

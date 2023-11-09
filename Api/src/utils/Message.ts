@@ -101,6 +101,7 @@ export type ReqImportToken = {
     decimal?: number,
     creator?: string,
     signature?: string,
+    isNew?: string
 }
 const ReqUpdateTokenIconSchema: SchemaObject = {
     type: 'object',
