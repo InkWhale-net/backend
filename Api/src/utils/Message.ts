@@ -101,7 +101,7 @@ export type ReqImportToken = {
     decimal?: number,
     creator?: string,
     signature?: string,
-    isNew?: boolean
+    isNew?: string
 }
 
 export type ReqAddKycAddress = {

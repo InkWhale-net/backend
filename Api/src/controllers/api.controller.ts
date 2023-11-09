@@ -354,9 +354,9 @@ export class ApiController {
 
     const contract_to_call = new ContractPromise(
       globalApi,
-      req?.isNew
-        ? psp22_contract.CONTRACT_ABI
-        : psp22_contract_old.CONTRACT_ABI,
+      req?.isNew == 'false'
+        ? psp22_contract_old.CONTRACT_ABI
+        : psp22_contract.CONTRACT_ABI,
       req.tokenAddress || '',
     );
 
