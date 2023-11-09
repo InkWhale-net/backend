@@ -344,14 +344,14 @@ export class ApiController {
         status: STATUS.FAILED,
         message: MESSAGE.INVALID_SIGNATURE,
       };
-    const queryResult1: any = await contract_to_call.query['psp22Capped::cap'](
+    const queryResult1: any = await contract_to_call.query['psp22::totalSupply'](
       process.env.CALLER_ACCOUNT ||
         '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
       {value: 0, gasLimit},
     );
     const rawTotalSupply = queryResult1?.output?.toHuman()?.Ok;
-    const totalSupply = parseInt(rawTotalSupply.replace(',', ''));
-    if (!(totalSupply > 0)) {
+    const totalSupply = rawTotalSupply?.replace(/\,/g, "");
+    if (!(+totalSupply > 0)) {
       return {
         status: STATUS.FAILED,
         message: MESSAGE.INVALID_TOKEN_SUPPLY,
