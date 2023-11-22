@@ -514,14 +514,10 @@ export class ApiController {
       );
       const sumBalance = balanceQrs.reduce(
         (accumulator, currentValue: any) =>
-          {
-            console.log("******", currentValue?.output?.toHuman()?.Ok)
-            return accumulator +
-          +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0)
-          },
+        accumulator +
+        +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
         0,
       );
-      console.log("totalSupply: ", totalSupply, (sumBalance / 10 ** 12));
       
       inCirculation = roundUp(totalSupply - (sumBalance / 10 ** 12));
     } catch (error) {
