@@ -521,6 +521,8 @@ export class ApiController {
           },
         0,
       );
+      console.log("totalSupply: ", totalSupply, (sumBalance / 10 ** 12));
+      
       inCirculation = roundUp(totalSupply - (sumBalance / 10 ** 12));
     } catch (error) {
       console.log(error);
