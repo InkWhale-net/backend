@@ -90,6 +90,7 @@ import {launchpad_contract} from '../contracts/launchpad';
 import {psp22_contract_old} from '../contracts/psp22_old';
 
 import {Buffer} from 'buffer';
+import { swap_inw2_contract } from '../contracts/swap_inw2_contract';
 const XHubSignature = require('x-hub-signature');
 
 export class ApiController {
@@ -495,6 +496,7 @@ export class ApiController {
         PUBLIC_SALE_WALLET_ADDRESS,
         process.env.PUBLIC_SALE_CONTRACT_ADDRESS,
         process.env.PRIVATE_SALE_CONTRACT_ADDRESS,
+        swap_inw2_contract.CONTRACT_ADDRESS
       ];
 
       let balanceQrs = await Promise.all(
@@ -516,6 +518,7 @@ export class ApiController {
           +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
         0,
       );
+
       inCirculation = roundUp(totalSupply - sumBalance / 10 ** 12);
     } catch (error) {
       console.log(error);
