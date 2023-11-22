@@ -518,8 +518,7 @@ export class ApiController {
           +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
         0,
       );
-
-      inCirculation = roundUp(totalSupply - sumBalance / 10 ** 12);
+      inCirculation = roundUp(totalSupply - (sumBalance / 10 ** 12));
     } catch (error) {
       console.log(error);
       return {
