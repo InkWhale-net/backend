@@ -373,7 +373,7 @@ export const formatNumDynDecimal = (
   num: any = 0,
   dec: any = 4,
 ): string => {
-  const result = parseFloat((num * 10 ** dec).toFixed(dec));
+  const result = (num * 10 ** dec) / 10 ** dec;
   const numStr = result.toString();
   const dotIdx = numStr.indexOf('.');
 
