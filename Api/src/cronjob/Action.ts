@@ -3,7 +3,7 @@ import {ApiPromise} from "@polkadot/api";
 import {CONFIG_TYPE_NAME} from "../utils/constant";
 import {convertToUTCTime} from "../utils/Tools";
 import * as mongoDB from "mongodb";
-import {convertNumberWithoutCommas, getAllFloorPriceArtZero, getAzeroPrice, send_telegram_message} from "../utils/utils";
+import {convertNumberWithoutCommas, formatNumDynDecimal, getAllFloorPriceArtZero, getAzeroPrice, send_telegram_message} from "../utils/utils";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {compactAddLength, hexToU8a} from "@polkadot/util";
 import {RedisCache} from "./ScanBlockCaching";
@@ -268,6 +268,7 @@ export async function processEventRecords(
                             const value = decodedEvent.args[i];
                             eventValues.push(value.toString());
                         }
+                        
                         if (
                           [
                             'PoolUnstakeEvent',
@@ -281,11 +282,19 @@ export async function processEventRecords(
 <b>From address:</b><i>${eventValues[2]?.toString() || '***'}</i>
 <b>Amount: </b> <i>${
                               eventValues[3]
-                                ? convertNumberWithoutCommas(
-                                    eventValues[3].toString(),
+                                ? formatNumDynDecimal(
+                                    parseFloat(
+                                      convertNumberWithoutCommas(
+                                        eventValues[3].toString(),
+                                      ),
+                                    ) /
+                                      Math.pow(
+                                        10,
+                                        parseInt(checkPool?.tokenDecimal),
+                                      ),
                                   )
                                 : ''
-                            } ${'***'}</i>
+                            } ${checkPool?.tokenSymbol || '***'}</i>
 <b>Token contract </b> <i>${eventValues[1]?.toString()}</i>`,
                             process.env.TELEGRAM_ID_CHAT || '',
                             process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
