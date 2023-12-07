@@ -8,6 +8,7 @@ import {ApiPromise, WsProvider} from "@polkadot/api";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import {global_vars, SOCKET_STATUS} from "./cronjob/global";
 import { CronJobUpdateStats } from './cronjob/StatsJob';
+import './utils/telegramBot'
 dotenv.config();
 
 export let globalApi: ApiPromise;

@@ -12,6 +12,7 @@ import {ApiBase} from "@polkadot/api/base";
 import { psp22_contract_old } from "../contracts/psp22_old";
 import { owner } from "./Pools";
 import { psp22_contract } from "../contracts/psp22";
+import numeral from "numeral";
 
 dotenv.config();
 
@@ -35,27 +36,33 @@ export const logger = winston.createLogger({
 export function convertNumberWithoutCommas(input: string):string {
     return input.replace(/,/g, "");
 }
-export function send_telegram_message(message: string) {
-    try {
-        new Promise(async () => {
-            await axios({
-                baseURL: process.env.TELEGRAM_URL,
-                url: "/sendMessage",
-                method: "post",
-                data: {
-                    "chat_id": process.env.TELEGRAM_ID_CHAT,
-                    "text": `${process.env.NODE_IP}: ${message}`
-                },
-                headers: {
-                    "Content-Type": "application/json",
-                    "cache-control": "no-cache",
-                    'Access-Control-Allow-Origin': '*',
-                },
-            });
-        }).then(() => {});
-    } catch (e) {
-        console.log(e);
-    }
+export function send_telegram_message(
+  message: string,
+  chatid: string,
+  threadid: string,
+) {
+  try {
+    new Promise(async () => {
+      await axios({
+        baseURL: `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`,
+        url: '/sendMessage',
+        method: 'post',
+        data: {
+          chat_id: chatid,
+          text: message,
+          message_thread_id: threadid,
+          parse_mode: 'html',
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'cache-control': 'no-cache',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    }).then(() => {});
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 export function randomString (length: number): string {
@@ -361,3 +368,22 @@ export const getTokenOwner = async (api: any, contractAddress: any) => {
     return getOldTokenOwner(api, contractAddress);
   }
 };
+
+export const formatNumDynDecimal = (
+  num: any = 0,
+  dec: any = 4,
+): string => {
+  const result = parseFloat((num * 10 ** dec).toFixed(dec));
+  const numStr = result.toString();
+  const dotIdx = numStr.indexOf('.');
+
+  if (dotIdx === -1) {
+    return numeral(numStr).format('0,0');
+  }
+
+  const intPart = numeral(numStr.slice(0, dotIdx)).format('0,0');
+  const decPart = numStr.slice(dotIdx + 1, numStr.length);
+
+  return intPart + `${dotIdx === -1 ? '' : `.${decPart}`}`;
+};
+  

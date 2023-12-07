@@ -47,6 +47,7 @@ export async function scanEventBlocks(
                 multi,
                 signedBlock,
                 blockNumber,
+                false,
                 abi_inw_token_contract,
                 abi_token_generator_contract,
                 api,
@@ -93,6 +94,7 @@ export async function scanEventBlocks(
                         multi,
                         signedBlock,
                         to_scan,
+                        true,
                         abi_inw_token_contract,
                         abi_token_generator_contract,
                         api,
@@ -119,7 +121,7 @@ export async function scanEventBlocks(
                     }
                 }
             } catch (e) {
-                send_telegram_message("scanBlocks - " + e.message);
+                // send_telegram_message("scanBlocks - " + e.message);
             }
         }
         global_event_vars.isScanning = false;
@@ -158,6 +160,7 @@ export async function reScanEventBlocks(
                         multi,
                         signedBlock,
                         to_scan,
+                        true,
                         abi_inw_token_contract,
                         abi_token_generator_contract,
                         api,
@@ -184,7 +187,7 @@ export async function reScanEventBlocks(
                     }
                 }
             } catch (e) {
-                send_telegram_message("scanBlocks - " + e.message);
+                // send_telegram_message("scanBlocks - " + e.message);
             }
             global_event_vars.isReScanning = false;
         }
@@ -198,6 +201,7 @@ export async function processEventRecords(
     multi: any,
     signedBlock: any,
     toScan: number,
+    isRescan: boolean,
     abi_inw_token_contract: Abi,
     abi_token_generator_contract: Abi,
     api: ApiPromise,
@@ -264,6 +268,30 @@ export async function processEventRecords(
                             const value = decodedEvent.args[i];
                             eventValues.push(value.toString());
                         }
+                        if (
+                          [
+                            'PoolUnstakeEvent',
+                            'PoolStakeEvent',
+                            'PoolClaimEvent',
+                          ].includes(event_name) && !isRescan
+                        ) {
+                          send_telegram_message(
+                            `<b>${event_name}</b>
+<b>Staking Pool:</b><i>${eventValues[0]?.toString() || '***'}</i>
+<b>From address:</b><i>${eventValues[2]?.toString() || '***'}</i>
+<b>Amount: </b> <i>${
+                              eventValues[3]
+                                ? convertNumberWithoutCommas(
+                                    eventValues[3].toString(),
+                                  )
+                                : ''
+                            } ${'***'}</i>
+<b>Token contract </b> <i>${eventValues[1]?.toString()}</i>`,
+                            process.env.TELEGRAM_ID_CHAT || '',
+                            process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+                          );
+                        }
+                        
                         if (event_name == 'PoolUnstakeEvent') {
                             obj = new EventPool({
                                 blockNumber: toScan,
@@ -547,79 +575,109 @@ export async function processEventRecords(
     }
 }
 
-export async function processUpdateStats(statsSchemaRepository: StatsSchemaRepository,poolsSchemaRepository: PoolsSchemaRepository, nftPoolsSchemaRepository: NftPoolsSchemaRepository, lpPoolsSchemaRepository: LpPoolsSchemaRepository) {
-    try {
-        const pools = await poolsSchemaRepository.find({})
-  
-          const totalLocked = pools.reduce((total, pool) => {
-            if(pool.tokenContract === process.env.INW_ADDRESS) {
-                total.totalInw = total.totalInw + Number(pool.totalStaked) + Number(pool.rewardPool) * 10**12
-            }
-            if(pool.tokenContract === process.env.WAZERO_ADDRESS) {
-             total.totalwAzero = total.totalwAzero + Number(pool.totalStaked) + Number(pool.rewardPool) * 10**12
-            }
-            return total
-          } , {
-            totalInw: 0,
-            totalwAzero: 0
-          })
-          const valueInAzero = prices.inw * totalLocked.totalInw + totalLocked.totalwAzero
-          
-          const poolsLp = await lpPoolsSchemaRepository.find({})
-          
-          const totalLpLocked = poolsLp.reduce((total, pool) => {
-            if(pool.tokenContract === process.env.INW_ADDRESS) {
-                total.totalInw += Number(pool.rewardPool) * 10**12
-            }
-            if(pool.tokenContract === process.env.WAZERO_ADDRESS) {
-             total.totalwAzero += Number(pool.rewardPool) * 10**12
-            }
-            if(pool.lptokenContract === process.env.INW_ADDRESS) {
-                total.totalInw += Number(pool.totalStaked)
-            }
-            if(pool.lptokenContract === process.env.WAZERO_ADDRESS) {
-                total.totalwAzero += Number(pool.totalStaked)
-            }
-            return total
-          } , {
-            totalInw: 0,
-            totalwAzero: 0
-          })
-          const valueLpInAzero = prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero 
-        
-          const ret = await getAllFloorPriceArtZero()
-          const calculatedValues = await Promise.all(ret.map((async (collection: any) => {
-            const nftPoolSchemaEntry = await nftPoolsSchemaRepository.find({
-                where: {
-                    NFTtokenContract:
-                  collection.collection,
-                },
-              });
-              
-              if (nftPoolSchemaEntry.length > 0) {
-                const totalNftVal = nftPoolSchemaEntry.reduce((total, pool) => total + (collection.floorPrice * Number(pool.totalStaked)) , 0)
-                return totalNftVal;
-              }
-            
-              return 0;
-          })))
-          const sumNftValue = calculatedValues.reduce((acc, value) => acc + value, 0);
-          const totalValue = sumNftValue + valueInAzero + valueLpInAzero
-          const priceA0 = await getAzeroPrice("AZERO")
-          const statsList = await statsSchemaRepository.find()
-          if(statsList?.length > 0) {
-            await statsSchemaRepository.updateById(statsList[0]._id, {
-                tvlInAzero: Number(totalValue / 10**12).toString(),
-                tvlInUSD: Number((priceA0*totalValue || totalValue)/ 10**12).toString()
-              })
-          } else {
-          await statsSchemaRepository.create({
-            tvlInAzero: Number(totalValue / 10**12).toString(),
-            tvlInUSD: Number((priceA0*totalValue || totalValue)/ 10**12).toString()
-          })
+export async function processUpdateStats(
+  statsSchemaRepository: StatsSchemaRepository,
+  poolsSchemaRepository: PoolsSchemaRepository,
+  nftPoolsSchemaRepository: NftPoolsSchemaRepository,
+  lpPoolsSchemaRepository: LpPoolsSchemaRepository,
+): Promise<
+  {tvlInAzero: any; tvlInUSD: any} | undefined
+> {
+  try {
+    const pools = await poolsSchemaRepository.find({});
+
+    const totalLocked = pools.reduce(
+      (total, pool) => {
+        if (pool.tokenContract === process.env.INW_ADDRESS) {
+          total.totalInw =
+            total.totalInw +
+            Number(pool.totalStaked) +
+            Number(pool.rewardPool) * 10 ** 12;
+        }
+        if (pool.tokenContract === process.env.WAZERO_ADDRESS) {
+          total.totalwAzero =
+            total.totalwAzero +
+            Number(pool.totalStaked) +
+            Number(pool.rewardPool) * 10 ** 12;
+        }
+        return total;
+      },
+      {
+        totalInw: 0,
+        totalwAzero: 0,
+      },
+    );
+    const valueInAzero =
+      prices.inw * totalLocked.totalInw + totalLocked.totalwAzero;
+
+    const poolsLp = await lpPoolsSchemaRepository.find({});
+
+    const totalLpLocked = poolsLp.reduce(
+      (total, pool) => {
+        if (pool.tokenContract === process.env.INW_ADDRESS) {
+          total.totalInw += Number(pool.rewardPool) * 10 ** 12;
+        }
+        if (pool.tokenContract === process.env.WAZERO_ADDRESS) {
+          total.totalwAzero += Number(pool.rewardPool) * 10 ** 12;
+        }
+        if (pool.lptokenContract === process.env.INW_ADDRESS) {
+          total.totalInw += Number(pool.totalStaked);
+        }
+        if (pool.lptokenContract === process.env.WAZERO_ADDRESS) {
+          total.totalwAzero += Number(pool.totalStaked);
+        }
+        return total;
+      },
+      {
+        totalInw: 0,
+        totalwAzero: 0,
+      },
+    );
+    const valueLpInAzero =
+      prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero;
+
+    const ret = await getAllFloorPriceArtZero();
+    const calculatedValues = await Promise.all(
+      ret.map(async (collection: any) => {
+        const nftPoolSchemaEntry = await nftPoolsSchemaRepository.find({
+          where: {
+            NFTtokenContract: collection.collection,
+          },
+        });
+
+        if (nftPoolSchemaEntry.length > 0) {
+          const totalNftVal = nftPoolSchemaEntry.reduce(
+            (total, pool) =>
+              total + collection.floorPrice * Number(pool.totalStaked),
+            0,
+          );
+          return totalNftVal;
         }
 
-    } catch (e) {
-        console.log(`${CONFIG_TYPE_NAME.STATS} - ERROR: ${e.message}`);
+        return 0;
+      }),
+    );
+    const sumNftValue = calculatedValues.reduce((acc, value) => acc + value, 0);
+    const totalValue = sumNftValue + valueInAzero + valueLpInAzero;
+    const priceA0 = await getAzeroPrice('AZERO');
+    const statsList = await statsSchemaRepository.find();
+    const tvlInAzero = Number(totalValue / 10 ** 12).toString();
+    const tvlInUSD = Number(
+      (priceA0 * totalValue || totalValue) / 10 ** 12,
+    ).toString();
+    if (statsList?.length > 0) {
+      await statsSchemaRepository.updateById(statsList[0]._id, {
+        tvlInAzero,
+        tvlInUSD,
+      });
+    } else {
+      await statsSchemaRepository.create({
+        tvlInAzero,
+        tvlInUSD,
+      });
     }
+    return {tvlInAzero, tvlInUSD};
+  } catch (e) {
+    console.log(`${CONFIG_TYPE_NAME.STATS} - ERROR: ${e.message}`);
+  }
 }
