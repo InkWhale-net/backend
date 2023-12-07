@@ -11,7 +11,7 @@ import {
 import {formatNumDynDecimal, send_telegram_message} from './utils';
 dotenv.config();
 
-if (process.env.RUN_TELEGRAM_BOT == "true") {
+if (process.env.RUN_TELEGRAM_BOT == 'true') {
   const bot = new TelegramBot(
     process.env.TELEGRAM_BOT_TOKEN ||
       '6827028829:AAHcGziBmjhyR8xdDqAj4h0sbLg1wfKFuTg',
@@ -49,8 +49,8 @@ if (process.env.RUN_TELEGRAM_BOT == "true") {
                 send_telegram_message(
                   `<b>Platform TVL:</b> <b><i>${formatNumDynDecimal(
                     parseFloat(statsList[0]?.tvlInAzero || ''),
-                  )}</i></b> AZERO ($ <b>${parseFloat(
-                    statsList[0]?.tvlInUSD || '',
+                  )}</i></b> AZERO ($ <b>${formatNumDynDecimal(
+                    parseFloat(statsList[0]?.tvlInUSD || ''),
                   )}</b>)`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
