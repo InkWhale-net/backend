@@ -3,7 +3,7 @@ import {ApiPromise} from "@polkadot/api";
 import {CONFIG_TYPE_NAME} from "../utils/constant";
 import {convertToUTCTime} from "../utils/Tools";
 import * as mongoDB from "mongodb";
-import {convertNumberWithoutCommas, formatNumDynDecimal, getAllFloorPriceArtZero, getAzeroPrice, send_telegram_message} from "../utils/utils";
+import {convertNumberWithoutCommas, formatNumDynDecimal, getAllFloorPriceArtZero, getAzeroPrice, resolveDomain, send_telegram_message} from "../utils/utils";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
 import {compactAddLength, hexToU8a} from "@polkadot/util";
 import {RedisCache} from "./ScanBlockCaching";
@@ -15,6 +15,8 @@ import {pool_generator_contract} from "../contracts/pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
 import { LpPoolsSchemaRepository, NftPoolsSchemaRepository, PoolsSchemaRepository, StatsSchemaRepository } from "../repositories";
 import prices from '../utils/prices.json'
+import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
+import { lp_pool_contract } from "../contracts/lp_pool";
 
 let inw_contract: ContractPromise;
 export function setContract(c: ContractPromise) {
@@ -22,7 +24,7 @@ export function setContract(c: ContractPromise) {
 }
 
 export async function scanEventBlocks(
-    newCache: RedisCache,
+    newCache: RedisCache | undefined,
     multi: any,
     header: any,
     blockNumber: number,
@@ -32,6 +34,7 @@ export async function scanEventBlocks(
     eventPoolCollection: mongoDB.Collection,
     poolsCollection: mongoDB.Collection,
     nftPoolsCollection: mongoDB.Collection,
+    lpPoolCollection: mongoDB.Collection,
     abi_inw_token_contract: Abi,
     abi_token_generator_contract: Abi,
     inw_contract: ContractPromise
@@ -56,6 +59,7 @@ export async function scanEventBlocks(
                 eventPoolCollection,
                 poolsCollection,
                 nftPoolsCollection,
+                lpPoolCollection
             );
             console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
             return;
@@ -103,6 +107,7 @@ export async function scanEventBlocks(
                         eventPoolCollection,
                         poolsCollection,
                         nftPoolsCollection,
+                        lpPoolCollection
                     );
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
@@ -131,7 +136,7 @@ export async function scanEventBlocks(
 }
 
 export async function reScanEventBlocks(
-    newCache: RedisCache,
+    newCache: RedisCache | undefined,
     multi: any,
     header: any,
     startBlockNumber: number,
@@ -142,6 +147,7 @@ export async function reScanEventBlocks(
     eventPoolCollection: mongoDB.Collection,
     poolsCollection: mongoDB.Collection,
     nftPoolsCollection: mongoDB.Collection,
+    lpPoolCollection: mongoDB.Collection,
     abi_inw_token_contract: Abi,
     abi_token_generator_contract: Abi,
     inw_contract: ContractPromise
@@ -169,6 +175,7 @@ export async function reScanEventBlocks(
                         eventPoolCollection,
                         poolsCollection,
                         nftPoolsCollection,
+                        lpPoolCollection
                     );
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
@@ -197,7 +204,7 @@ export async function reScanEventBlocks(
 }
 
 export async function processEventRecords(
-    newCache: RedisCache,
+    newCache: RedisCache | undefined,
     multi: any,
     signedBlock: any,
     toScan: number,
@@ -210,6 +217,7 @@ export async function processEventRecords(
     eventPoolCollection: mongoDB.Collection,
     poolsCollection: mongoDB.Collection,
     nftPoolsCollection: mongoDB.Collection,
+    lpPoolCollection: mongoDB.Collection,
 ) {
     try {
         /**
@@ -239,181 +247,454 @@ export async function processEventRecords(
                     const accIdString = accId.toString();
                     console.log({accIdString: accIdString});
 
-                    let isPoolEnabled = false;
-                    let isNftPoolEnabled = false;
+                    console.log("***************", accIdString);
+
                     const checkPool = await poolsCollection.findOne({
                         poolContract: accIdString,
                         poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
                     });
-                    if (checkPool) {
-                        isPoolEnabled = true;
-                    } else {
-                        const checkNftPool = await nftPoolsCollection.findOne({
-                            poolContract: accIdString,
-                            nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
-                        });
-                        if (checkNftPool) {
-                            isNftPoolEnabled = true;
-                        }
-                    }
+                    const checkNftPool = await nftPoolsCollection.findOne({
+                        poolContract: accIdString,
+                        nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
+                    });
+                    const checkLPPool = await lpPoolCollection.findOne({
+                        poolContract: accIdString,
+                        lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
+                    });
 
                     let obj;
                     let filter;
-                    if (isPoolEnabled) {
-                        const abi_collection_contract = new Abi(pool_contract.CONTRACT_ABI);
-                        const decodedEvent = abi_collection_contract.decodeEvent(bytes);
-                        let event_name = decodedEvent.event.identifier;
-                        const eventValues = [];
-                        for (let i = 0; i < decodedEvent.args.length; i++) {
-                            const value = decodedEvent.args[i];
-                            eventValues.push(value.toString());
-                        }
-                        
-                        if (
-                          [
-                            'PoolUnstakeEvent',
-                            'PoolStakeEvent',
-                            'PoolClaimEvent',
-                          ].includes(event_name) && !isRescan
-                        ) {
-                          send_telegram_message(
-                            `<b>${event_name}</b>
-<b>Staking Pool:</b><i>${eventValues[0]?.toString() || '***'}</i>
-<b>From address:</b><i>${eventValues[2]?.toString() || '***'}</i>
-<b>Amount: </b> <i>${
-                              eventValues[3]
-                                ? formatNumDynDecimal(
-                                    parseFloat(
-                                      convertNumberWithoutCommas(
-                                        eventValues[3].toString(),
-                                      ),
-                                    ) /
-                                      Math.pow(
-                                        10,
-                                        parseInt(checkPool?.tokenDecimal),
-                                      ),
-                                  )
-                                : ''
-                            } ${checkPool?.tokenSymbol || '***'}</i>
-<b>Token contract </b> <i>${eventValues[1]?.toString()}</i>`,
-                            process.env.TELEGRAM_ID_CHAT || '',
-                            process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
-                          );
-                        }
-                        
-                        if (event_name == 'PoolUnstakeEvent') {
-                            obj = new EventPool({
-                                blockNumber: toScan,
-                                eventName: 'PoolUnstakeEvent',
-                                poolAddress: eventValues[0]?.toString(),
-                                tokenAddress: eventValues[1]?.toString(),
-                                callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
-                                createdTime: new Date(),
-                                updatedTime: new Date()
-                            });
-                        } else if (event_name == 'PoolStakeEvent') {
-                            obj = new EventPool({
-                                blockNumber: toScan,
-                                eventName: 'PoolStakeEvent',
-                                poolAddress: eventValues[0]?.toString(),
-                                tokenAddress: eventValues[1]?.toString(),
-                                callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
-                                createdTime: new Date(),
-                                updatedTime: new Date()
-                            });
-                        } else if (event_name == 'PoolClaimEvent') {
-                            obj = new EventPool({
-                                blockNumber: toScan,
-                                eventName: 'PoolClaimEvent',
-                                poolAddress: eventValues[0]?.toString(),
-                                tokenAddress: eventValues[1]?.toString(),
-                                callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
-                                createdTime: new Date(),
-                                updatedTime: new Date()
-                            });
-                        }
-                        if (obj) {
-                            filter = {
-                                blockNumber: toScan,
-                                eventName: obj.eventName ? obj.eventName : '',
-                                poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                                tokenAddress: obj.tokenAddress ? obj.tokenAddress : '',
-                                callerAddress: obj.callerAddress ? obj.callerAddress : '',
-                                amount: obj.amount ? obj.amount : '',
-                            };
-                        }
-                    } else if (isNftPoolEnabled) {
-                        const abi_collection_contract = new Abi(nft_pool_contract.CONTRACT_ABI);
-                        const decodedEvent = abi_collection_contract.decodeEvent(bytes);
-                        let event_name = decodedEvent.event.identifier;
-                        const eventValues = [];
-                        for (let i = 0; i < decodedEvent.args.length; i++) {
-                            const value = decodedEvent.args[i];
-                            eventValues.push(value.toString());
-                        }
-                        if (event_name == 'NFTPoolUnstakeEvent') {
-                            obj = new EventPool({
-                                blockNumber: toScan,
-                                eventName: 'NFTPoolUnstakeEvent',
-                                poolAddress: eventValues[0]?.toString(),
-                                nftContractAddress: eventValues[1]?.toString(),
-                                callerAddress: eventValues[2]?.toString(),
-                                nftTokenId: eventValues[3] ? eventValues[3].toString() : '',
-                                createdTime: new Date(),
-                                updatedTime: new Date()
-                            });
-                            filter = {
-                                blockNumber: toScan,
-                                eventName: obj.eventName ? obj.eventName : '',
-                                poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                                nftContractAddress: obj.nftContractAddress ? obj.nftContractAddress : '',
-                                callerAddress: obj.callerAddress ? obj.callerAddress : '',
-                                nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
-                                amount: obj.amount ? convertNumberWithoutCommas(obj.amount) : '',
-                            };
-                        } else if (event_name == 'NFTPoolStakeEvent') {
-                            obj = new EventPool({
-                                blockNumber: toScan,
-                                eventName: 'NFTPoolStakeEvent',
-                                poolAddress: eventValues[0]?.toString(),
-                                nftContractAddress: eventValues[1]?.toString(),
-                                callerAddress: eventValues[2]?.toString(),
-                                nftTokenId: eventValues[3] ? eventValues[3].toString() : '',
-                                createdTime: new Date(),
-                                updatedTime: new Date()
-                            });
-                            filter = {
-                                blockNumber: toScan,
-                                eventName: obj.eventName ? obj.eventName : '',
-                                poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                                nftContractAddress: obj.nftContractAddress ? obj.nftContractAddress : '',
-                                callerAddress: obj.callerAddress ? obj.callerAddress : '',
-                                nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
-                                amount: obj.amount ? convertNumberWithoutCommas(obj.amount) : '',
-                            };
-                        } else if (event_name == 'NFTPoolClaimEvent') {
-                            obj = new EventPool({
-                                blockNumber: toScan,
-                                eventName: 'NFTPoolClaimEvent',
-                                poolAddress: eventValues[0]?.toString(),
-                                nftContractAddress: eventValues[1]?.toString(),
-                                callerAddress: eventValues[2]?.toString(),
-                                amount: eventValues[3] ? convertNumberWithoutCommas(eventValues[3].toString()) : '',
-                                createdTime: new Date(),
-                                updatedTime: new Date()
-                            });
-                            filter = {
-                                blockNumber: toScan,
-                                eventName: obj.eventName ? obj.eventName : '',
-                                poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                                nftContractAddress: obj.nftContractAddress ? obj.nftContractAddress : '',
-                                callerAddress: obj.callerAddress ? obj.callerAddress : '',
-                                amount: obj.amount ? obj.amount : '',
-                            };
-                        }
+                    if (checkPool) {
+                      const abi_collection_contract = new Abi(
+                        pool_contract.CONTRACT_ABI,
+                      );
+                      const decodedEvent =
+                        abi_collection_contract.decodeEvent(bytes);
+                      let event_name = decodedEvent.event.identifier;
+                      const eventValues = [];
+                      for (let i = 0; i < decodedEvent.args.length; i++) {
+                        const value = decodedEvent.args[i];
+                        eventValues.push(value.toString());
+                      }
+
+                      if (
+                        [
+                          'PoolUnstakeEvent',
+                          'PoolStakeEvent',
+                          'PoolClaimEvent',
+                        ].includes(event_name) &&
+                        !isRescan
+                      ) {
+                        send_telegram_message(
+                          `<b>${event_name}</b>
+<b>Staking Pool:</b>
+<a href="${process.env.FRONTEND_URL}/#/pools/${
+                            eventValues[0]?.toString() || '***'
+                          }">${eventValues[0]?.toString() || '***'}</a>
+<b>From:</b>
+<code>${eventValues[2]?.toString() || '***'}</code>
+<b>Amount: </b> <code>${
+                            eventValues[3]
+                              ? formatNumDynDecimal(
+                                  parseFloat(
+                                    convertNumberWithoutCommas(
+                                      eventValues[3].toString(),
+                                    ),
+                                  ) /
+                                    Math.pow(
+                                      10,
+                                      parseInt(checkPool?.tokenDecimal),
+                                    ),
+                                )
+                              : ''
+                          } ${checkPool?.tokenSymbol || '***'}</code>
+<b>Token contract:</b>
+<code>${eventValues[1]?.toString()}</code>`,
+                          process.env.TELEGRAM_ID_CHAT || '',
+                          process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+                        );
+                      }
+
+                      if (event_name == 'PoolUnstakeEvent') {
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'PoolUnstakeEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          tokenAddress: eventValues[1]?.toString(),
+                          callerAddress: eventValues[2]?.toString(),
+                          amount: eventValues[3]
+                            ? convertNumberWithoutCommas(
+                                eventValues[3].toString(),
+                              )
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                      } else if (event_name == 'PoolStakeEvent') {
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'PoolStakeEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          tokenAddress: eventValues[1]?.toString(),
+                          callerAddress: eventValues[2]?.toString(),
+                          amount: eventValues[3]
+                            ? convertNumberWithoutCommas(
+                                eventValues[3].toString(),
+                              )
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                      } else if (event_name == 'PoolClaimEvent') {
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'PoolClaimEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          tokenAddress: eventValues[1]?.toString(),
+                          callerAddress: eventValues[2]?.toString(),
+                          amount: eventValues[3]
+                            ? convertNumberWithoutCommas(
+                                eventValues[3].toString(),
+                              )
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                      }
+                      if (obj) {
+                        filter = {
+                          blockNumber: toScan,
+                          eventName: obj.eventName ? obj.eventName : '',
+                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                          tokenAddress: obj.tokenAddress
+                            ? obj.tokenAddress
+                            : '',
+                          callerAddress: obj.callerAddress
+                            ? obj.callerAddress
+                            : '',
+                          amount: obj.amount ? obj.amount : '',
+                        };
+                      }
+                    } else if (checkNftPool) {
+                      const abi_collection_contract = new Abi(
+                        nft_pool_contract.CONTRACT_ABI,
+                      );
+                      const decodedEvent =
+                        abi_collection_contract.decodeEvent(bytes);
+                      let event_name = decodedEvent.event.identifier;
+                      const eventValues = [];
+                      for (let i = 0; i < decodedEvent.args.length; i++) {
+                        const value = decodedEvent.args[i];
+                        eventValues.push(value.toString());
+                      }
+                      const callerAzeroID = await resolveDomain(
+                        eventValues[2]?.toString(),
+                      );
+
+                      if (
+                        ['NFTPoolUnstakeEvent', 'NFTPoolStakeEvent'].includes(
+                          event_name,
+                        ) &&
+                        !isRescan
+                      ) {
+                        console.log(eventValues);
+
+                        send_telegram_message(
+                          `<b>${event_name}</b>
+<b>NFT Pool:</b>
+<a href="${process.env.FRONTEND_URL}/#/farms/${
+                            eventValues[0]?.toString() || '***'
+                          }">${eventValues[0]?.toString() || '***'}</a>
+<b>From:</b>
+<code>${
+                            eventValues[2]
+                              ? callerAzeroID || eventValues[2]?.toString()
+                              : '***'
+                          }</code>
+<b>NFT TokenID: </b> <code>#${
+                            eventValues[3]
+                              ? JSON.parse(eventValues[3])?.u64
+                              : ''
+                          }</code>
+<b>NFT Contract address:</b>
+<code>${eventValues[1]?.toString()}</code>`,
+                          process.env.TELEGRAM_ID_CHAT || '',
+                          process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+                        );
+                      }
+                      if (event_name == 'NFTPoolUnstakeEvent') {
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'NFTPoolUnstakeEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          nftContractAddress: eventValues[1]?.toString(),
+                          callerAddress: eventValues[2]?.toString(),
+                          nftTokenId: eventValues[3]
+                            ? eventValues[3].toString()
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                        filter = {
+                          blockNumber: toScan,
+                          eventName: obj.eventName ? obj.eventName : '',
+                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                          nftContractAddress: obj.nftContractAddress
+                            ? obj.nftContractAddress
+                            : '',
+                          callerAddress: obj.callerAddress
+                            ? obj.callerAddress
+                            : '',
+                          nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
+                          amount: obj.amount
+                            ? convertNumberWithoutCommas(obj.amount)
+                            : '',
+                        };
+                      } else if (event_name == 'NFTPoolStakeEvent') {
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'NFTPoolStakeEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          nftContractAddress: eventValues[1]?.toString(),
+                          callerAddress: eventValues[2]?.toString(),
+                          nftTokenId: eventValues[3]
+                            ? eventValues[3].toString()
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                        filter = {
+                          blockNumber: toScan,
+                          eventName: obj.eventName ? obj.eventName : '',
+                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                          nftContractAddress: obj.nftContractAddress
+                            ? obj.nftContractAddress
+                            : '',
+                          callerAddress: obj.callerAddress
+                            ? obj.callerAddress
+                            : '',
+                          nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
+                          amount: obj.amount
+                            ? convertNumberWithoutCommas(obj.amount)
+                            : '',
+                        };
+                      } else if (event_name == 'NFTPoolClaimEvent') {
+                        send_telegram_message(
+                          `<b>${event_name}</b>
+<b>NFT Pool:</b>
+<a href="${process.env.FRONTEND_URL}/#/farms/${
+                            eventValues[0]?.toString() || '***'
+                          }">${eventValues[0]?.toString() || '***'}</a>
+<b>From:</b>
+<code>${
+                            eventValues[2]
+                              ? callerAzeroID || eventValues[2]?.toString()
+                              : '***'
+                          }</code>
+<b>Amount: </b> <code>${
+                            eventValues[3]
+                              ? formatNumDynDecimal(
+                                  parseFloat(
+                                    convertNumberWithoutCommas(
+                                      eventValues[3].toString(),
+                                    ),
+                                  ) /
+                                    Math.pow(
+                                      10,
+                                      parseInt(checkNftPool?.tokenDecimal),
+                                    ),
+                                )
+                              : ''
+                          } ${checkNftPool?.tokenSymbol || '***'}</code>
+<b>Token contract </b> <code>${eventValues[1]?.toString()}</code>`,
+                          process.env.TELEGRAM_ID_CHAT || '',
+                          process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+                        );
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'NFTPoolClaimEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          nftContractAddress: eventValues[1]?.toString(),
+                          callerAddress: eventValues[2]?.toString(),
+                          amount: eventValues[3]
+                            ? convertNumberWithoutCommas(
+                                eventValues[3].toString(),
+                              )
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                        filter = {
+                          blockNumber: toScan,
+                          eventName: obj.eventName ? obj.eventName : '',
+                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                          nftContractAddress: obj.nftContractAddress
+                            ? obj.nftContractAddress
+                            : '',
+                          callerAddress: obj.callerAddress
+                            ? obj.callerAddress
+                            : '',
+                          amount: obj.amount ? obj.amount : '',
+                        };
+                      }
+                    } else if (checkLPPool) {
+                      const abi_collection_contract = new Abi(
+                        lp_pool_contract.CONTRACT_ABI,
+                      );
+                      const decodedEvent =
+                        abi_collection_contract.decodeEvent(bytes);
+                      let event_name = decodedEvent.event.identifier;
+                      const eventValues = [];
+                      for (let i = 0; i < decodedEvent.args.length; i++) {
+                        const value = decodedEvent.args[i];
+                        eventValues.push(value.toString());
+                      }
+
+                      const callerAzeroID = await resolveDomain(
+                        eventValues[2]?.toString(),
+                      );
+
+                      if (
+                        ['LpPoolStakeEvent', 'LpPoolUnstakeEvent'].includes(
+                          event_name,
+                        ) &&
+                        !isRescan
+                      ) {
+                        send_telegram_message(
+                          `<b>${
+                            event_name == 'LpPoolStakeEvent'
+                              ? 'Farming Stake Event'
+                              : 'Farming unStake Event'
+                          }</b>
+<b>Farming:</b>
+<a href="${process.env.FRONTEND_URL}/#/farming/${
+                            eventValues[0]?.toString() || '***'
+                          }">${eventValues[0]?.toString() || '***'}</a>
+<b>From:</b>
+<code>${eventValues[3]?.toString() || '***'}</code>
+<b>Amount: </b> <code>${
+                            eventValues[4]
+                              ? formatNumDynDecimal(
+                                  parseFloat(eventValues[4]) /
+                                    Math.pow(
+                                      10,
+                                      parseInt(checkLPPool?.lptokenDecimal),
+                                    ),
+                                )
+                              : ''
+                          } ${checkLPPool?.lptokenSymbol || '***'}</code>
+<b>Token stake contract:</b>
+<code>${eventValues[1]?.toString()}</code>`,
+                          process.env.TELEGRAM_ID_CHAT || '',
+                          process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+                        );
+                      }
+                      if (event_name == 'LpPoolUnstakeEvent') {
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'LpPoolUnstakeEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          lptokenContract: eventValues[1]?.toString(),
+                          tokenContract: eventValues[2]?.toString(),
+                          callerAddress: eventValues[3]?.toString(),
+                          amount: eventValues[4]
+                            ? convertNumberWithoutCommas(
+                                eventValues[4].toString(),
+                              )
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                        filter = {
+                          blockNumber: toScan,
+                          eventName: obj?.eventName || '',
+                          poolAddress: obj?.poolAddress || '',
+                          lptokenContract: obj?.lptokenContract || '',
+                          callerAddress: obj?.callerAddress || '',
+                          nftTokenId: obj?.nftTokenId || '',
+                          amount: obj?.amount
+                            ? convertNumberWithoutCommas(obj.amount)
+                            : '',
+                        };
+                      } else if (event_name == 'LpPoolStakeEvent') {
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'LpPoolStakeEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          lptokenContract: eventValues[1]?.toString(),
+                          tokenContract: eventValues[2]?.toString(),
+                          callerAddress: eventValues[3]?.toString(),
+                          amount: eventValues[4]
+                            ? convertNumberWithoutCommas(
+                                eventValues[4].toString(),
+                              )
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                        filter = {
+                          blockNumber: toScan,
+                          eventName: obj?.eventName || '',
+                          poolAddress: obj?.poolAddress || '',
+                          lptokenContract: obj?.lptokenContract || '',
+                          callerAddress: obj?.callerAddress || '',
+                          nftTokenId: obj?.nftTokenId || '',
+                          amount: obj?.amount
+                            ? convertNumberWithoutCommas(obj.amount)
+                            : '',
+                        };
+                      } else if (event_name == 'LpPoolClaimEvent') {
+                        send_telegram_message(
+                          `<b>Farming Claim Event</b>
+<b>Farming:</b>
+<a href="${process.env.FRONTEND_URL}/#/farming/${
+                            eventValues[0]?.toString() || '***'
+                          }">${eventValues[0]?.toString() || '***'}</a>
+<b>From:</b>
+<code>${eventValues[3]?.toString() || '***'}</code>
+<b>Amount: </b> <code>${
+                            eventValues[4]
+                              ? formatNumDynDecimal(
+                                  parseFloat(eventValues[4]) /
+                                    Math.pow(
+                                      10,
+                                      parseInt(checkLPPool?.tokenDecimal),
+                                    ),
+                                )
+                              : ''
+                          } ${checkLPPool?.tokenSymbol || '***'}</code>
+<b>Token earned contract:</b>
+<code>${eventValues[1]?.toString()}</code>`,
+                          process.env.TELEGRAM_ID_CHAT || '',
+                          process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+                        );
+                        obj = new EventPool({
+                          blockNumber: toScan,
+                          eventName: 'LpPoolClaimEvent',
+                          poolAddress: eventValues[0]?.toString(),
+                          lptokenContract: eventValues[1]?.toString(),
+                          tokenContract: eventValues[2]?.toString(),
+                          callerAddress: eventValues[3]?.toString(),
+                          amount: eventValues[4]
+                            ? convertNumberWithoutCommas(
+                                eventValues[4].toString(),
+                              )
+                            : '',
+                          createdTime: new Date(),
+                          updatedTime: new Date(),
+                        });
+                        filter = {
+                          blockNumber: toScan,
+                          eventName: obj?.eventName || '',
+                          poolAddress: obj?.poolAddress || '',
+                          lptokenContract: obj?.lptokenContract || '',
+                          callerAddress: obj?.callerAddress || '',
+                          nftTokenId: obj?.nftTokenId || '',
+                          amount: obj?.amount
+                            ? convertNumberWithoutCommas(obj.amount)
+                            : '',
+                        };
+                      }
                     }
                     if (obj && filter) {
                         const eventData = await eventPoolCollection.findOne(filter);

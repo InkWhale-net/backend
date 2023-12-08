@@ -38,6 +38,16 @@ export class EventPool extends Entity {
   @property({
     type: 'string',
   })
+  lptokenContract?: string;
+
+  @property({
+    type: 'string',
+  })
+  tokenContract?: string;
+
+  @property({
+    type: 'string',
+  })
   nftContractAddress?: string;
 
   @property({

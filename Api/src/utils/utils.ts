@@ -386,4 +386,24 @@ export const formatNumDynDecimal = (
 
   return intPart + `${dotIdx === -1 ? '' : `.${decPart}`}`;
 };
-  
+
+export const resolveDomain = async (
+  address: string,
+): Promise<string | undefined> => {
+  try {
+    // if (process.env.REACT_APP_NETWORK === 'inkwhale-testnet') {
+    //   const domains: any = await resolveAddressToDomain(address, {
+    //     chainId: SupportedChainId.AlephZeroTestnet,
+    //   });
+    //   return domains[0];
+    // } else {
+    //   const domains: any = await resolveAddressToDomain(address, {
+    //     chainId: SupportedChainId.AlephZero,
+    //   });
+    //   return domains[0];
+    // }
+    return;
+  } catch (error) {
+    console.log('resolveDomain error', error);
+  }
+};
