@@ -286,8 +286,14 @@ export async function processEventRecords(
                         !isRescan
                       ) {
                         send_telegram_message(
-                          `<b>${event_name}</b>
-<b>Staking Pool:</b>
+                          `<b>${
+                            event_name == 'PoolUnstakeEvent'
+                              ? 'Unstaking Event'
+                              : event_name == 'PoolStakeEvent'
+                              ? 'Staking Event'
+                              : 'Reward Claim Event'
+                          }</b>
+<b>Pool:</b>
 <a href="${process.env.FRONTEND_URL}/#/pools/${
                             eventValues[0]?.toString() || '***'
                           }">${eventValues[0]?.toString() || '***'}</a>
@@ -400,7 +406,11 @@ export async function processEventRecords(
                         console.log(eventValues);
 
                         send_telegram_message(
-                          `<b>${event_name}</b>
+                          `<b>${
+                            event_name == 'NFTPoolUnstakeEvent'
+                              ? 'Unstaking Event'
+                              : 'Staking Event'
+                          }</b>
 <b>NFT Pool:</b>
 <a href="${process.env.FRONTEND_URL}/#/farms/${
                             eventValues[0]?.toString() || '***'
@@ -480,7 +490,7 @@ export async function processEventRecords(
                         };
                       } else if (event_name == 'NFTPoolClaimEvent') {
                         send_telegram_message(
-                          `<b>${event_name}</b>
+                          `<b>${"Reward Claim Event"}</b>
 <b>NFT Pool:</b>
 <a href="${process.env.FRONTEND_URL}/#/farms/${
                             eventValues[0]?.toString() || '***'
@@ -563,8 +573,8 @@ export async function processEventRecords(
                         send_telegram_message(
                           `<b>${
                             event_name == 'LpPoolStakeEvent'
-                              ? 'Farming Stake Event'
-                              : 'Farming unStake Event'
+                              ? 'Staking Event'
+                              : 'Unstaking Event'
                           }</b>
 <b>Farming:</b>
 <a href="${process.env.FRONTEND_URL}/#/farming/${
@@ -645,7 +655,7 @@ export async function processEventRecords(
                         };
                       } else if (event_name == 'LpPoolClaimEvent') {
                         send_telegram_message(
-                          `<b>Farming Claim Event</b>
+                          `<b>Reward Claim Event</b>
 <b>Farming:</b>
 <a href="${process.env.FRONTEND_URL}/#/farming/${
                             eventValues[0]?.toString() || '***'
