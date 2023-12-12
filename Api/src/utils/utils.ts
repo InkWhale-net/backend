@@ -52,6 +52,7 @@ export function send_telegram_message(
           text: message,
           message_thread_id: threadid,
           parse_mode: 'html',
+          disable_web_page_preview: true
         },
         headers: {
           'Content-Type': 'application/json',
