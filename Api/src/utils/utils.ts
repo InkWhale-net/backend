@@ -20,7 +20,7 @@ import {psp22_contract_old} from '../contracts/psp22_old';
 import {owner} from './Pools';
 import {psp22_contract} from '../contracts/psp22';
 import numeral from 'numeral';
-import ex from '../../azns/index';
+import ex from '../utils/azns/index';
 
 dotenv.config();
 
