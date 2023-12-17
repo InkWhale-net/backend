@@ -112,18 +112,23 @@ export async function scanEventBlocks(
                     );
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
-                        await scannedBlocksCollection.updateOne({
-                                lastScanned: true,
-                            },{
-                                "$set": {
-                                    lastScanned: true,
-                                    blockNumber: to_scan,
-                                    updatedTime: new Date()
-                                }
-                            },
-                            { upsert: true });
+                      await scannedBlocksCollection.updateOne(
+                        {
+                          lastScanned: true,
+                        },
+                        {
+                          $set: {
+                            lastScanned: true,
+                            blockNumber: to_scan,
+                            updatedTime: new Date(),
+                          },
+                        },
+                        {upsert: true},
+                      );
                     } catch (e) {
-                        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+                      console.log(
+                        `${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`,
+                      );
                     }
                 }
             } catch (e) {
@@ -180,18 +185,23 @@ export async function reScanEventBlocks(
                     );
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
-                        await reScannedBlocksCollection.updateOne({
-                                lastScanned: true,
-                            },{
-                                "$set": {
-                                    lastScanned: true,
-                                    blockNumber: to_scan,
-                                    updatedTime: new Date()
-                                }
-                            },
-                            { upsert: true });
+                      await reScannedBlocksCollection.updateOne(
+                        {
+                          lastScanned: true,
+                        },
+                        {
+                          $set: {
+                            lastScanned: true,
+                            blockNumber: to_scan,
+                            updatedTime: new Date(),
+                          },
+                        },
+                        {upsert: true},
+                      );
                     } catch (e) {
-                        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
+                      console.log(
+                        `${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`,
+                      );
                     }
                 }
             } catch (e) {
@@ -247,9 +257,6 @@ export async function processEventRecords(
                     const [accId, bytes] = data.map((data: any, _: any) => data).slice(0, 2);
                     const accIdString = accId.toString();
                     console.log({accIdString: accIdString});
-
-                    console.log("***************", accIdString);
-
                     const checkPool = await poolsCollection.findOne({
                         poolContract: accIdString,
                         poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
@@ -867,6 +874,7 @@ Earn : <code>${checkLPPool?.tokenName}</code>
                     }
                 }
 
+
                 // TODO: Switch to redis caching here
                 const filter = {
                     blockNumber: toScan,
@@ -878,22 +886,25 @@ Earn : <code>${checkLPPool?.tokenName}</code>
                 };
                 const eventData = await eventTransferCollection.findOne(filter);
                 if (!eventData) {
-                    await eventTransferCollection.insertOne({
+                  await eventTransferCollection.insertOne({
+                    ...filter,
+                    data: newData,
+                    createdTime: new Date(),
+                    updatedTime: new Date(),
+                  });
+                } else {
+                  await eventTransferCollection.updateMany(
+                    filter,
+                    {
+                      $set: {
                         ...filter,
                         data: newData,
                         createdTime: new Date(),
                         updatedTime: new Date(),
-                    });
-                } else {
-                    await eventTransferCollection.updateMany(filter,{
-                            "$set": {
-                                ...filter,
-                                data: newData,
-                                createdTime: new Date(),
-                                updatedTime: new Date(),
-                            }
-                        },
-                        { upsert: true });
+                      },
+                    },
+                    {upsert: true},
+                  );
                 }
             }
 
@@ -921,12 +932,9 @@ export async function processUpdateStats(
   poolsSchemaRepository: PoolsSchemaRepository,
   nftPoolsSchemaRepository: NftPoolsSchemaRepository,
   lpPoolsSchemaRepository: LpPoolsSchemaRepository,
-): Promise<
-  {tvlInAzero: any; tvlInUSD: any} | undefined
-> {
+): Promise<{tvlInAzero: any; tvlInUSD: any} | undefined> {
   try {
     const pools = await poolsSchemaRepository.find({});
-
     const totalLocked = pools.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
@@ -950,9 +958,7 @@ export async function processUpdateStats(
     );
     const valueInAzero =
       prices.inw * totalLocked.totalInw + totalLocked.totalwAzero;
-
     const poolsLp = await lpPoolsSchemaRepository.find({});
-
     const totalLpLocked = poolsLp.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
@@ -976,7 +982,6 @@ export async function processUpdateStats(
     );
     const valueLpInAzero =
       prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero;
-
     const ret = await getAllFloorPriceArtZero();
     const calculatedValues = await Promise.all(
       ret.map(async (collection: any) => {
@@ -985,7 +990,6 @@ export async function processUpdateStats(
             NFTtokenContract: collection.collection,
           },
         });
-
         if (nftPoolSchemaEntry.length > 0) {
           const totalNftVal = nftPoolSchemaEntry.reduce(
             (total, pool) =>
@@ -994,7 +998,6 @@ export async function processUpdateStats(
           );
           return totalNftVal;
         }
-
         return 0;
       }),
     );
