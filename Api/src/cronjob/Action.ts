@@ -17,6 +17,7 @@ import { LpPoolsSchemaRepository, NftPoolsSchemaRepository, PoolsSchemaRepositor
 import prices from '../utils/prices.json'
 import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
 import { lp_pool_contract } from "../contracts/lp_pool";
+import axios from "axios";
 
 let inw_contract: ContractPromise;
 export function setContract(c: ContractPromise) {
@@ -111,18 +112,23 @@ export async function scanEventBlocks(
                     );
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
-                        await scannedBlocksCollection.updateOne({
-                                lastScanned: true,
-                            },{
-                                "$set": {
-                                    lastScanned: true,
-                                    blockNumber: to_scan,
-                                    updatedTime: new Date()
-                                }
-                            },
-                            { upsert: true });
+                      await scannedBlocksCollection.updateOne(
+                        {
+                          lastScanned: true,
+                        },
+                        {
+                          $set: {
+                            lastScanned: true,
+                            blockNumber: to_scan,
+                            updatedTime: new Date(),
+                          },
+                        },
+                        {upsert: true},
+                      );
                     } catch (e) {
-                        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+                      console.log(
+                        `${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`,
+                      );
                     }
                 }
             } catch (e) {
@@ -179,18 +185,23 @@ export async function reScanEventBlocks(
                     );
                     console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
                     try {
-                        await reScannedBlocksCollection.updateOne({
-                                lastScanned: true,
-                            },{
-                                "$set": {
-                                    lastScanned: true,
-                                    blockNumber: to_scan,
-                                    updatedTime: new Date()
-                                }
-                            },
-                            { upsert: true });
+                      await reScannedBlocksCollection.updateOne(
+                        {
+                          lastScanned: true,
+                        },
+                        {
+                          $set: {
+                            lastScanned: true,
+                            blockNumber: to_scan,
+                            updatedTime: new Date(),
+                          },
+                        },
+                        {upsert: true},
+                      );
                     } catch (e) {
-                        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
+                      console.log(
+                        `${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`,
+                      );
                     }
                 }
             } catch (e) {
@@ -246,9 +257,6 @@ export async function processEventRecords(
                     const [accId, bytes] = data.map((data: any, _: any) => data).slice(0, 2);
                     const accIdString = accId.toString();
                     console.log({accIdString: accIdString});
-
-                    console.log("***************", accIdString);
-
                     const checkPool = await poolsCollection.findOne({
                         poolContract: accIdString,
                         poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
@@ -293,12 +301,11 @@ export async function processEventRecords(
                               ? '🚀Staking Event'
                               : '🤑Reward Claim Event'
                           }</b>
-<b>Pool:</b>
+<b>${checkPool?.tokenSymbol} Pool:</b>
 <a href="${process.env.FRONTEND_URL}/#/pools/${
                             eventValues[0]?.toString() || '***'
                           }">${eventValues[0]?.toString() || '***'}</a>
-<b>From:</b>
-<code>${eventValues[2]?.toString() || '***'}</code>
+<b>From:</b> <code>${(await resolveDomain(eventValues?.[2]?.toString())) || '***'}</code>
 <b>Amount: </b> <code>${
                             eventValues[3]
                               ? formatNumDynDecimal(
@@ -394,17 +401,33 @@ export async function processEventRecords(
                         eventValues.push(value.toString());
                       }
                       const callerAzeroID = await resolveDomain(
-                        eventValues[2]?.toString(),
+                        eventValues?.[2]?.toString() || "",
                       );
+
+                      const data = new URLSearchParams();
+                      data.append(
+                        'collection_address',
+                        checkNftPool?.NFTtokenContract,
+                      );
+                      const nftData = await axios.post(
+                        `${process.env.ARTZERO_API_BASE_URL}/getCollectionByAddress`,
+                        {
+                          collection_address: checkNftPool?.NFTtokenContract,
+                        },
+                        {
+                          headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                          },
+                        },
+                      );
+                      const {ret} = nftData.data;
 
                       if (
                         ['NFTPoolUnstakeEvent', 'NFTPoolStakeEvent'].includes(
                           event_name,
                         ) &&
                         !isRescan
-                      ) {
-                        console.log(eventValues);
-
+                      ) {                        
                         send_telegram_message(
                           `<b>${
                             event_name == 'NFTPoolUnstakeEvent'
@@ -415,11 +438,19 @@ export async function processEventRecords(
 <a href="${process.env.FRONTEND_URL}/#/farms/${
                             eventValues[0]?.toString() || '***'
                           }">${eventValues[0]?.toString() || '***'}</a>
+${
+  ret?.[0]?.name &&
+  checkNftPool?.tokenName &&
+  `------------------------------
+Stake <code>${ret?.[0]?.name}</code>
+Earn <code>${checkNftPool?.tokenName}</code>
+------------------------------`
+}
 <b>From:</b>
 <code>${
                             eventValues[2]
                               ? callerAzeroID || eventValues[2]?.toString()
-                              : '***'
+                              : '***' 
                           }</code>
 <b>NFT TokenID: </b> <code>#${
                             eventValues[3]
@@ -490,17 +521,20 @@ export async function processEventRecords(
                         };
                       } else if (event_name == 'NFTPoolClaimEvent') {
                         send_telegram_message(
-                          `<b>${"🤑Reward Claim Event"}</b>
+                          `<b>${'🤑Reward Claim Event'}</b>
 <b>NFT Pool:</b>
 <a href="${process.env.FRONTEND_URL}/#/farms/${
                             eventValues[0]?.toString() || '***'
                           }">${eventValues[0]?.toString() || '***'}</a>
-<b>From:</b>
-<code>${
-                            eventValues[2]
-                              ? callerAzeroID || eventValues[2]?.toString()
-                              : '***'
-                          }</code>
+${
+  ret?.[0]?.name &&
+  checkNftPool?.tokenName &&
+  `------------------------------
+Stake <code>${ret?.[0]?.name}</code>
+Earn <code>${checkNftPool?.tokenName}</code>
+------------------------------`
+}
+<b>From:</b> <code>${callerAzeroID || '***'}</code>
 <b>Amount: </b> <code>${
                             eventValues[3]
                               ? formatNumDynDecimal(
@@ -554,14 +588,14 @@ export async function processEventRecords(
                       const decodedEvent =
                         abi_collection_contract.decodeEvent(bytes);
                       let event_name = decodedEvent.event.identifier;
-                      const eventValues = [];
+                      const eventValues : any = [];
                       for (let i = 0; i < decodedEvent.args.length; i++) {
                         const value = decodedEvent.args[i];
                         eventValues.push(value.toString());
                       }
 
                       const callerAzeroID = await resolveDomain(
-                        eventValues[2]?.toString(),
+                        eventValues?.[3]?.toString(),
                       );
 
                       if (
@@ -580,21 +614,28 @@ export async function processEventRecords(
 <a href="${process.env.FRONTEND_URL}/#/farming/${
                             eventValues[0]?.toString() || '***'
                           }">${eventValues[0]?.toString() || '***'}</a>
-<b>From:</b>
-<code>${eventValues[3]?.toString() || '***'}</code>
+${
+  checkLPPool?.lptokenName &&
+  checkLPPool?.tokenName &&
+  `------------------------------
+Stake <code>${checkLPPool?.lptokenName}</code>
+<code>${checkLPPool?.lptokenContract}</code>
+Earn <code>${checkLPPool?.tokenName}</code>
+<code>${checkLPPool?.tokenContract}</code>
+------------------------------`
+}
+<b>From:</b> <code>${callerAzeroID || '***'}</code>
 <b>Amount: </b> <code>${
                             eventValues[4]
                               ? formatNumDynDecimal(
-                                  parseFloat(eventValues[4]) /
+                                  parseFloat(eventValues?.[4]) /
                                     Math.pow(
                                       10,
                                       parseInt(checkLPPool?.lptokenDecimal),
                                     ),
                                 )
                               : ''
-                          } ${checkLPPool?.lptokenSymbol || '***'}</code>
-<b>Token stake contract:</b>
-<code>${eventValues[1]?.toString()}</code>`,
+                          } ${checkLPPool?.lptokenSymbol || '***'}</code>`,
                           process.env.TELEGRAM_ID_CHAT || '',
                           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
                         );
@@ -603,7 +644,7 @@ export async function processEventRecords(
                         obj = new EventPool({
                           blockNumber: toScan,
                           eventName: 'LpPoolUnstakeEvent',
-                          poolAddress: eventValues[0]?.toString(),
+                          poolAddress: eventValues?.[0]?.toString(),
                           lptokenContract: eventValues[1]?.toString(),
                           tokenContract: eventValues[2]?.toString(),
                           callerAddress: eventValues[3]?.toString(),
@@ -660,8 +701,17 @@ export async function processEventRecords(
 <a href="${process.env.FRONTEND_URL}/#/farming/${
                             eventValues[0]?.toString() || '***'
                           }">${eventValues[0]?.toString() || '***'}</a>
-<b>From:</b>
-<code>${eventValues[3]?.toString() || '***'}</code>
+${
+  checkLPPool?.lptokenName &&
+  checkLPPool?.tokenName &&
+  `------------------------------
+Stake: <code>${checkLPPool?.lptokenName}</code>
+<code>${checkLPPool?.lptokenContract}</code>
+Earn : <code>${checkLPPool?.tokenName}</code>
+<code>${checkLPPool?.tokenContract}</code>
+------------------------------`
+}
+<b>From:</b> <code>${callerAzeroID || '***'}</code>
 <b>Amount: </b> <code>${
                             eventValues[4]
                               ? formatNumDynDecimal(
@@ -672,9 +722,7 @@ export async function processEventRecords(
                                     ),
                                 )
                               : ''
-                          } ${checkLPPool?.tokenSymbol || '***'}</code>
-<b>Token earned contract:</b>
-<code>${eventValues[1]?.toString()}</code>`,
+                          } ${checkLPPool?.tokenSymbol || '***'}</code>`,
                           process.env.TELEGRAM_ID_CHAT || '',
                           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
                         );
@@ -826,6 +874,7 @@ export async function processEventRecords(
                     }
                 }
 
+
                 // TODO: Switch to redis caching here
                 const filter = {
                     blockNumber: toScan,
@@ -837,22 +886,25 @@ export async function processEventRecords(
                 };
                 const eventData = await eventTransferCollection.findOne(filter);
                 if (!eventData) {
-                    await eventTransferCollection.insertOne({
+                  await eventTransferCollection.insertOne({
+                    ...filter,
+                    data: newData,
+                    createdTime: new Date(),
+                    updatedTime: new Date(),
+                  });
+                } else {
+                  await eventTransferCollection.updateMany(
+                    filter,
+                    {
+                      $set: {
                         ...filter,
                         data: newData,
                         createdTime: new Date(),
                         updatedTime: new Date(),
-                    });
-                } else {
-                    await eventTransferCollection.updateMany(filter,{
-                            "$set": {
-                                ...filter,
-                                data: newData,
-                                createdTime: new Date(),
-                                updatedTime: new Date(),
-                            }
-                        },
-                        { upsert: true });
+                      },
+                    },
+                    {upsert: true},
+                  );
                 }
             }
 
@@ -880,12 +932,9 @@ export async function processUpdateStats(
   poolsSchemaRepository: PoolsSchemaRepository,
   nftPoolsSchemaRepository: NftPoolsSchemaRepository,
   lpPoolsSchemaRepository: LpPoolsSchemaRepository,
-): Promise<
-  {tvlInAzero: any; tvlInUSD: any} | undefined
-> {
+): Promise<{tvlInAzero: any; tvlInUSD: any} | undefined> {
   try {
     const pools = await poolsSchemaRepository.find({});
-
     const totalLocked = pools.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
@@ -909,9 +958,7 @@ export async function processUpdateStats(
     );
     const valueInAzero =
       prices.inw * totalLocked.totalInw + totalLocked.totalwAzero;
-
     const poolsLp = await lpPoolsSchemaRepository.find({});
-
     const totalLpLocked = poolsLp.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
@@ -935,7 +982,6 @@ export async function processUpdateStats(
     );
     const valueLpInAzero =
       prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero;
-
     const ret = await getAllFloorPriceArtZero();
     const calculatedValues = await Promise.all(
       ret.map(async (collection: any) => {
@@ -944,7 +990,6 @@ export async function processUpdateStats(
             NFTtokenContract: collection.collection,
           },
         });
-
         if (nftPoolSchemaEntry.length > 0) {
           const totalNftVal = nftPoolSchemaEntry.reduce(
             (total, pool) =>
@@ -953,7 +998,6 @@ export async function processUpdateStats(
           );
           return totalNftVal;
         }
-
         return 0;
       }),
     );

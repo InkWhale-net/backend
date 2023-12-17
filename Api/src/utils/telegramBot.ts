@@ -1,26 +1,21 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
-import {processUpdateStats} from '../cronjob/Action';
-import {InkWhaleDbDataSource} from '../datasources';
+import { processUpdateStats } from '../cronjob/Action';
+import { InkWhaleDbDataSource } from '../datasources';
 import {
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
   StatsSchemaRepository,
 } from '../repositories';
-import {formatNumDynDecimal, send_telegram_message} from './utils';
+import { formatNumDynDecimal, send_telegram_message } from './utils';
 dotenv.config();
 
 if (process.env.RUN_TELEGRAM_BOT == 'true') {
-  const bot = new TelegramBot(
-    process.env.TELEGRAM_BOT_TOKEN ||
-      '6827028829:AAHcGziBmjhyR8xdDqAj4h0sbLg1wfKFuTg',
-    {
-      polling: true,
-    },
-  );
-  console.log(process.env.TELEGRAM_ID_CHAT);
-
+  const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN || '', {
+    polling: true,
+  });
+  if (bot) console.log('TELEGRAM BOT FEED: Listening');
   bot.on('message', msg => {
     (async () => {
       const chatId = msg?.chat?.id || '';
@@ -73,6 +68,10 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
                 );
               }
             })();
+            break;
+          case '/testdd':
+            console.log(':dasd');
+            break;
         }
       }
     })();

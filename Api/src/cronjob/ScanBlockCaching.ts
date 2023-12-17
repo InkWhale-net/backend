@@ -179,8 +179,8 @@ export async function mainScanBlockCaching():Promise<void> {
                 console.log(`Global RPC Ready. start processing now: ${rpc}`);
 
                 // Config redis
-                await newCache.connect();
-                const multi: any = await newCache.multi();
+                // await newCache.connect();
+                // const multi: any = await newCache.multi();
 
                 const inw_contract = new ContractPromise(
                     eventApi,
@@ -205,8 +205,9 @@ export async function mainScanBlockCaching():Promise<void> {
                         ) {
                             console.log(`scanEventBlocks`);
                             scanEventBlocks(
-                                newCache,
-                                multi,
+                                // newCache,
+                                // multi,
+                                undefined, undefined,
                                 header,
                                 parseInt(header.number.toString()),
                                 // 34765608,

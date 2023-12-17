@@ -49,6 +49,7 @@
     "!*/__tests__"
   ],
   "dependencies": {
+    "@azns/resolver-core": "^1.6.0",
     "@loopback/boot": "^5.0.3",
     "@loopback/core": "^4.0.3",
     "@loopback/cron": "^0.9.7",

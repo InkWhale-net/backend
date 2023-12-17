@@ -545,7 +545,9 @@ var g = (r => (
     s
   ))(R || {}),
   w = {
-    ['alephzero']: {['azns_router']: void 0},
+    ['alephzero']: {
+      ['azns_router']: '5FfRtDtpS3Vcr7BTChjPiQNrcAKu3VLv4E1NGF6ng6j3ZopJ',
+    },
     ['alephzero-testnet']: {
       ['azns_router']: '5HXjj3xhtRMqRYCRaXTDcVPz3Mez2XBruyujw6UEkvn8PCiA',
     },

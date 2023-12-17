@@ -19,7 +19,7 @@ import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
 import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
 import {convertToUTCTime, sleep} from "./Tools";
 import {global_vars} from "../cronjob/global";
-import ex from '../../azns/index';
+
 dotenv.config();
 export const checkQueue = async (
     isTrigger: boolean,
@@ -629,14 +629,6 @@ const checkNewLPPools = async (
     lp_pool_contract_calls: ContractPromise,
     lpPoolsSchemaRepository: LpPoolsSchemaRepository
 ): Promise<boolean> => {
-    const res = await ex.Pe(
-    '5EfUESCp28GXw1v9CXmpAL5BfoCNW2y4skipcEoKAbN5Ykfn',
-    {
-        debug: true,
-        chainId: 'alephzero-testnet',
-    },
-    );
-    console.log('res ===========================', res);
     if (!isTrigger) {
         if (global_vars.is_running_lp) {
             console.log("checkNewLPPools is running. Do nothing.");
