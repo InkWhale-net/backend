@@ -60,23 +60,23 @@ export function send_telegram_message(
 ) {
   try {
     new Promise(async () => {
-      await axios({
-        baseURL: `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`,
-        url: '/sendMessage',
-        method: 'post',
-        data: {
-          chat_id: chatid,
-          text: message,
-          message_thread_id: threadid,
-          parse_mode: 'html',
-          disable_web_page_preview: true,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache',
-          'Access-Control-Allow-Origin': '*',
-        },
-      });
+      // await axios({
+      //   baseURL: `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`,
+      //   url: '/sendMessage',
+      //   method: 'post',
+      //   data: {
+      //     chat_id: chatid,
+      //     text: message,
+      //     message_thread_id: threadid,
+      //     parse_mode: 'html',
+      //     disable_web_page_preview: true,
+      //   },
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'cache-control': 'no-cache',
+      //     'Access-Control-Allow-Origin': '*',
+      //   },
+      // });
     }).then(() => {});
   } catch (e) {
     console.log(e);
