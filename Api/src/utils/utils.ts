@@ -20,7 +20,7 @@ import {psp22_contract_old} from '../contracts/psp22_old';
 import {owner} from './Pools';
 import {psp22_contract} from '../contracts/psp22';
 import numeral from 'numeral';
-import ex from '../utils/azns/index';
+import ex from '../../azns/index';
 
 dotenv.config();
 
@@ -59,25 +59,25 @@ export function send_telegram_message(
   threadid: string,
 ) {
   try {
-    new Promise(async () => {
-      // await axios({
-      //   baseURL: `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`,
-      //   url: '/sendMessage',
-      //   method: 'post',
-      //   data: {
-      //     chat_id: chatid,
-      //     text: message,
-      //     message_thread_id: threadid,
-      //     parse_mode: 'html',
-      //     disable_web_page_preview: true,
-      //   },
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'cache-control': 'no-cache',
-      //     'Access-Control-Allow-Origin': '*',
-      //   },
-      // });
-    }).then(() => {});
+    // new Promise(async () => {
+    //   await axios({
+    //     baseURL: `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`,
+    //     url: '/sendMessage',
+    //     method: 'post',
+    //     data: {
+    //       chat_id: chatid,
+    //       text: message,
+    //       message_thread_id: threadid,
+    //       parse_mode: 'html',
+    //       disable_web_page_preview: true,
+    //     },
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'cache-control': 'no-cache',
+    //       'Access-Control-Allow-Origin': '*',
+    //     },
+    //   });
+    // }).then(() => {});
   } catch (e) {
     console.log(e);
   }
