@@ -15,6 +15,7 @@ dotenv.config();
 
 export const collections: {
     eventTransfer?: mongoDB.Collection,
+    eventTeleCollection?: mongoDB.Collection,
     eventPoolCollection?: mongoDB.Collection,
     poolsCollection?: mongoDB.Collection,
     nftPoolsCollection?: mongoDB.Collection,
@@ -28,6 +29,7 @@ export async function connectToDatabase () {
     const nodeBlockNumber = (process.env.NODE_BLOCK_NUMBER) ? process.env.NODE_BLOCK_NUMBER : `Default${Math.random()}`;
     const dbEventTransferCollection:string = `EventTransfer`;
     const dbEventPoolCollection:string = `EventPool`;
+    const dbEventTeleCollection:string = `EventTele`;
     const dbPoolsCollection:string = `Pools`;
     const dbNftPoolsCollection:string = `NftPools`;
     const dbLPPoolsCollection:string = `LpPools`;
@@ -41,6 +43,8 @@ export async function connectToDatabase () {
     collections.eventTransfer = eventTransferCollection;
     const eventPoolCollection: mongoDB.Collection = db.collection(dbEventPoolCollection);
     collections.eventPoolCollection = eventPoolCollection;
+    const eventTeleCollection: mongoDB.Collection = db.collection(dbEventTeleCollection);
+    collections.eventTeleCollection = eventTeleCollection;
     const poolsCollection: mongoDB.Collection = db.collection(dbPoolsCollection);
     collections.poolsCollection = poolsCollection;
     const nftPoolsCollection: mongoDB.Collection = db.collection(dbNftPoolsCollection);
@@ -56,6 +60,7 @@ export async function connectToDatabase () {
     console.log(`Successfully connected to collection: ${eventTransferCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${eventPoolCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${poolsCollection.collectionName}`);
+    console.log(`Successfully connected to collection: ${eventTeleCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${nftPoolsCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${lpPoolsCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${scannedBlockCollection.collectionName}`);
@@ -179,8 +184,8 @@ export async function mainScanBlockCaching():Promise<void> {
                 console.log(`Global RPC Ready. start processing now: ${rpc}`);
 
                 // Config redis
-                // await newCache.connect();
-                // const multi: any = await newCache.multi();
+                await newCache.connect();
+                const multi: any = await newCache.multi();
 
                 const inw_contract = new ContractPromise(
                     eventApi,
@@ -200,14 +205,14 @@ export async function mainScanBlockCaching():Promise<void> {
                             && collections.poolsCollection
                             && collections.nftPoolsCollection
                             && collections.lpPoolsCollection
+                            && collections.eventTeleCollection
                             && collections.scannedBlocks
                             && collections.reScannedBlocks
                         ) {
                             console.log(`scanEventBlocks`);
                             scanEventBlocks(
-                                // newCache,
-                                // multi,
-                                undefined, undefined,
+                                newCache,
+                                multi,
                                 header,
                                 parseInt(header.number.toString()),
                                 // 34765608,
@@ -218,6 +223,7 @@ export async function mainScanBlockCaching():Promise<void> {
                                 collections.poolsCollection,
                                 collections.nftPoolsCollection,
                                 collections.lpPoolsCollection,
+                                collections.eventTeleCollection,
                                 abi_inw_token_contract,
                                 abi_token_generator_contract,
                                 inw_contract

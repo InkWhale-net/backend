@@ -15,6 +15,7 @@ dotenv.config();
 
 export const collections: {
     eventTransfer?: mongoDB.Collection,
+    eventTeleCollection?: mongoDB.Collection,
     eventPoolCollection?: mongoDB.Collection,
     poolsCollection?: mongoDB.Collection,
     nftPoolsCollection?: mongoDB.Collection,
@@ -28,6 +29,7 @@ export async function connectToDatabase () {
     const nodeBlockNumber = (process.env.NODE_BLOCK_NUMBER) ? process.env.NODE_BLOCK_NUMBER : `Default${Math.random()}`;
     const dbEventTransferCollection:string = `EventTransfer`;
     const dbEventPoolCollection:string = `EventPool`;
+    const dbEventTeleCollection:string = `EventTele`;
     const dbPoolsCollection:string = `Pools`;
     const dbNftPoolsCollection:string = `NftPools`;
     const dbLPPoolsCollection:string = `LpPools`;
@@ -48,7 +50,9 @@ export async function connectToDatabase () {
     const lpPoolsCollection: mongoDB.Collection = db.collection(dbLPPoolsCollection);
     collections.lpPoolsCollection = lpPoolsCollection;
     const scannedBlockCollection: mongoDB.Collection = db.collection(dbScannedBlockCollection);
-    collections.scannedBlocks = scannedBlockCollection;
+    collections.lpPoolsCollection = lpPoolsCollection;
+    const eventTeleCollection: mongoDB.Collection = db.collection(dbEventTeleCollection);
+    collections.eventTeleCollection = eventTeleCollection;
     const reScannedBlockCollection: mongoDB.Collection = db.collection(dbReScannedBlockCollection);
     collections.reScannedBlocks = reScannedBlockCollection;
 
@@ -58,6 +62,7 @@ export async function connectToDatabase () {
     console.log(`Successfully connected to collection: ${poolsCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${nftPoolsCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${lpPoolsCollection.collectionName}`);
+    console.log(`Successfully connected to collection: ${eventTeleCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${scannedBlockCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${reScannedBlockCollection.collectionName}`);
 }
@@ -120,6 +125,7 @@ export async function mainReScanBlockCaching():Promise<void> {
                             && collections.poolsCollection
                             && collections.nftPoolsCollection
                             && collections.lpPoolsCollection
+                            && collections.eventTeleCollection
                             && collections.scannedBlocks
                             && collections.reScannedBlocks
                         ) {
@@ -137,6 +143,7 @@ export async function mainReScanBlockCaching():Promise<void> {
                                 collections.poolsCollection,
                                 collections.nftPoolsCollection,
                                 collections.lpPoolsCollection,
+                                collections.eventTeleCollection,
                                 abi_inw_token_contract,
                                 abi_token_generator_contract,
                                 inw_contract
