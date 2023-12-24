@@ -18,6 +18,7 @@ export const collections: {
     eventPoolCollection?: mongoDB.Collection,
     poolsCollection?: mongoDB.Collection,
     nftPoolsCollection?: mongoDB.Collection,
+    lpPoolsCollection?: mongoDB.Collection,
     scannedBlocks?: mongoDB.Collection,
     reScannedBlocks?: mongoDB.Collection,
 } = {}
@@ -29,6 +30,7 @@ export async function connectToDatabase () {
     const dbEventPoolCollection:string = `EventPool`;
     const dbPoolsCollection:string = `Pools`;
     const dbNftPoolsCollection:string = `NftPools`;
+    const dbLPPoolsCollection:string = `LpPools`;
     const dbScannedBlockCollection:string = `ScannedBlocks`;
     const dbReScannedBlockCollection:string = `ReScannedBlocks${nodeBlockNumber}`;
     const client: mongoDB.MongoClient = new mongoDB.MongoClient(dbUrl);
@@ -43,6 +45,8 @@ export async function connectToDatabase () {
     collections.poolsCollection = poolsCollection;
     const nftPoolsCollection: mongoDB.Collection = db.collection(dbNftPoolsCollection);
     collections.nftPoolsCollection = nftPoolsCollection;
+    const lpPoolsCollection: mongoDB.Collection = db.collection(dbLPPoolsCollection);
+    collections.lpPoolsCollection = lpPoolsCollection;
     const scannedBlockCollection: mongoDB.Collection = db.collection(dbScannedBlockCollection);
     collections.scannedBlocks = scannedBlockCollection;
     const reScannedBlockCollection: mongoDB.Collection = db.collection(dbReScannedBlockCollection);
@@ -53,6 +57,7 @@ export async function connectToDatabase () {
     console.log(`Successfully connected to collection: ${eventPoolCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${poolsCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${nftPoolsCollection.collectionName}`);
+    console.log(`Successfully connected to collection: ${lpPoolsCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${scannedBlockCollection.collectionName}`);
     console.log(`Successfully connected to collection: ${reScannedBlockCollection.collectionName}`);
 }
@@ -174,8 +179,8 @@ export async function mainScanBlockCaching():Promise<void> {
                 console.log(`Global RPC Ready. start processing now: ${rpc}`);
 
                 // Config redis
-                await newCache.connect();
-                const multi: any = await newCache.multi();
+                // await newCache.connect();
+                // const multi: any = await newCache.multi();
 
                 const inw_contract = new ContractPromise(
                     eventApi,
@@ -194,13 +199,15 @@ export async function mainScanBlockCaching():Promise<void> {
                             && collections.eventPoolCollection
                             && collections.poolsCollection
                             && collections.nftPoolsCollection
+                            && collections.lpPoolsCollection
                             && collections.scannedBlocks
                             && collections.reScannedBlocks
                         ) {
                             console.log(`scanEventBlocks`);
                             scanEventBlocks(
-                                newCache,
-                                multi,
+                                // newCache,
+                                // multi,
+                                undefined, undefined,
                                 header,
                                 parseInt(header.number.toString()),
                                 // 34765608,
@@ -210,6 +217,7 @@ export async function mainScanBlockCaching():Promise<void> {
                                 collections.eventPoolCollection,
                                 collections.poolsCollection,
                                 collections.nftPoolsCollection,
+                                collections.lpPoolsCollection,
                                 abi_inw_token_contract,
                                 abi_token_generator_contract,
                                 inw_contract

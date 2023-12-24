@@ -2,6 +2,7 @@ import {Provider} from '@loopback/core';
 import {CronJob, cronJob} from '@loopback/cron';
 import {repository} from '@loopback/repository';
 import {
+  LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
   StatsSchemaRepository,
@@ -19,6 +20,8 @@ export class CronJobUpdateStats implements Provider<CronJob> {
     public poolsSchemaRepository: PoolsSchemaRepository,
     @repository(NftPoolsSchemaRepository)
     public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
+    @repository(LpPoolsSchemaRepository)
+    public lpPoolsSchemaRepository: LpPoolsSchemaRepository,
   ) {}
 
   value() {
@@ -32,6 +35,7 @@ export class CronJobUpdateStats implements Provider<CronJob> {
             this.statsSchemaRepository,
             this.poolsSchemaRepository,
             this.nftPoolsSchemaRepository,
+            this.lpPoolsSchemaRepository
           );
         } catch (e) {
           console.log(`ERROR: CronJobUpdateStats - ${e.message}`);

@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class EventPool extends Entity {
+export class EventTele extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -16,59 +16,46 @@ export class EventPool extends Entity {
   blockNumber: number;
 
   @property({
-    type: 'string',
+    type: 'number',
+    required: true,
   })
-  eventName?: string;
+  eventName: number;
 
   @property({
     type: 'string',
+    required: true,
   })
-  callerAddress?: string;
+  tokenContract: string;
 
   @property({
     type: 'string',
+    required: true,
   })
-  poolAddress?: string;
+  tokenID: string;
 
   @property({
     type: 'string',
+    required: true,
   })
-  tokenAddress?: string;
+  from: string;
 
   @property({
     type: 'string',
+    required: true,
   })
-  lptokenContract?: string;
+  amount: string;
 
   @property({
     type: 'string',
+    required: true,
   })
-  tokenContract?: string;
+  stakeContract: string;
 
   @property({
     type: 'string',
+    required: true,
   })
-  nftContractAddress?: string;
-
-  @property({
-    type: 'string',
-  })
-  nftTokenId?: string;
-
-  @property({
-    type: 'string',
-  })
-  amount?: string;
-
-  @property({
-    type: 'boolean',
-  })
-  isNft?: boolean;
-
-  @property({
-    type: 'object',
-  })
-  data?: object;
+  earnContract: string;
 
   @property({
     type: 'date',
@@ -81,13 +68,13 @@ export class EventPool extends Entity {
   updatedTime?: Date;
 
 
-  constructor(data?: Partial<EventPool>) {
+  constructor(data?: Partial<EventTele>) {
     super(data);
   }
 }
 
-export interface EventPoolRelations {
+export interface EventTeleRelations {
   // describe navigational properties here
 }
 
-export type EventPoolWithRelations = EventPool & EventPoolRelations;
+export type EventTeleWithRelations = EventTele & EventTeleRelations;
