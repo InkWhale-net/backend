@@ -5,7 +5,7 @@ export class EventTele extends Entity {
   @property({
     type: 'string',
     id: true,
-    generated: true,
+    length: 100,
   })
   _id?: string;
 
