@@ -5,6 +5,7 @@ import {
   resolveDomain,
   send_telegram_message,
 } from '../utils';
+import axios from 'axios';
 const poolEvent = ['PoolUnstakeEvent', 'PoolStakeEvent', 'PoolClaimEvent'];
 const farmingEvent = [
   'LpPoolStakeEvent',
@@ -25,7 +26,7 @@ export const create_event_db = async (
       try {
         const result = await eventTeleCollection.insertOne({
           ...data,
-          _id: `${data?.blockNumber}-${data?.eventName}-${data?.poolContract}-${data?.amount}-${data?.from}`,
+          _id: `${data?.blockNumber}${data?.eventName}${data?.from}${data?.poolContract}${data?.amount}`,
         });
 
         if (result) {
@@ -55,6 +56,182 @@ export const create_event_db = async (
             process.env.TELEGRAM_ID_CHAT || '',
             process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
           );
+        }
+      } catch (error) {
+        if (error.code === 11000) {
+          console.log('Duplicate key error: Document already exists.');
+        } else {
+          console.log('Error creating document:', error);
+        }
+      }
+    }
+    if (nftPoolEvent.includes(data?.eventName)) {
+      const resp = await axios.post(
+        `${process.env.ARTZERO_API_BASE_URL}/getCollectionByAddress`,
+        {
+          collection_address: data?.NFTtokenContract,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        },
+      );
+      const {ret: nftData} = resp.data;
+
+      const callerAzeroID = await resolveDomain(data?.from);
+      try {
+        const result = await eventTeleCollection.insertOne({
+          ...data,
+          _id: `${data?.blockNumber}${data?.eventName}${data?.poolContract}${
+            data?.amount || '***'
+          }${data?.from}${data?.tokenID || '***'}`,
+        });
+        if (result) {
+          if (
+            ['NFTPoolStakeEvent', 'NFTPoolUnstakeEvent'].includes(
+              data?.eventName,
+            )
+          ) {
+            send_telegram_message(
+              `<b>${
+                data?.eventName == 'NFTPoolStakeEvent'
+                  ? '🚀Staking Event'
+                  : '😮Unstaking Event'
+              }</b>
+<b>NFT Pool:</b>
+<a href="${process.env.FRONTEND_URL}/#/farms/${data?.poolContract || '***'}">${
+                data?.poolContract || '***'
+              }</a>
+${
+  nftData?.[0]?.name &&
+  data?.tokenName &&
+  `------------------------------
+Stake: <code>${nftData?.[0]?.name}</code>
+Earn : <code>${data?.tokenName}</code>
+------------------------------`
+}
+<b>From:</b>
+<code>${data?.from ? callerAzeroID : '***'}</code>
+<b>NFT TokenID: </b> <code>#${data?.tokenID || '***'}</code>
+<b>NFT Collection address:</b>
+<code>${data?.NFTtokenContract}</code>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+            );
+          }
+          if (data?.eventName == 'NFTPoolClaimEvent') {
+            send_telegram_message(
+              `<b>🤑Reward Claim Event</b>
+<b>NFT Pool:</b>
+<a href="${process.env.FRONTEND_URL}/#/farms/${data?.poolContract || '***'}">${
+                data?.poolContract || '***'
+              }</a>
+${
+  nftData?.[0]?.name &&
+  data?.tokenName &&
+  `------------------------------
+Stake: <code>${nftData?.[0]?.name}</code>
+Earn : <code>${data?.tokenName}</code>
+------------------------------`
+}
+<b>From:</b> <code>${callerAzeroID || '***'}</code>
+<b>Amount: </b> <code>${
+                data?.amount
+                  ? formatNumDynDecimal(
+                      parseFloat(convertNumberWithoutCommas(data?.amount)) /
+                        Math.pow(10, parseInt(data?.tokenDecimal)),
+                    )
+                  : ''
+              } ${data?.tokenSymbol || '***'}</code>
+<b>Token contract </b> <code>${data?.tokenContract}</code>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+            );
+          }
+        }
+      } catch (error) {
+        if (error.code === 11000) {
+          console.log('Duplicate key error: Document already exists.');
+        } else {
+          console.log('Error creating document:', error);
+        }
+      }
+    }
+    if (farmingEvent.includes(data?.eventName)) {
+      try {
+        const result = await eventTeleCollection.insertOne({
+          ...data,
+          _id: `${data?.blockNumber}${data?.eventName}${data?.from}${data?.poolContract}${data?.amount}`,
+        });
+
+        if (result) {
+          if (
+            ['LpPoolStakeEvent', 'LpPoolUnstakeEvent'].includes(data?.eventName)
+          ) {
+            send_telegram_message(
+              `<b>${
+                data?.eventName == 'LpPoolStakeEvent'
+                  ? '🚀Staking Event'
+                  : '😮Unstaking Event'
+              }</b>
+<b>Farming:</b>
+<a href="${process.env.FRONTEND_URL}/#/farming/${
+                data?.poolContract || '***'
+              }">${data?.poolContract || '***'}</a>
+${
+  data?.lptokenName &&
+  data?.tokenName &&
+  `------------------------------
+Stake: <code>${data?.lptokenName}</code>
+<code>${data?.lptokenContract}</code>
+Earn : <code>${data?.tokenName}</code>
+<code>${data?.tokenContract}</code>
+------------------------------`
+}
+<b>From:</b> <code>${await resolveDomain(data?.from)}</code>
+<b>Amount: </b> <code>${
+                data?.amount
+                  ? formatNumDynDecimal(
+                      parseFloat(data?.amount) /
+                        Math.pow(10, parseInt(data?.lptokenDecimal)),
+                    )
+                  : ''
+              } ${data?.lptokenSymbol || '***'}</code>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+            );
+          }
+          if (data?.eventName == 'LpPoolClaimEvent') {
+            send_telegram_message(
+              `<b>🤑Reward Claim Event</b>
+<b>Farming:</b>
+<a href="${process.env.FRONTEND_URL}/#/farming/${
+                data?.poolContract || '***'
+              }">${data?.poolContract || '***'}</a>
+${
+  data?.lptokenName &&
+  data?.tokenName &&
+  `------------------------------
+Stake: <code>${data?.lptokenName}</code>
+<code>${data?.lptokenContract}</code>
+Earn : <code>${data?.tokenName}</code>
+<code>${data?.tokenContract}</code>
+------------------------------`
+}
+<b>From:</b> <code>${await resolveDomain(data?.from)}</code>
+<b>Amount: </b> <code>${
+                data?.amount
+                  ? formatNumDynDecimal(
+                      parseFloat(data?.amount) /
+                        Math.pow(10, parseInt(data?.tokenDecimal)),
+                    )
+                  : ''
+              } ${data?.tokenSymbol || '***'}</code>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+            );
+          }
         }
       } catch (error) {
         if (error.code === 11000) {

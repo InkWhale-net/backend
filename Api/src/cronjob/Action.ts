@@ -287,15 +287,18 @@ export async function processEventRecords(
                         eventValues.push(value.toString());
                       }
 
-                      create_event_db(
-                        {
-                          ...checkPool,
-                          eventName: event_name,
-                          from: eventValues?.[2],
-                          amount: eventValues?.[3].toString(),
-                        },
-                        eventTeleCollection,
-                      );
+                      if (!isRescan) {
+                        create_event_db(
+                          {
+                            ...checkPool,
+                            blockNumber: toScan,
+                            eventName: event_name,
+                            from: eventValues?.[2],
+                            amount: eventValues?.[3].toString(),
+                          },
+                          eventTeleCollection,
+                        );
+                      }
 
                       if (event_name == 'PoolUnstakeEvent') {
                         obj = new EventPool({
@@ -369,31 +372,11 @@ export async function processEventRecords(
                         const value = decodedEvent.args[i];
                         eventValues.push(value.toString());
                       }
-                      const callerAzeroID = await resolveDomain(
-                        eventValues?.[2]?.toString() || "",
-                      );
-
-                      const data = new URLSearchParams();
-                      data.append(
-                        'collection_address',
-                        checkNftPool?.NFTtokenContract,
-                      );
-                      const nftData = await axios.post(
-                        `${process.env.ARTZERO_API_BASE_URL}/getCollectionByAddress`,
-                        {
-                          collection_address: checkNftPool?.NFTtokenContract,
-                        },
-                        {
-                          headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                          },
-                        },
-                      );
-                      const {ret} = nftData.data;
                       if (!isRescan)
                         create_event_db(
                           {
                             ...checkNftPool,
+                            blockNumber: toScan,
                             eventName: event_name,
                             from: eventValues?.[2],
                             amount: eventValues?.[3].toString(),
@@ -458,40 +441,6 @@ export async function processEventRecords(
                             : '',
                         };
                       } else if (event_name == 'NFTPoolClaimEvent') {
-//                         send_telegram_message(
-//                           `<b>${'🤑Reward Claim Event'}</b>
-// <b>NFT Pool:</b>
-// <a href="${process.env.FRONTEND_URL}/#/farms/${
-//                             eventValues[0]?.toString() || '***'
-//                           }">${eventValues[0]?.toString() || '***'}</a>
-// ${
-//   ret?.[0]?.name &&
-//   checkNftPool?.tokenName &&
-//   `------------------------------
-// Stake <code>${ret?.[0]?.name}</code>
-// Earn <code>${checkNftPool?.tokenName}</code>
-// ------------------------------`
-// }
-// <b>From:</b> <code>${callerAzeroID || '***'}</code>
-// <b>Amount: </b> <code>${
-//                             eventValues[3]
-//                               ? formatNumDynDecimal(
-//                                   parseFloat(
-//                                     convertNumberWithoutCommas(
-//                                       eventValues[3].toString(),
-//                                     ),
-//                                   ) /
-//                                     Math.pow(
-//                                       10,
-//                                       parseInt(checkNftPool?.tokenDecimal),
-//                                     ),
-//                                 )
-//                               : ''
-//                           } ${checkNftPool?.tokenSymbol || '***'}</code>
-// <b>Token contract </b> <code>${eventValues[1]?.toString()}</code>`,
-//                           process.env.TELEGRAM_ID_CHAT || '',
-//                           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
-//                         );
                         obj = new EventPool({
                           blockNumber: toScan,
                           eventName: 'NFTPoolClaimEvent',
@@ -531,53 +480,17 @@ export async function processEventRecords(
                         const value = decodedEvent.args[i];
                         eventValues.push(value.toString());
                       }
-
-                      const callerAzeroID = await resolveDomain(
-                        eventValues?.[3]?.toString(),
-                      );
-
-                      if (
-                        ['LpPoolStakeEvent', 'LpPoolUnstakeEvent'].includes(
-                          event_name,
-                        ) &&
-                        !isRescan
-                      ) {
-//                         send_telegram_message(
-//                           `<b>${
-//                             event_name == 'LpPoolStakeEvent'
-//                               ? '🚀Staking Event'
-//                               : '😮Unstaking Event'
-//                           }</b>
-// <b>Farming:</b>
-// <a href="${process.env.FRONTEND_URL}/#/farming/${
-//                             eventValues[0]?.toString() || '***'
-//                           }">${eventValues[0]?.toString() || '***'}</a>
-// ${
-//   checkLPPool?.lptokenName &&
-//   checkLPPool?.tokenName &&
-//   `------------------------------
-// Stake <code>${checkLPPool?.lptokenName}</code>
-// <code>${checkLPPool?.lptokenContract}</code>
-// Earn <code>${checkLPPool?.tokenName}</code>
-// <code>${checkLPPool?.tokenContract}</code>
-// ------------------------------`
-// }
-// <b>From:</b> <code>${callerAzeroID || '***'}</code>
-// <b>Amount: </b> <code>${
-//                             eventValues[4]
-//                               ? formatNumDynDecimal(
-//                                   parseFloat(eventValues?.[4]) /
-//                                     Math.pow(
-//                                       10,
-//                                       parseInt(checkLPPool?.lptokenDecimal),
-//                                     ),
-//                                 )
-//                               : ''
-//                           } ${checkLPPool?.lptokenSymbol || '***'}</code>`,
-//                           process.env.TELEGRAM_ID_CHAT || '',
-//                           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
-//                         );
-                      }
+                      if (!isRescan)
+                        create_event_db(
+                          {
+                            ...checkLPPool,
+                            blockNumber: toScan,
+                            eventName: event_name,
+                            from: eventValues?.[3],
+                            amount: eventValues?.[4],
+                          },
+                          eventTeleCollection,
+                        );
                       if (event_name == 'LpPoolUnstakeEvent') {
                         obj = new EventPool({
                           blockNumber: toScan,
@@ -633,37 +546,6 @@ export async function processEventRecords(
                             : '',
                         };
                       } else if (event_name == 'LpPoolClaimEvent') {
-//                         send_telegram_message(
-//                           `<b>🤑Reward Claim Event</b>
-// <b>Farming:</b>
-// <a href="${process.env.FRONTEND_URL}/#/farming/${
-//                             eventValues[0]?.toString() || '***'
-//                           }">${eventValues[0]?.toString() || '***'}</a>
-// ${
-//   checkLPPool?.lptokenName &&
-//   checkLPPool?.tokenName &&
-//   `------------------------------
-// Stake: <code>${checkLPPool?.lptokenName}</code>
-// <code>${checkLPPool?.lptokenContract}</code>
-// Earn : <code>${checkLPPool?.tokenName}</code>
-// <code>${checkLPPool?.tokenContract}</code>
-// ------------------------------`
-// }
-// <b>From:</b> <code>${callerAzeroID || '***'}</code>
-// <b>Amount: </b> <code>${
-//                             eventValues[4]
-//                               ? formatNumDynDecimal(
-//                                   parseFloat(eventValues[4]) /
-//                                     Math.pow(
-//                                       10,
-//                                       parseInt(checkLPPool?.tokenDecimal),
-//                                     ),
-//                                 )
-//                               : ''
-//                           } ${checkLPPool?.tokenSymbol || '***'}</code>`,
-//                           process.env.TELEGRAM_ID_CHAT || '',
-//                           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
-//                         );
                         obj = new EventPool({
                           blockNumber: toScan,
                           eventName: 'LpPoolClaimEvent',
