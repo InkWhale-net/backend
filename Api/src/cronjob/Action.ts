@@ -19,6 +19,8 @@ import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
 import { lp_pool_contract } from "../contracts/lp_pool";
 import axios from "axios";
 import { create_event_db } from "../utils/telegram/event";
+import { router_contract } from '../contracts/common-fi/router_contract';
+import { common_psp22 } from '../contracts/common-fi/common-psp22';
 
 let inw_contract: ContractPromise;
 export function setContract(c: ContractPromise) {
@@ -619,128 +621,192 @@ export async function processEventRecords(
             }
         }
 
-        let index= 0;
-        for (const ex of signedBlock.block.extrinsics) {
-            index = index + 1;
-            let newData:{
-                ex?: any,
-                tokenContract?: string,
-                value?: string,
-                gas_limit?: object,
-                storage_deposit_limit?: any,
-                data?: any,
-                documentation?: any,
-                signer?: string,
-                signature?: string,
-                nonce?: string,
-                method?: string,
-                section?: string,
-                to?: any,
-                amount?: any,
-                args?: any,
-                decoded?: any,
-            } = {};
-            newData.ex = ex.toHuman();
-            const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
+        /*
+        *
+        * extract data from block for tnx history
+        * add support common fi swap
+        *
+        */
+        const blockNumber = signedBlock.block.toHuman().header.number;
+        const extrinsicsLen = signedBlock.block.extrinsics?.length;
 
-            // if (isSigned) {
-            //     // console.log(ex.toHuman());
-            //     try {
-            //         let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
-            //         // console.log(decodedMessage);
-            //         // if (decodedMessage?.args) {
-            //         //     for(const item of decodedMessage?.args) {
-            //         //         console.log(item.toHuman());
-            //         //     }
-            //         // }
-            //     } catch (e) {
-            //         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
-            //     }
-            // }
+        console.log({ blockNumber });
 
-            if (isSigned) {
-                if (args) {
-                    newData.tokenContract = args.dest.Id;
-                    newData.value = args.value;
-                    newData.gas_limit = args.gas_limit;
-                    newData.storage_deposit_limit = args.storage_deposit_limit;
-                    newData.data = args.data;
-                }
-                if (meta?.documentation) {
-                    newData.documentation = meta.documentation;
-                }
-                newData.signer = ex.signer.toString();
-                newData.signature = ex.signature.toString();
-                newData.nonce = ex.nonce.toString();
-                newData.method = method;
-                newData.section = section;
-                if (
-                    method === `call`
-                    && section === `contracts`
-                    && args
-                    && args?.data
-                    || true
-                ) {
-                    let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
-                    const {identifier, method, path} = decodedMessage.message;
-                    if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
-                        continue;
-                    }
-                    if (decodedMessage?.args) {
-                        newData.to = decodedMessage.args[0].toHuman();
-                        newData.amount = decodedMessage.args[1].toHuman();
-                        newData.args = JSON.stringify(decodedMessage.args);
-                        newData.decoded = decodedMessage;
-                    }
-                }
+        for (let index = 0; index < extrinsicsLen; index++) {
+          if (!signedBlock.block.extrinsics[index].isSigned) continue;
 
+          const { args, method, section } =
+            signedBlock.block.extrinsics.toHuman()[index].method;
 
-                // TODO: Switch to redis caching here
-                const filter = {
-                    blockNumber: toScan,
-                    eventIndex: index,
-                    fromAddress: newData.signer ? newData.signer.toString() : '',
-                    toAddress: newData.to ? newData.to.toString() : '',
-                    tokenAddress: newData.tokenContract ? newData.tokenContract.toString() : '',
-                    amount: newData.amount ? convertNumberWithoutCommas(newData.amount) : 0,
-                };
-                const eventData = await eventTransferCollection.findOne(filter);
-                if (!eventData) {
-                  await eventTransferCollection.insertOne({
-                    ...filter,
-                    data: newData,
-                    createdTime: new Date(),
-                    updatedTime: new Date(),
-                  });
-                } else {
-                  await eventTransferCollection.updateMany(
-                    filter,
-                    {
-                      $set: {
-                        ...filter,
-                        data: newData,
-                        createdTime: new Date(),
-                        updatedTime: new Date(),
-                      },
-                    },
-                    {upsert: true},
-                  );
-                }
+          const signerAddress =
+            signedBlock.block.extrinsics.toHuman()[index]?.signer?.Id;
+
+          /* Handle normal Call */
+          if (method === "call" && section === "contracts") {
+            // console.log('normal args', args);
+
+            console.log("========= index", index, "extrinsics", method, section);
+            extractInfoFromCallArgs({
+              args,
+              method,
+              section,
+              api,
+              signerAddress,
+              blockNumber,
+              dbCollection: eventTransferCollection,
+            });
+          }
+
+          /* Handle batchAll Call*/
+          if (method === "batchAll" && section === "utility") {
+            // console.log('batchAll args', args);
+
+            console.log("========= index", index, "extrinsics", method, section);
+
+            const batchCallsLen = args.calls.length;
+
+            for (let index = 0; index < batchCallsLen; index++) {
+              console.log("==================== sub call index", index);
+
+              extractInfoFromCallArgs({
+                ...args.calls[index],
+                api,
+                signerAddress,
+                blockNumber,
+                dbCollection: eventTransferCollection,
+              });
             }
-
-            // TODO: Process caching
-            // const newKey = `${toScan}_${index}`;
-            // const cacheResults = await newCache.get(newKey);
-            // console.log(cacheResults);
-            // if (cacheResults) {
-            //     console.log(`${newKey} is cached.`);
-            // } else {
-            //     await newCache.set(newKey, JSON.stringify(newData), {
-            //         EX: 180,
-            //         NX: true,
-            //     });
-            // }
+          }
         }
+        /*
+        * END extract data from block for tnx history
+        */
+
+        // let index= 0;
+        // for (const ex of signedBlock.block.extrinsics) {
+
+
+
+        //     index = index + 1;
+        //     let newData:{
+        //         ex?: any,
+        //         tokenContract?: string,
+        //         value?: string,
+        //         gas_limit?: object,
+        //         storage_deposit_limit?: any,
+        //         data?: any,
+        //         documentation?: any,
+        //         signer?: string,
+        //         signature?: string,
+        //         nonce?: string,
+        //         method?: string,
+        //         section?: string,
+        //         to?: any,
+        //         amount?: any,
+        //         args?: any,
+        //         decoded?: any,
+        //     } = {};
+        //     newData.ex = ex.toHuman();
+        //     const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
+
+        //     // if (isSigned) {
+        //     //     // console.log(ex.toHuman());
+        //     //     try {
+        //     //         let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+        //     //         // console.log(decodedMessage);
+        //     //         // if (decodedMessage?.args) {
+        //     //         //     for(const item of decodedMessage?.args) {
+        //     //         //         console.log(item.toHuman());
+        //     //         //     }
+        //     //         // }
+        //     //     } catch (e) {
+        //     //         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+        //     //     }
+        //     // }
+
+        //     if (isSigned) {
+        //         if (args) {
+        //             newData.tokenContract = args.dest.Id;
+        //             newData.value = args.value;
+        //             newData.gas_limit = args.gas_limit;
+        //             newData.storage_deposit_limit = args.storage_deposit_limit;
+        //             newData.data = args.data;
+        //         }
+        //         if (meta?.documentation) {
+        //             newData.documentation = meta.documentation;
+        //         }
+        //         newData.signer = ex.signer.toString();
+        //         newData.signature = ex.signature.toString();
+        //         newData.nonce = ex.nonce.toString();
+        //         newData.method = method;
+        //         newData.section = section;
+        //         if (
+        //             method === `call`
+        //             && section === `contracts`
+        //             && args
+        //             && args?.data
+        //             || true
+        //         ) {
+        //             let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+        //             const {identifier, method, path} = decodedMessage.message;
+        //             if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
+        //                 continue;
+        //             }
+        //             if (decodedMessage?.args) {
+        //                 newData.to = decodedMessage.args[0].toHuman();
+        //                 newData.amount = decodedMessage.args[1].toHuman();
+        //                 newData.args = JSON.stringify(decodedMessage.args);
+        //                 newData.decoded = decodedMessage;
+        //             }
+        //         }
+
+
+        //         // TODO: Switch to redis caching here
+        //         const filter = {
+        //             blockNumber: toScan,
+        //             eventIndex: index,
+        //             fromAddress: newData.signer ? newData.signer.toString() : '',
+        //             toAddress: newData.to ? newData.to.toString() : '',
+        //             tokenAddress: newData.tokenContract ? newData.tokenContract.toString() : '',
+        //             amount: newData.amount ? convertNumberWithoutCommas(newData.amount) : 0,
+        //         };
+        //         const eventData = await eventTransferCollection.findOne(filter);
+        //         if (!eventData) {
+        //           await eventTransferCollection.insertOne({
+        //             ...filter,
+        //             data: newData,
+        //             createdTime: new Date(),
+        //             updatedTime: new Date(),
+        //           });
+        //         } else {
+        //           await eventTransferCollection.updateMany(
+        //             filter,
+        //             {
+        //               $set: {
+        //                 ...filter,
+        //                 data: newData,
+        //                 createdTime: new Date(),
+        //                 updatedTime: new Date(),
+        //               },
+        //             },
+        //             {upsert: true},
+        //           );
+        //         }
+        //     }
+
+        //     // TODO: Process caching
+        //     // const newKey = `${toScan}_${index}`;
+        //     // const cacheResults = await newCache.get(newKey);
+        //     // console.log(cacheResults);
+        //     // if (cacheResults) {
+        //     //     console.log(`${newKey} is cached.`);
+        //     // } else {
+        //     //     await newCache.set(newKey, JSON.stringify(newData), {
+        //     //         EX: 180,
+        //     //         NX: true,
+        //     //     });
+        //     // }
+        // }
         console.log(`====================================COMPLETED====================================================`);
     } catch (e) {
         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
@@ -845,3 +911,312 @@ export async function processUpdateStats(
     console.log(`${CONFIG_TYPE_NAME.STATS} - ERROR: ${e.message}`);
   }
 }
+
+
+interface IParam {
+  args: {
+    dest: {Id: string};
+    value: string;
+    gas_limit: {refTime: string; proofSize: string};
+    storage_deposit_limit: string | null;
+    data: string;
+  };
+  method: string;
+  section: string;
+  api: any;
+  signerAddress: string;
+  blockNumber: string;
+  dbCollection: any;
+}
+
+function extractInfoFromCallArgs({
+  args,
+  method,
+  section,
+  api,
+  signerAddress,
+  blockNumber,
+  dbCollection,
+}: IParam) {
+  console.log('==================== method', method, 'section', section);
+
+  const funcList = [
+    'router::swapExactTokensForTokens',
+    'router::swapExactTokensForNative',
+    'router::swapExactNativeForTokens',
+  ];
+
+  try {
+    const router_contract_contract = new ContractPromise(
+      api,
+      router_contract.CONTRACT_ABI,
+      router_contract.CONTRACT_ADDRESS,
+    );
+
+    let decodedMessage = router_contract_contract.abi.decodeMessage(
+      compactAddLength(hexToU8a(args.data)),
+    );
+
+    // console.log('| method', decodedMessage.message.method);
+
+    // console.log('decodedMessage.args', decodedMessage.args);
+    // console.log('decodedMessage.message', decodedMessage.message);
+
+    if (funcList.includes(decodedMessage.message.method)) {
+      console.log('router_contract_contract....................');
+      console.log(
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      );
+      console.log('|');
+      console.log('|');
+      console.log('| blockNumber', blockNumber);
+      console.log('| method', decodedMessage.message.method);
+      console.log('| native value', args.value);
+
+      extractMessageDecoded({
+        decodedMessage,
+        blockNumber,
+        signerAddress,
+        nativeValue: args?.value,
+        tokenAddress: args?.dest?.Id,
+        dbCollection,
+      });
+      console.log('|');
+      console.log('|');
+      console.log(
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      );
+    }
+  } catch (error) {
+    // console.log('NOT router_contract_contract....................');
+  }
+
+  // try {
+  //   const pair_contract_contract = new ContractPromise(
+  //     api,
+  //     pair_contract.CONTRACT_ABI,
+  //     pair_contract.CONTRACT_ADDRESS,
+  //   );
+
+  //   let decodedMessage = pair_contract_contract.abi.decodeMessage(
+  //     compactAddLength(hexToU8a(args.data)),
+  //   );
+  //   console.log('|');
+  //   console.log('|');
+  //   console.log('pair_contract_contract....................');
+
+  //   // console.log('decodedMessage', decodedMessage);
+  //   // console.log('decodedMessage.message', decodedMessage.message);
+
+  //   console.log(
+  //     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+  //   );
+  //   console.log('|');
+  //   console.log('|');
+  //   console.log('| method', decodedMessage.message.method);
+  //   decodedMessage.message.method == 'psp22::transfer' &&
+  //     console.log('| from', signerAddress);
+
+  //   extractMessageDecoded(decodedMessage);
+  //   console.log('|');
+  //   console.log('|');
+  //   console.log(
+  //     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+  //   );
+  // } catch (error) {
+  //   // console.log('NOT pair_contract_contract....................');
+  // }
+
+  // try {
+  //   const factory_contract_contract = new ContractPromise(
+  //     api,
+  //     factory_contract.CONTRACT_ABI,
+  //     factory_contract.CONTRACT_ADDRESS,
+  //   );
+
+  //   let decodedMessage = factory_contract_contract.abi.decodeMessage(
+  //     compactAddLength(hexToU8a(args.data)),
+  //   );
+
+  //   console.log('|');
+  //   console.log('|');
+  //   console.log('factory_contract_contract....................');
+
+  //   // console.log('decodedMessage', decodedMessage);
+  //   // console.log('decodedMessage.message', decodedMessage.message);
+
+  //   console.log(
+  //     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+  //   );
+  //   console.log('|');
+  //   console.log('|');
+  //   console.log('| method', decodedMessage.message.method);
+
+  //   extractMessageDecoded(decodedMessage);
+  //   console.log('|');
+  //   console.log('|');
+  //   console.log(
+  //     'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+  //   );
+  // } catch (error) {
+  //   // console.log('NOT factory_contract_contract....................');
+  // }
+
+  try {
+    const common_psp22_contract = new ContractPromise(
+      api,
+      common_psp22.CONTRACT_ABI,
+      common_psp22.CONTRACT_ADDRESS,
+    );
+
+    let decodedMessage = common_psp22_contract.abi.decodeMessage(
+      compactAddLength(hexToU8a(args.data)),
+    );
+
+    // console.log('decodedMessage', decodedMessage);
+    // console.log('decodedMessage.message', decodedMessage.message);
+    console.log('| method', decodedMessage.message.method);
+
+    if (decodedMessage.message.method == 'psp22::transfer') {
+      console.log('common_psp22_contract....................');
+      console.log(
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      );
+      console.log('|');
+      console.log('|');
+      console.log('| blockNumber', blockNumber);
+      console.log('| method', decodedMessage.message.method);
+      console.log('| tokenAddress', args?.dest?.Id);
+      console.log('| from', signerAddress);
+      extractMessageDecoded({
+        decodedMessage,
+        blockNumber,
+        signerAddress,
+        nativeValue: args?.value,
+        tokenAddress: args?.dest?.Id,
+        dbCollection,
+      });
+      console.log('|');
+      console.log('|');
+      console.log(
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      );
+
+    }
+  } catch (error) {
+    // console.log('NOT common_psp22_contract....................');
+  }
+}
+
+function handleAddMongoDb(document: any, dbCollection: any) {
+  const MAX_RETRIES = 1;
+  const RETRY_INTERVAL = 200;
+
+  let retries = 0;
+  async function insertData(document: any, dbCollection: any) {
+    try {
+      await dbCollection.insertOne(document);
+      console.log('^^! xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+      console.log('| ');
+      console.log('| Insert DB OK block number', document?.blockNumber);
+      console.log('| ');
+      console.log('^^! xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+    } catch (error) {
+      if (retries < MAX_RETRIES) {
+        retries++;
+        setTimeout(() => insertData(document, dbCollection), RETRY_INTERVAL);
+      } else {
+        console.error('@_@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+        console.error('@_@');
+        console.error('@_@');
+        console.error('@_@ xxxxxx Max retries reached. Insert failed.');
+        console.error('@_@ document', document);
+        console.error('@_@');
+        console.error('@_@');
+        console.error('@_@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+      }
+    }
+  }
+
+  insertData(document, dbCollection);
+}
+
+function extractMessageDecoded({
+  decodedMessage,
+  blockNumber,
+  signerAddress,
+  nativeValue,
+  tokenAddress,
+  dbCollection,
+}: {
+  decodedMessage: any;
+  blockNumber: any;
+  signerAddress: string;
+  nativeValue: string;
+  tokenAddress: string;
+  dbCollection: any;
+}) {
+  const document = {
+    blockNumber: parseInt(blockNumber.replaceAll(',', '')),
+    method: decodedMessage.message.method,
+    fromAddress: '',
+    toAddress: '',
+    tokenAddress: '',
+    amount: '',
+
+    amountIn: '',
+    amountOut: '',
+    tokenPath: '',
+
+    createdTime: new Date(),
+    updatedTime: new Date(),
+
+  };
+
+  if (decodedMessage.message.method === 'psp22::transfer') {
+    document.fromAddress = signerAddress;
+    document.tokenAddress = tokenAddress;
+    document.toAddress = decodedMessage.args[0].toHuman();
+    document.amount = decodedMessage.args[1].toHuman();
+
+    handleAddMongoDb(document, dbCollection);
+    // for (let index = 0; index < decodedMessage.args.length; index++) {
+    //   console.log(
+    //     `| index ${index}`,
+    //     decodedMessage.message.args[index].name,
+    //     decodedMessage.args[index].toHuman(),
+    //   );
+    //   switch (decodedMessage.message.args[index].name) {
+    //     case 'to':
+    //       document.toAddress = decodedMessage.args[index].toHuman();
+
+    //     default:
+    //       break;
+    //   }
+    // }
+  }
+
+  if (
+    decodedMessage.message.method === 'router::swapExactTokensForNative' ||
+    decodedMessage.message.method === 'router::swapExactTokensForTokens'
+  ) {
+    document.amountIn = decodedMessage.args[0].toHuman();
+    document.amountOut = decodedMessage.args[1].toHuman();
+    document.tokenPath = decodedMessage.args[2].toHuman();
+    document.toAddress = decodedMessage.args[3].toHuman();
+
+    handleAddMongoDb(document, dbCollection);
+  }
+
+  if (
+    decodedMessage.message.method === 'router::swapExactNativeForTokens'
+  ) {
+    document.amountIn = nativeValue;
+    document.amountOut = decodedMessage.args[0].toHuman();
+    document.tokenPath = decodedMessage.args[1].toHuman();
+    document.toAddress = decodedMessage.args[2].toHuman();
+    handleAddMongoDb(document, dbCollection);
+  }
+
+}
+
