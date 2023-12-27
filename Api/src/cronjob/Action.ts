@@ -72,7 +72,7 @@ export async function scanEventBlocks(
         }
         global_event_vars.isScanning = true;
         const isDebug = false;
-        if (!isDebug) {
+        if (isDebug) {
             try {
                 console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords history at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
                 let lastBlock_db = await scannedBlocksCollection.findOne({
@@ -98,7 +98,14 @@ export async function scanEventBlocks(
                 for (let to_scan = last_scanned_blocknumber; to_scan <= blockNumber; to_scan++) {
                     const blockHash = await api.rpc.chain.getBlockHash(to_scan);
                     const signedBlock = await api.rpc.chain.getBlock(blockHash);
-                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+                    console.log('|')
+                    console.log('|')
+                    console.log('|')
+                    console.log({blockNumber});
+                    console.log(`xxxxxxxxxxxxxxx @_@ DUPLICATED SCAN xxx${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+                    console.log('|')
+                    console.log('|')
+                    console.log('|')
                     await processEventRecords(
                       newCache,
                       multi,
@@ -141,7 +148,7 @@ export async function scanEventBlocks(
                 // send_telegram_message("scanBlocks - " + e.message);
             }
         }
-        global_event_vars.isScanning = false;
+        // global_event_vars.isScanning = false;
     } catch (e) {
         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
     }

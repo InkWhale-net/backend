@@ -90,7 +90,7 @@ import {launchpad_contract} from '../contracts/launchpad';
 import {psp22_contract_old} from '../contracts/psp22_old';
 
 import {Buffer} from 'buffer';
-import { swap_inw2_contract } from '../contracts/swap_inw2_contract';
+import {swap_inw2_contract} from '../contracts/swap_inw2_contract';
 const XHubSignature = require('x-hub-signature');
 
 export class ApiController {
@@ -387,13 +387,15 @@ export class ApiController {
         status: STATUS.FAILED,
         message: MESSAGE.INVALID_SIGNATURE,
       };
-    const queryResult1: any = await contract_to_call.query['psp22::totalSupply'](
+    const queryResult1: any = await contract_to_call.query[
+      'psp22::totalSupply'
+    ](
       process.env.CALLER_ACCOUNT ||
         '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
       {value: 0, gasLimit},
     );
     const rawTotalSupply = queryResult1?.output?.toHuman()?.Ok;
-    const totalSupply = rawTotalSupply?.replace(/\,/g, "");
+    const totalSupply = rawTotalSupply?.replace(/\,/g, '');
     if (!(totalSupply > 0)) {
       return {
         status: STATUS.FAILED,
@@ -416,7 +418,7 @@ export class ApiController {
         isManagedByTokenGenerator: false,
         createdTime: new Date(),
         updatedTime: new Date(),
-        isNew: req?.isNew == "true"
+        isNew: req?.isNew == 'true',
       });
     } catch (e) {
       console.log(`ERROR: ProcessTokens create - ${e.message}`);
@@ -496,7 +498,7 @@ export class ApiController {
         PUBLIC_SALE_WALLET_ADDRESS,
         process.env.PUBLIC_SALE_CONTRACT_ADDRESS,
         process.env.PRIVATE_SALE_CONTRACT_ADDRESS,
-        swap_inw2_contract.CONTRACT_ADDRESS
+        swap_inw2_contract.CONTRACT_ADDRESS,
       ];
 
       let balanceQrs = await Promise.all(
@@ -514,12 +516,12 @@ export class ApiController {
       );
       const sumBalance = balanceQrs.reduce(
         (accumulator, currentValue: any) =>
-        accumulator +
-        +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
+          accumulator +
+          +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
         0,
       );
-      
-      inCirculation = roundUp(totalSupply - (sumBalance / 10 ** 12));
+
+      inCirculation = roundUp(totalSupply - sumBalance / 10 ** 12);
     } catch (error) {
       console.log(error);
       return {
@@ -900,6 +902,63 @@ export class ApiController {
       limit: req?.limit || 10,
       skip: req?.offset || 0,
     });
+    let countDoc = await this.eventTransferRepository.count(queryClause);
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: {
+        dataArray: data,
+        total: countDoc?.count,
+      },
+    };
+  }
+
+  @post('/getSwapTransactionHistory')
+  async getSwapTransactionHistory(
+    @requestBody(RequestGetTransactionHistoryBody)
+    req: ReqGetTransactionHistoryType,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+
+    let tokenContract = req?.tokenContract;
+    let queryAddress = req?.queryAddress;
+
+    const order = req?.sort ? 'blockNumber ASC' : 'blockNumber DESC';
+    let queryClause: any = {};
+
+    if (queryAddress != 'undefined') {
+      queryClause.or = [
+        req?.isFromOnly ? undefined : {toAddress: queryAddress},
+        req?.isToOnly ? undefined : {fromAddress: queryAddress},
+      ].filter(e => e);
+    }
+
+    queryClause.and = [
+      {
+        or: [
+          {method: 'router::swapExactTokensForNative'},
+          {method: 'router::swapExactNativeForTokens'},
+          {method: 'router::swapExactTokensForTokens'},
+        ],
+      },
+    ];
+
+    if (tokenContract != 'undefined') {
+      queryClause.and.push({tokenAddress: tokenContract});
+    }
+
+    let data = await this.eventTransferRepository.find({
+      where: queryClause,
+      order: [order],
+      limit: req?.limit || 10,
+      skip: req?.offset || 0,
+    });
+
     let countDoc = await this.eventTransferRepository.count(queryClause);
     return {
       status: STATUS.OK,
