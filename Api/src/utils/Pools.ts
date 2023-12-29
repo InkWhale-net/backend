@@ -9,15 +9,15 @@ import {
     UpdateQueueSchemaRepository
 } from "../repositories";
 import {getTokenOwner, isInwWhaleDisabledCollections, readOnlyGasLimit} from "./utils";
-import {lp_pool_contract} from "../contracts/lp_pool";
-import {psp22_contract} from "../contracts/psp22";
 import dotenv from "dotenv";
-import {nft_pool_contract} from "../contracts/nft_pool";
-import {pool_contract} from "../contracts/pool";
-import {token_generator_contract} from "../contracts/token_generator";
-import {pool_generator_contract} from "../contracts/pool_generator";
-import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
-import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
+import { psp22_standard_contract } from "../contracts/contract";
+import { nft_pool_contract } from "../contracts/contract";
+import { pool_contract } from "../contracts/contract";
+import { lp_pool_contract } from "../contracts/contract";
+import { token_generator_contract } from "../contracts/contract";
+import { pool_generator_contract } from "../contracts/contract";
+import { lp_pool_generator_contract } from "../contracts/contract";
+import { nft_pool_generator_contract } from "../contracts/contract";
 import {convertToUTCTime, sleep} from "./Tools";
 import {global_vars} from "../cronjob/global";
 import { ProcessLaunchpad, checkNewLaunchpads } from "./Launchpads";
@@ -151,7 +151,7 @@ const ProcessNFT = async (
         }
         let psp22_contract_calls = new ContractPromise(
             api,
-            psp22_contract.CONTRACT_ABI,
+            psp22_standard_contract.CONTRACT_ABI,
             _tokenContract,
         );
         let _tokenName = await tokenName(api, '', psp22_contract_calls);
@@ -245,7 +245,7 @@ const ProcessPool = async (
         }
         let psp22_contract_calls = new ContractPromise(
             api,
-            psp22_contract.CONTRACT_ABI,
+            psp22_standard_contract.CONTRACT_ABI,
             _tokenContract,
         );
         let _tokenName = await tokenName(api, '', psp22_contract_calls);
@@ -344,7 +344,7 @@ const ProcessLP = async (
         }
         let psp22_contract_calls = new ContractPromise(
             api,
-            psp22_contract.CONTRACT_ABI,
+            psp22_standard_contract.CONTRACT_ABI,
             _tokenContract,
         );
         let _tokenName = await tokenName(api, '', psp22_contract_calls);
@@ -353,7 +353,7 @@ const ProcessLP = async (
         let _tokenTotalSupply = await totalSupply(api, '', psp22_contract_calls);
         psp22_contract_calls = new ContractPromise(
             api,
-            psp22_contract.CONTRACT_ABI,
+            psp22_standard_contract.CONTRACT_ABI,
             _lptokenContract,
         );
         let _lptokenName = await tokenName(api, '', psp22_contract_calls);
@@ -451,7 +451,7 @@ const ProcessTokens = async (
             console.log(`Start get owner info ${contractAddress} for index ${index}`);
             const psp22_contract_calls = new ContractPromise(
                 api,
-                psp22_contract.CONTRACT_ABI,
+                psp22_standard_contract.CONTRACT_ABI,
                 contractAddress,
             );
             let _owner = await getTokenOwner(api, contractAddress);
@@ -713,6 +713,8 @@ const checkNewTokens = async (
     }
     try {
         let tokenCount = await getTokenCount(api, token_generator_calls, '');
+        console.log(tokenCount);
+        
         let totalTokenDb = (await tokensSchemaRepository.count({
             tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
             isManagedByTokenGenerator: true,

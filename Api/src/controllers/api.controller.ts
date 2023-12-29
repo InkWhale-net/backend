@@ -65,13 +65,14 @@ import {
   ReqAddKycAddressBody,
   ReqAddKycAddress,
 } from '../utils/Message';
-import {token_generator_contract} from '../contracts/token_generator';
-import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
-import {nft_pool_generator_contract} from '../contracts/nft_pool_generator';
-import {pool_generator_contract} from '../contracts/pool_generator';
+import { token_generator_contract } from '../contracts/contract';
+import { lp_pool_generator_contract } from '../contracts/contract';
+import { nft_pool_generator_contract } from '../contracts/contract';
+import { pool_generator_contract } from '../contracts/contract';
+import { launchpad_generator_contract } from '../contracts/contract';
 import {UpdateQueue, KycAddress} from '../models';
 import {globalApi} from '..';
-import {psp22_contract} from '../contracts/psp22';
+import { psp22_standard_contract } from '../contracts/contract';
 import {
   getIPFSData,
   isValidSignature,
@@ -81,10 +82,9 @@ import {
 import {ContractPromise} from '@polkadot/api-contract';
 import {checkQueue} from '../utils/Pools';
 import {global_vars, SOCKET_STATUS} from '../cronjob/global';
-import {pool_contract} from '../contracts/pool';
-import {lp_pool_contract} from '../contracts/lp_pool';
-import {nft_pool_contract} from '../contracts/nft_pool';
-import {launchpad_generator_contract} from '../contracts/launchpad_generator';
+import { pool_contract } from '../contracts/contract';
+import { lp_pool_contract } from '../contracts/contract';
+import { nft_pool_contract } from '../contracts/contract';
 import {execContractQuery} from '../utils/Launchpads';
 import {launchpad_contract} from '../contracts/launchpad';
 import {psp22_contract_old} from '../contracts/psp22_old';
@@ -199,6 +199,7 @@ export class ApiController {
         token_generator_contract.CONTRACT_ABI,
         token_generator_contract.CONTRACT_ADDRESS,
       );
+      
       const launchpad_generator_calls = new ContractPromise(
         globalApi,
         launchpad_generator_contract.CONTRACT_ABI,
@@ -357,7 +358,7 @@ export class ApiController {
       globalApi,
       req?.isNew == 'false'
         ? psp22_contract_old.CONTRACT_ABI
-        : psp22_contract.CONTRACT_ABI,
+        : psp22_standard_contract.CONTRACT_ABI,
       req.tokenAddress || '',
     );
 
@@ -435,7 +436,7 @@ export class ApiController {
   async getINWTotalSupply(): Promise<ResponseBody> {
     const contract_to_call = new ContractPromise(
       globalApi,
-      psp22_contract.CONTRACT_ABI,
+      psp22_standard_contract.CONTRACT_ABI,
       process.env.INW_ADDRESS ||
         '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
     );
@@ -467,7 +468,7 @@ export class ApiController {
   async getINWInCirculation(): Promise<ResponseBody> {
     const contract_to_call = new ContractPromise(
       globalApi,
-      psp22_contract.CONTRACT_ABI,
+      psp22_standard_contract.CONTRACT_ABI,
       process.env.INW_ADDRESS ||
         '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
     );

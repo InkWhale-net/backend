@@ -52,7 +52,7 @@ export class CronJobUpdateAllPools implements Provider<CronJob> {
             cronTime: CRONJOB_TIME.INW_POOL,
             onTick: async () => {
                 try {
-                    console.log(CRONJOB_ENABLE, 'CRONJOB_ENABLE');
+                    // console.log(CRONJOB_ENABLE, 'CRONJOB_ENABLE');
                     
                     if (CRONJOB_ENABLE.INW_POOL) {
                         const currentTime = convertToUTCTime(new Date());
