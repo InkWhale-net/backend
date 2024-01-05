@@ -55,9 +55,9 @@ export class Pools extends Entity {
   tokenTotalSupply?: string;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  rewardPool?: number;
+  rewardPool?: string;
 
   @property({
     type: 'string',
@@ -70,9 +70,9 @@ export class Pools extends Entity {
   apy?: number;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  maxStakingAmount?: number;
+  maxStakingAmount?: string;
 
   @property({
     type: 'string',

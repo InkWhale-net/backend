@@ -85,9 +85,9 @@ export class LpPools extends Entity {
   lptokenTotalSupply?: string;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  rewardPool?: number;
+  rewardPool?: string;
 
   @property({
     type: 'string',
@@ -95,9 +95,9 @@ export class LpPools extends Entity {
   totalStaked?: string;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  maxStakingAmount?: number;
+  maxStakingAmount?: string;
 
   @property({
     type: 'number',

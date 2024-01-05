@@ -175,9 +175,9 @@ const ProcessNFT = async (
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
                     tokenTotalSupply: _tokenTotalSupply || "0",
-                    rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
+                    rewardPool: _rewardPool || "0",
                     totalStaked: _totalStaked ? _totalStaked : 0,
-                    maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                    maxStakingAmount: _maxStaking || "0",
                     multiplier: _multiplier,
                     owner: _owner,
                     nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
@@ -198,9 +198,9 @@ const ProcessNFT = async (
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
                     tokenTotalSupply: _tokenTotalSupply || "0",
-                    rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
+                    rewardPool: _rewardPool || "0",
                     totalStaked: _totalStaked ? _totalStaked : 0,
-                    maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                    maxStakingAmount: _maxStaking || "0",
                     multiplier: _multiplier,
                     owner: _owner,
                     nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
@@ -268,9 +268,9 @@ const ProcessPool = async (
                         duration: _duration ? _duration : 0,
                         startTime: _startTime ? _startTime : 0,
                         tokenTotalSupply: _tokenTotalSupply || "0",
-                        rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
+                        rewardPool: _rewardPool || "0",
                         totalStaked: _totalStaked ? _totalStaked : 0,
-                        maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                        maxStakingAmount: _maxStaking || "0",
                         apy: _apy,
                         owner: _owner,
                         poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
@@ -291,9 +291,9 @@ const ProcessPool = async (
                             duration: _duration ? _duration : 0,
                             startTime: _startTime ? _startTime : 0,
                             tokenTotalSupply: _tokenTotalSupply || "0",
-                            rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
+                            rewardPool: _rewardPool || "0",
                             totalStaked: _totalStaked ? _totalStaked : 0,
-                            maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                            maxStakingAmount: _maxStaking || "0",
                             apy: _apy,
                             owner: _owner,
                             poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
@@ -323,11 +323,11 @@ const ProcessLP = async (
     lp_pool_contract_calls: ContractPromise,
     lpPoolsSchemaRepository : LpPoolsSchemaRepository,
 ): Promise<boolean> => {
-    try {
+    try {        
         lp_pool_contract_calls = new ContractPromise(
-            api,
-            lp_pool_contract.CONTRACT_ABI,
-            poolContract,
+          api,
+          lp_pool_contract.CONTRACT_ABI,
+          poolContract,
         );
         let _multiplier = await multiplier(api, lp_pool_contract_calls, '');
         let _rewardPool = await rewardPool(api, lp_pool_contract_calls, '');
@@ -380,9 +380,9 @@ const ProcessLP = async (
                     startTime: _startTime ? _startTime : 0,
                     tokenTotalSupply: _tokenTotalSupply || "0",
                     lptokenTotalSupply: _lptokenTotalSupply || "0",
-                    rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
+                    rewardPool: _rewardPool || "0",
                     totalStaked: _totalStaked ? _totalStaked : 0,
-                    maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                    maxStakingAmount: _maxStaking || "0",
                     multiplier: _multiplier / 1000000,
                     owner: _owner,
                     createdTime: new Date(),
@@ -409,9 +409,9 @@ const ProcessLP = async (
                         startTime: _startTime ? _startTime : 0,
                         tokenTotalSupply: _tokenTotalSupply || "0",
                         lptokenTotalSupply: _lptokenTotalSupply || "0",
-                        rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
+                        rewardPool: _rewardPool || "0",
                         totalStaked: _totalStaked ? _totalStaked : 0,
-                        maxStakingAmount: _maxStaking ? _maxStaking : 0,
+                        maxStakingAmount: _maxStaking || "0",
                         multiplier: _multiplier / 1000000,
                         owner: _owner,
                         createdTime: new Date(),
@@ -794,7 +794,7 @@ const maxStakingAmount = async (
     caller_account: string,
     contractType: string,
     is_nft: boolean
-): Promise<number> => {
+): Promise<string> => {
     console.log({
         function: `maxStakingAmount`,
         contractType: contractType,
@@ -802,7 +802,7 @@ const maxStakingAmount = async (
     });
     if (!contract_to_call) {
         console.log("invalid",contract_to_call);
-        return 0;
+        return "0";
     }
     if (!caller_account) {
         caller_account = "5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc";
@@ -823,13 +823,13 @@ const maxStakingAmount = async (
             // } else {
             //     maxStakingAmount = a / (10 ** 12);
             // }
-            return maxStakingAmount;
+            return maxStakingAmount.toString();
         }
     } catch (e) {
         console.log(`ERROR: maxStakingAmount - ${e.message}`);
-        return 0;
+        return "0";
     }
-    return 0;
+    return "0";
 }
 
 const getTokenInfo = async (
@@ -1030,10 +1030,10 @@ const rewardPool = async (
     api: ApiPromise,
     contract_to_call: ContractPromise,
     caller_account: string
-): Promise<number> => {
+): Promise<string> => {
     if (!contract_to_call) {
         console.log("invalid", contract_to_call);
-        return 0;
+        return "0";
     }
     if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
@@ -1050,13 +1050,13 @@ const rewardPool = async (
             // const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, "")) / (10 ** 12);
             const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""));
             console.log({rewardPool: rewardPool});
-            return rewardPool;
+            return rewardPool.toString();
         }
     } catch (e) {
         console.log(`ERROR: rewardPool - ${e.message}`);
-        return 0;
+        return "0";
     }
-    return 0;
+    return "0";
 }
 
 const totalStaked = async (
@@ -1175,10 +1175,10 @@ const lpContractAddress = async (
     const gasLimit = readOnlyGasLimit(api);
     const azero_value = 0;
     try {
-        const {result, output} = await contract_to_call.query.lpContractAddress(
+        const {result, output} = await contract_to_call.query["genericPoolContractTrait::stakingContractAddress"](
             caller_account,
             {value: azero_value, gasLimit: gasLimit}
-        );
+        );        
         if (result.isOk && output) {
             // @ts-ignore
             const lpContractAddress = output.toHuman()?.Ok;
@@ -1289,34 +1289,40 @@ const startTime = async (
 }
 
 export const owner = async (
-    api: ApiPromise,
-    contract_to_call: ContractPromise,
-    caller_account: string
+  api: ApiPromise,
+  contract_to_call: ContractPromise,
+  caller_account: string,
 ): Promise<string | undefined> => {
+  try {
     if (!contract_to_call) {
-        console.log("invalid", contract_to_call);
-        return undefined;
+      console.log('invalid', contract_to_call);
+      return undefined;
     }
     if (!caller_account || caller_account?.length == 0) {
-        caller_account = `${process.env.CALLER_ACCOUNT}`;
+      caller_account = `${process.env.CALLER_ACCOUNT}`;
     }
     const gasLimit = readOnlyGasLimit(api);
     const value = 0;
-    const {result, output} = await contract_to_call
-        .query["ownable::owner"](
-            caller_account,
-        {
-            value: value,
-            gasLimit: gasLimit,
-        });
+    const {result, output} = await contract_to_call.query['ownable::owner'](
+      caller_account,
+      {
+        value: value,
+        gasLimit: gasLimit,
+      },
+    );
+    console.log('output', output);
+
     if (result.isOk && output) {
-        // @ts-ignore
-        const owner = output.toHuman()?.Ok;
-        console.log({owner: owner});
-        return owner;
+      // @ts-ignore
+      const owner = output.toHuman()?.Ok;
+      console.log({owner: owner});
+      return owner;
     }
     return undefined;
-}
+  } catch (error) {
+    console.log('ERROR: LP owner', error);
+  }
+};
 
 const mintTo = async (
     api: ApiPromise,

@@ -564,7 +564,7 @@ export class ApiController {
           lpPoolGeneratorContractAddress:
             lp_pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
-            gt: 0,
+            gt: "0",
           },
         },
         order: [order],
@@ -672,7 +672,7 @@ export class ApiController {
           poolGeneratorContractAddress:
             pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
-            gt: 0,
+            gt: "0",
           },
         },
         order: [order],
@@ -780,7 +780,7 @@ export class ApiController {
           nftPoolGeneratorContractAddress:
             nft_pool_generator_contract.CONTRACT_ADDRESS,
           rewardPool: {
-            gt: 0,
+            gt: "0",
           },
         },
         order: [order],
