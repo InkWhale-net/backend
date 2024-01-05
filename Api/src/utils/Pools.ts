@@ -174,7 +174,7 @@ const ProcessNFT = async (
                     tokenDecimal: _tokenDecimal,
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
-                    tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                    tokenTotalSupply: _tokenTotalSupply || "0",
                     rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -197,7 +197,7 @@ const ProcessNFT = async (
                     tokenDecimal: _tokenDecimal,
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
-                    tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                    tokenTotalSupply: _tokenTotalSupply || "0",
                     rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -267,7 +267,7 @@ const ProcessPool = async (
                         tokenDecimal: _tokenDecimal,
                         duration: _duration ? _duration : 0,
                         startTime: _startTime ? _startTime : 0,
-                        tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                        tokenTotalSupply: _tokenTotalSupply || "0",
                         rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -290,7 +290,7 @@ const ProcessPool = async (
                             tokenDecimal: _tokenDecimal,
                             duration: _duration ? _duration : 0,
                             startTime: _startTime ? _startTime : 0,
-                            tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                            tokenTotalSupply: _tokenTotalSupply || "0",
                             rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                             totalStaked: _totalStaked ? _totalStaked : 0,
                             maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -378,8 +378,8 @@ const ProcessLP = async (
                     tokenDecimal: _tokenDecimal,
                     duration: _duration ? _duration : 0,
                     startTime: _startTime ? _startTime : 0,
-                    tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
-                    lptokenTotalSupply: _lptokenTotalSupply ? (_lptokenTotalSupply / (10 ** _lptokenDecimal)) : 0,
+                    tokenTotalSupply: _tokenTotalSupply || "0",
+                    lptokenTotalSupply: _lptokenTotalSupply || "0",
                     rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                     totalStaked: _totalStaked ? _totalStaked : 0,
                     maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -407,8 +407,8 @@ const ProcessLP = async (
                         tokenDecimal: _tokenDecimal,
                         duration: _duration ? _duration : 0,
                         startTime: _startTime ? _startTime : 0,
-                        tokenTotalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
-                        lptokenTotalSupply: _lptokenTotalSupply ? (_lptokenTotalSupply / (10 ** _lptokenDecimal)) : 0,
+                        tokenTotalSupply: _tokenTotalSupply || "0",
+                        lptokenTotalSupply: _lptokenTotalSupply || "0",
                         rewardPool: _rewardPool ? (_rewardPool / (10 ** _tokenDecimal)) : 0,
                         totalStaked: _totalStaked ? _totalStaked : 0,
                         maxStakingAmount: _maxStaking ? _maxStaking : 0,
@@ -475,7 +475,7 @@ const ProcessTokens = async (
                         decimal: _tokenDecimal,
                         creator: _owner,
                         mintTo: undefined,
-                        totalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                        totalSupply: _tokenTotalSupply || "0",
                         index: index,
                         isManagedByTokenGenerator: true,
                         updatedTime: new Date()
@@ -491,7 +491,7 @@ const ProcessTokens = async (
                         decimal: _tokenDecimal,
                         creator: _owner,
                         mintTo: undefined,
-                        totalSupply: _tokenTotalSupply ? (_tokenTotalSupply / (10 ** _tokenDecimal)) : 0,
+                        totalSupply: _tokenTotalSupply || "0",
                         index: index,
                         contractAddress: contractAddress,
                         tokenGeneratorContractAddress: token_generator_contract.CONTRACT_ADDRESS,
@@ -1390,10 +1390,10 @@ export const totalSupply = async (
     api: ApiPromise,
     caller_account: string,
     psp22_contract_calls: ContractPromise
-): Promise<number> => {
+): Promise<string> => {
     if (!psp22_contract_calls) {
         console.log("invalid", psp22_contract_calls);
-        return 0;
+        return "0";
     }
     if (!caller_account || caller_account?.length == 0) {
         caller_account = `${process.env.CALLER_ACCOUNT}`;
@@ -1410,19 +1410,19 @@ export const totalSupply = async (
             const data = output.toHuman()?.Ok;
             if (data) {
                 // const totalSupply = parseFloat(data.replace(/,/g, "")) / ( 10 ** 12);
-                const totalSupply = parseFloat(data.replace(/,/g, ""));
+                const totalSupply = data.replace(/,/g, "")
                 console.log({totalSupply: totalSupply});
                 return totalSupply;
             } else {
                 console.log({data: data});
-                return 0;
+                return "0";
             }
         }
     } catch (e) {
         console.log(`ERROR: totalSupply - ${e.message}`);
-        return 0;
+        return "0";
     }
-    return 0;
+    return "0";
 }
 
 export const tokenName = async (

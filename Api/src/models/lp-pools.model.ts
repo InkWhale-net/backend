@@ -75,14 +75,14 @@ export class LpPools extends Entity {
   startTime?: number;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  tokenTotalSupply?: number;
+  tokenTotalSupply?: string;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  lptokenTotalSupply?: number;
+  lptokenTotalSupply?: string;
 
   @property({
     type: 'number',

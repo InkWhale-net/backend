@@ -50,9 +50,9 @@ export class Tokens extends Entity {
   tokenIconUrl?: string;
 
   @property({
-    type: 'number',
+    type: 'string',
   })
-  totalSupply?: number;
+  totalSupply?: string;
 
   @property({
     type: 'number',
