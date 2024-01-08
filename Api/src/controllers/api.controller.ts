@@ -442,7 +442,8 @@ export class ApiController {
         status: STATUS.FAILED,
         message: MESSAGE.GET_INW_TOTAL_SUPPLY_FAIL,
       };
-    let inCirculation = 0;
+    let inCirculation = 0;  
+    
     try {
       const totalSupplyRaw = queryResult?.output?.toHuman()?.Ok;
       const totalSupply: any =
@@ -451,10 +452,8 @@ export class ApiController {
         ...Object.values(ADDRESSES_INW),
         PRIVATE_SALE_WALLET_ADDRESS,
         PUBLIC_SALE_WALLET_ADDRESS,
-        process.env.PUBLIC_SALE_CONTRACT_ADDRESS,
-        process.env.PRIVATE_SALE_CONTRACT_ADDRESS
+        ...JSON.parse(process.env.EXCEPT_ADDRESS_LIST || "")
       ];
-
       let balanceQrs = await Promise.all(
         listContractAccount.map(address => {
           return contract_to_call.query['psp22::balanceOf'](
