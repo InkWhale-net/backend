@@ -378,16 +378,16 @@ export class ApiController {
         message: MESSAGE.INVALID_TOKEN_OWNER,
       };
     const ownerAddress = queryResult.output.toHuman().Ok;
-    const signatureValidation = isValidSignature(
-      MESSAGE.SIGN_IMPORT_TOKEN,
-      req?.signature || '',
-      ownerAddress,
-    );
-    if (!signatureValidation)
-      return {
-        status: STATUS.FAILED,
-        message: MESSAGE.INVALID_SIGNATURE,
-      };
+    // const signatureValidation = isValidSignature(
+    //   MESSAGE.SIGN_IMPORT_TOKEN,
+    //   req?.signature || '',
+    //   ownerAddress,
+    // );
+    // if (!signatureValidation)
+    //   return {
+    //     status: STATUS.FAILED,
+    //     message: MESSAGE.INVALID_SIGNATURE,
+    //   };
     const queryResult1: any = await contract_to_call.query['psp22::totalSupply'](
       process.env.CALLER_ACCOUNT ||
         '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
