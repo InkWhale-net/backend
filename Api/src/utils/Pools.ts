@@ -1047,9 +1047,9 @@ const rewardPool = async (
             {value: azero_value, gasLimit: gasLimit}
         );
         if (result.isOk && output) {
-            // @ts-ignore
             // const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, "")) / (10 ** 12);
-            const rewardPool = output.toHuman()?.Ok.replace(/,/g, "")
+            // @ts-ignore
+            const rewardPool = output.toHuman()?.Ok?.replace(/,/g, "")
             console.log({rewardPool: rewardPool});
             return rewardPool.toString();
         }

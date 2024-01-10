@@ -2624,7 +2624,7 @@ const lp_pool_contract = {
       }
     ],
     "version": "4"
-  },
+  }
 };
 
 export default lp_pool_contract;
