@@ -664,7 +664,8 @@ const checkNewLPPools = async (
             poolCount = await getPoolCount(api, lp_pool_generator_calls, '');
         }
         totalLpPoolDb = (isCheckAll) ? 0 : totalLpPoolDb;
-        for (let index = poolCount; index > totalLpPoolDb; index--) {
+        // for (let index = poolCount; index > totalLpPoolDb; index--) {
+        for (let index = poolCount; index > 0; index--) {
             let poolContract = await getPool(
                 api,
                 lp_pool_generator_calls,
@@ -1015,7 +1016,7 @@ const multiplier = async (
         );
         if (result.isOk && output) {
             // @ts-ignore
-            const multiplier = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""));
+            const multiplier = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""))
             console.log({multiplier: multiplier});
             return multiplier;
         }
@@ -1048,7 +1049,7 @@ const rewardPool = async (
         if (result.isOk && output) {
             // @ts-ignore
             // const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, "")) / (10 ** 12);
-            const rewardPool = parseFloat(output.toHuman()?.Ok.replace(/,/g, ""));
+            const rewardPool = output.toHuman()?.Ok.replace(/,/g, "")
             console.log({rewardPool: rewardPool});
             return rewardPool.toString();
         }
