@@ -5,7 +5,7 @@ import {convertToUTCTime} from "../utils/Tools";
 import * as mongoDB from "mongodb";
 import {convertNumberWithoutCommas, formatNumDynDecimal, getAllFloorPriceArtZero, getAzeroPrice, resolveDomain, send_telegram_message} from "../utils/utils";
 import {Abi, ContractPromise} from "@polkadot/api-contract";
-import {compactAddLength, hexToU8a} from "@polkadot/util";
+import {BN_QUINTILL, compactAddLength, hexToU8a} from "@polkadot/util";
 import {RedisCache} from "./ScanBlockCaching";
 import {inw_token} from "../contracts/inw_token";
 import {pool_contract} from "../contracts/pool";
@@ -19,6 +19,7 @@ import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
 import { lp_pool_contract } from "../contracts/lp_pool";
 import axios from "axios";
 import { create_event_db } from "../utils/telegram/event";
+import { BN } from "bn.js";
 
 let inw_contract: ContractPromise;
 export function setContract(c: ContractPromise) {
@@ -755,13 +756,20 @@ export async function processUpdateStats(
 ): Promise<{tvlInAzero: any; tvlInUSD: any} | undefined> {
   try {
     const pools = await poolsSchemaRepository.find({});
+    console.log('pools', pools)
     const totalLocked = pools.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
+          const totalStaked = new BN(pool.totalStaked as string)
+            .div(BN_QUINTILL)
+            .toString();
+
+          const rewardPool = new BN(pool.rewardPool as string)
+            .div(BN_QUINTILL)
+            .toString();
+
           total.totalInw =
-            total.totalInw +
-            Number(pool.totalStaked) +
-            Number(pool.rewardPool) * 10 ** 12;
+            total.totalInw + Number(totalStaked) + Number(rewardPool);
         }
         if (pool.tokenContract === process.env.WAZERO_ADDRESS) {
           total.totalwAzero =
@@ -782,13 +790,21 @@ export async function processUpdateStats(
     const totalLpLocked = poolsLp.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
-          total.totalInw += Number(pool.rewardPool) * 10 ** 12;
+          const totalRewardPool = new BN(pool.rewardPool as string)
+            .div(BN_QUINTILL)
+            .toString();
+
+          total.totalInw += Number(totalRewardPool);
         }
         if (pool.tokenContract === process.env.WAZERO_ADDRESS) {
           total.totalwAzero += Number(pool.rewardPool) * 10 ** 12;
         }
         if (pool.lptokenContract === process.env.INW_ADDRESS) {
-          total.totalInw += Number(pool.totalStaked);
+          const totalStaked = new BN(pool.totalStaked as string)
+            .div(BN_QUINTILL)
+            .toString();
+            
+          total.totalInw += Number(totalStaked);
         }
         if (pool.lptokenContract === process.env.WAZERO_ADDRESS) {
           total.totalwAzero += Number(pool.totalStaked);
@@ -825,9 +841,9 @@ export async function processUpdateStats(
     const totalValue = sumNftValue + valueInAzero + valueLpInAzero;
     const priceA0 = await getAzeroPrice('AZERO');
     const statsList = await statsSchemaRepository.find();
-    const tvlInAzero = Number(totalValue / 10 ** 12).toString();
+    const tvlInAzero = Number(totalValue).toString();
     const tvlInUSD = Number(
-      (priceA0 * totalValue || totalValue) / 10 ** 12,
+      (priceA0 * totalValue || totalValue),
     ).toString();
     if (statsList?.length > 0) {
       await statsSchemaRepository.updateById(statsList[0]._id, {
