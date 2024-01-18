@@ -837,14 +837,15 @@ export async function processUpdateStats(
         return 0;
       }),
     );
-    const sumNftValue = calculatedValues.reduce((acc, value) => acc + value, 0);
+    const sumNftValue = calculatedValues.reduce(
+      (acc: any, value: any) => acc + value,
+      0,
+    );
     const totalValue = sumNftValue + valueInAzero + valueLpInAzero;
-    const priceA0 = await getAzeroPrice('AZERO');
+    const price5IRE = await getAzeroPrice('5IRE');
     const statsList = await statsSchemaRepository.find();
     const tvlInAzero = Number(totalValue).toString();
-    const tvlInUSD = Number(
-      (priceA0 * totalValue || totalValue),
-    ).toString();
+    const tvlInUSD = Number(price5IRE * totalValue || totalValue).toString();
     if (statsList?.length > 0) {
       await statsSchemaRepository.updateById(statsList[0]._id, {
         tvlInAzero,
