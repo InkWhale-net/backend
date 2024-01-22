@@ -18,7 +18,7 @@ export let global_event_vars = {
     socketStatus: "error",
     socketStatusLocal: "error",
     caller: process.env.CALLER ? process.env.CALLER : '',
-    isScanning: false,
+    isScanning: true,
     isReScanning: false,
     cachedData: []
 };

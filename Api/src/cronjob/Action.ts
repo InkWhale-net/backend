@@ -18,11 +18,12 @@ import prices from '../utils/prices.json'
 import { lp_pool_generator_contract } from "../contracts/lp_pool_generator";
 import { lp_pool_contract } from "../contracts/lp_pool";
 import axios from "axios";
-import { create_event_db } from "../utils/telegram/event";
+import { create_event_db, send_noti_azero_stacking } from "../utils/telegram/event";
+import azero_staking from "../contracts/azero_staking";
 
 let inw_contract: ContractPromise;
 export function setContract(c: ContractPromise) {
-    inw_contract = c;
+  inw_contract = c;
 }
 
 export async function scanEventBlocks(
@@ -42,709 +43,742 @@ export async function scanEventBlocks(
   abi_token_generator_contract: Abi,
   inw_contract: ContractPromise
 ) {
-    try {
-        if (global_event_vars.isScanning) {
-            const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
-            const signedBlock = await api.rpc.chain.getBlock(blockHash);
+  try {
+    if (global_event_vars.isScanning) {
+      const blockHash = await api.rpc.chain.getBlockHash(blockNumber);
+      const signedBlock = await api.rpc.chain.getBlock(blockHash);
 
-            console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
-            await processEventRecords(
-              newCache,
-              multi,
-              signedBlock,
-              blockNumber,
-              false,
-              abi_inw_token_contract,
-              abi_token_generator_contract,
-              api,
-              inw_contract,
-              eventTransferCollection,
-              eventPoolCollection,
-              poolsCollection,
-              nftPoolsCollection,
-              lpPoolCollection,
-              eventTeleCollection
-          );
-            console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
-            return;
-        }
-        global_event_vars.isScanning = true;
-        const isDebug = false;
-        if (!isDebug) {
-            try {
-                console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords history at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
-                let lastBlock_db = await scannedBlocksCollection.findOne({
-                    lastScanned: true
-                });
-                let last_scanned_blocknumber = 0;
-                if (lastBlock_db && lastBlock_db?.blockNumber) {
-                    last_scanned_blocknumber = lastBlock_db.blockNumber;
-                } else {
-                    try {
-                        await scannedBlocksCollection.insertOne({
-                            lastScanned: true,
-                            blockNumber: 1,
-                            createdTime: new Date(),
-                            updatedTime: new Date()
-                        });
-                    } catch (e) {
-                        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
-                    }
-                }
-                console.log({last_scanned_blocknumber: last_scanned_blocknumber});
-                if (last_scanned_blocknumber == 0) last_scanned_blocknumber = blockNumber;
-                for (let to_scan = last_scanned_blocknumber; to_scan <= blockNumber; to_scan++) {
-                    const blockHash = await api.rpc.chain.getBlockHash(to_scan);
-                    const signedBlock = await api.rpc.chain.getBlock(blockHash);
-                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
-                    await processEventRecords(
-                      newCache,
-                      multi,
-                      signedBlock,
-                      to_scan,
-                      true,
-                      abi_inw_token_contract,
-                      abi_token_generator_contract,
-                      api,
-                      inw_contract,
-                      eventTransferCollection,
-                      eventPoolCollection,
-                      poolsCollection,
-                      nftPoolsCollection,
-                      lpPoolCollection,
-                      eventTeleCollection,
-                    );
-                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
-                    try {
-                      await scannedBlocksCollection.updateOne(
-                        {
-                          lastScanned: true,
-                        },
-                        {
-                          $set: {
-                            lastScanned: true,
-                            blockNumber: to_scan,
-                            updatedTime: new Date(),
-                          },
-                        },
-                        {upsert: true},
-                      );
-                    } catch (e) {
-                      console.log(
-                        `${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`,
-                      );
-                    }
-                }
-            } catch (e) {
-                // send_telegram_message("scanBlocks - " + e.message);
-            }
-        }
-        global_event_vars.isScanning = false;
-    } catch (e) {
-        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+      console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
+      await processEventRecords(
+        newCache,
+        multi,
+        signedBlock,
+        blockNumber,
+        true,
+        abi_inw_token_contract,
+        abi_token_generator_contract,
+        api,
+        inw_contract,
+        eventTransferCollection,
+        eventPoolCollection,
+        poolsCollection,
+        nftPoolsCollection,
+        lpPoolCollection,
+        eventTeleCollection
+      );
+      console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
+      return;
     }
+    // global_event_vars.isScanning = true;
+    const isDebug = false;
+    if (isDebug) {
+      try {
+        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords history at ${blockNumber} now: ${convertToUTCTime(new Date())}`);
+        let lastBlock_db = await scannedBlocksCollection.findOne({
+          lastScanned: true
+      });
+      let last_scanned_blocknumber = 0;
+      if (lastBlock_db && lastBlock_db?.blockNumber) {
+          last_scanned_blocknumber = lastBlock_db.blockNumber;
+      } else {
+          try {
+              await scannedBlocksCollection.insertOne({
+                  lastScanned: true,
+                  blockNumber: 1,
+                  createdTime: new Date(),
+                  updatedTime: new Date()
+              });
+          } catch (e) {
+              console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+          }
+      }
+      console.log({last_scanned_blocknumber: last_scanned_blocknumber});
+      if (last_scanned_blocknumber == 0) last_scanned_blocknumber = blockNumber;
+      for (let to_scan = last_scanned_blocknumber; to_scan <= blockNumber; to_scan++) {
+          const blockHash = await api.rpc.chain.getBlockHash(to_scan);
+          const signedBlock = await api.rpc.chain.getBlock(blockHash);
+          console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Start processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+          await processEventRecords(
+            newCache,
+            multi,
+            signedBlock,
+            to_scan,
+            false,
+            abi_inw_token_contract,
+            abi_token_generator_contract,
+            api,
+            inw_contract,
+            eventTransferCollection,
+            eventPoolCollection,
+            poolsCollection,
+            nftPoolsCollection,
+            lpPoolCollection,
+            eventTeleCollection,
+          );
+          console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - Stop processEventRecords at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+          try {
+            await scannedBlocksCollection.updateOne(
+              {
+                lastScanned: true,
+              },
+              {
+                $set: {
+                  lastScanned: true,
+                  blockNumber: to_scan,
+                  updatedTime: new Date(),
+                },
+              },
+              {upsert: true},
+            );
+          } catch (e) {
+            console.log(
+              `${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`,
+            );
+          }
+        }
+      } catch (e) {
+        // send_telegram_message("scanBlocks - " + e.message);
+      }
+    }
+    // global_event_vars.isScanning = false;
+  } catch (e) {
+    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+  }
 }
 
 export async function reScanEventBlocks(
-    newCache: RedisCache | undefined,
-    multi: any,
-    header: any,
-    startBlockNumber: number,
-    endBlockNumber: number,
-    api: ApiPromise,
-    reScannedBlocksCollection: mongoDB.Collection,
-    eventTransferCollection: mongoDB.Collection,
-    eventPoolCollection: mongoDB.Collection,
-    poolsCollection: mongoDB.Collection,
-    nftPoolsCollection: mongoDB.Collection,
-    lpPoolCollection: mongoDB.Collection,
-    eventTeleCollection: mongoDB.Collection,
-    abi_inw_token_contract: Abi,
-    abi_token_generator_contract: Abi,
-    inw_contract: ContractPromise
+  newCache: RedisCache | undefined,
+  multi: any,
+  header: any,
+  startBlockNumber: number,
+  endBlockNumber: number,
+  api: ApiPromise,
+  reScannedBlocksCollection: mongoDB.Collection,
+  eventTransferCollection: mongoDB.Collection,
+  eventPoolCollection: mongoDB.Collection,
+  poolsCollection: mongoDB.Collection,
+  nftPoolsCollection: mongoDB.Collection,
+  lpPoolCollection: mongoDB.Collection,
+  eventTeleCollection: mongoDB.Collection,
+  abi_inw_token_contract: Abi,
+  abi_token_generator_contract: Abi,
+  inw_contract: ContractPromise
 ) {
-    try {
-        const isDebug = false;
-        if (!isDebug && !global_event_vars.isReScanning) {
-            try {
-                global_event_vars.isReScanning = true;
-                for (let to_scan = startBlockNumber; to_scan <= endBlockNumber; to_scan++) {
-                    const blockHash = await api.rpc.chain.getBlockHash(to_scan);
-                    const signedBlock = await api.rpc.chain.getBlock(blockHash);
-                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Start reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
-                    await processEventRecords(
-                      newCache,
-                      multi,
-                      signedBlock,
-                      to_scan,
-                      true,
-                      abi_inw_token_contract,
-                      abi_token_generator_contract,
-                      api,
-                      inw_contract,
-                      eventTransferCollection,
-                      eventPoolCollection,
-                      poolsCollection,
-                      nftPoolsCollection,
-                      lpPoolCollection,
-                      eventTeleCollection
-                  );
-                    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
-                    try {
-                      await reScannedBlocksCollection.updateOne(
-                        {
-                          lastScanned: true,
-                        },
-                        {
-                          $set: {
-                            lastScanned: true,
-                            blockNumber: to_scan,
-                            updatedTime: new Date(),
-                          },
-                        },
-                        {upsert: true},
-                      );
-                    } catch (e) {
-                      console.log(
-                        `${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`,
-                      );
-                    }
-                }
-            } catch (e) {
-                // send_telegram_message("scanBlocks - " + e.message);
-            }
-            global_event_vars.isReScanning = false;
+  try {
+    const isDebug = false;
+    if (!isDebug && !global_event_vars.isReScanning) {
+      try {
+        global_event_vars.isReScanning = true;
+        for (let to_scan = startBlockNumber; to_scan <= endBlockNumber; to_scan++) {
+          const blockHash = await api.rpc.chain.getBlockHash(to_scan);
+          const signedBlock = await api.rpc.chain.getBlock(blockHash);
+          console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Start reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+          await processEventRecords(
+            newCache,
+            multi,
+            signedBlock,
+            to_scan,
+            true,
+            abi_inw_token_contract,
+            abi_token_generator_contract,
+            api,
+            inw_contract,
+            eventTransferCollection,
+            eventPoolCollection,
+            poolsCollection,
+            nftPoolsCollection,
+            lpPoolCollection,
+            eventTeleCollection
+          );
+          console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - Stop reScanEventBlocks at ${to_scan} now: ${convertToUTCTime(new Date())}`);
+          try {
+            await reScannedBlocksCollection.updateOne(
+              {
+                lastScanned: true,
+              },
+              {
+                $set: {
+                  lastScanned: true,
+                  blockNumber: to_scan,
+                  updatedTime: new Date(),
+                },
+              },
+              { upsert: true },
+            );
+          } catch (e) {
+            console.log(
+              `${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`,
+            );
+          }
         }
-    } catch (e) {
-        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
+      } catch (e) {
+        // send_telegram_message("scanBlocks - " + e.message);
+      }
+      global_event_vars.isReScanning = false;
     }
+  } catch (e) {
+    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_RE_SCANNED} - ERROR: ${e.message}`);
+  }
+}
+
+const getEventValues = (contract_abi: any, data: any): any => {
+  try {
+    const abi_collection_contract = new Abi(
+      contract_abi,
+    );
+    const decodedEvent =
+      abi_collection_contract.decodeEvent(data);
+    let event_name = decodedEvent.event.identifier;
+    const eventValues = [];
+    for (let i = 0; i < decodedEvent.args.length; i++) {
+      const value = decodedEvent.args[i];
+      eventValues.push(value.toString());
+    }
+    return {
+      event_name,
+      eventValues
+    }
+  } catch (error) {
+    console.log("GetEventValues: ", error);
+  }
 }
 
 export async function processEventRecords(
-    newCache: RedisCache | undefined,
-    multi: any,
-    signedBlock: any,
-    toScan: number,
-    isRescan: boolean,
-    abi_inw_token_contract: Abi,
-    abi_token_generator_contract: Abi,
-    api: ApiPromise,
-    inw_contract: ContractPromise,
-    eventTransferCollection: mongoDB.Collection,
-    eventPoolCollection: mongoDB.Collection,
-    poolsCollection: mongoDB.Collection,
-    nftPoolsCollection: mongoDB.Collection,
-    lpPoolCollection: mongoDB.Collection,
-    eventTeleCollection: mongoDB.Collection,
+  newCache: RedisCache | undefined,
+  multi: any,
+  signedBlock: any,
+  toScan: number,
+  isRescan: boolean,
+  abi_inw_token_contract: Abi,
+  abi_token_generator_contract: Abi,
+  api: ApiPromise,
+  inw_contract: ContractPromise,
+  eventTransferCollection: mongoDB.Collection,
+  eventPoolCollection: mongoDB.Collection,
+  poolsCollection: mongoDB.Collection,
+  nftPoolsCollection: mongoDB.Collection,
+  lpPoolCollection: mongoDB.Collection,
+  eventTeleCollection: mongoDB.Collection,
 ) {
-    try {
-        /**
-         * Send from:   5GW1hMMrRva2NQ5E2s54kzjeQtGZfMzhQrksUDd8UU3Va6Xh
-         * Send to:     5E71DGyjRFWu5KgGVhArhQMyqn4FYseUZaXnz1BmvGpkR9Mz
-         * Amount:      1440000000000000
-         * Token:       5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST
-         * timestamp:   2023-06-27T06:50:58.421Z
-         */
-        const blockHash = await api.rpc.chain.getBlockHash(toScan);
-        // @ts-ignore
-        const eventRecords = await api.query.system.events.at(blockHash);
-        if (eventRecords) {
-            // @ts-ignore
-            for (const record of eventRecords) {
-                const {phase, event: {data, method, section}} = record;
-                console.log(`section: ${section}, method: ${method}, phase: ${phase}`);
-                if (section == "contracts" && method == "ContractEmitted") {
-                    const contract_address = data.toHuman().contract;
-                    const caller = data.toHuman().caller;
-                    const [accId, bytes] = data.map((data: any, _: any) => data).slice(0, 2);
-                    const accIdString = accId.toString();
-                    console.log({accIdString: accIdString});
-                    const checkPool = await poolsCollection.findOne({
-                        poolContract: accIdString,
-                        poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
-                    });
-                    const checkNftPool = await nftPoolsCollection.findOne({
-                        poolContract: accIdString,
-                        nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
-                    });
-                    const checkLPPool = await lpPoolCollection.findOne({
-                        poolContract: accIdString,
-                        lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
-                    });
+  try {
+    /**
+     * Send from:   5GW1hMMrRva2NQ5E2s54kzjeQtGZfMzhQrksUDd8UU3Va6Xh
+     * Send to:     5E71DGyjRFWu5KgGVhArhQMyqn4FYseUZaXnz1BmvGpkR9Mz
+     * Amount:      1440000000000000
+     * Token:       5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST
+     * timestamp:   2023-06-27T06:50:58.421Z
+     */
+    const blockHash = await api.rpc.chain.getBlockHash(toScan);
+    // @ts-ignore
+    const eventRecords = await api.query.system.events.at(blockHash);
+    if (eventRecords) {
+      // @ts-ignore
+      for (const record of eventRecords) {
+        const {phase, event: {data, method, section}} = record;
+        console.log(`section: ${section}, method: ${method}, phase: ${phase}`);
+        if (section == "contracts" && method == "ContractEmitted") {
+          const contract_address = data.toHuman().contract;
+          const caller = data.toHuman().caller;
+          const [accId, bytes] = data.map((data: any, _: any) => data).slice(0, 2);
+          const accIdString = accId.toString();
+          console.log({accIdString: accIdString});
+          const checkPool = await poolsCollection.findOne({
+            poolContract: accIdString,
+            poolGeneratorContractAddress: pool_generator_contract.CONTRACT_ADDRESS
+          });
+          const checkNftPool = await nftPoolsCollection.findOne({
+            poolContract: accIdString,
+            nftPoolGeneratorContractAddress: nft_pool_generator_contract.CONTRACT_ADDRESS
+          });
+          const checkLPPool = await lpPoolCollection.findOne({
+            poolContract: accIdString,
+            lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
+          });
 
-                    let obj;
-                    let filter;
-                    if (checkPool) {
-                      const abi_collection_contract = new Abi(
-                        pool_contract.CONTRACT_ABI,
-                      );
-                      const decodedEvent =
-                        abi_collection_contract.decodeEvent(bytes);
-                      let event_name = decodedEvent.event.identifier;
-                      const eventValues = [];
-                      for (let i = 0; i < decodedEvent.args.length; i++) {
-                        const value = decodedEvent.args[i];
-                        eventValues.push(value.toString());
-                      }
-
-                      if (!isRescan) {
-                        create_event_db(
-                          {
-                            ...checkPool,
-                            blockNumber: toScan,
-                            eventName: event_name,
-                            from: eventValues?.[2],
-                            amount: eventValues?.[3].toString(),
-                          },
-                          eventTeleCollection,
-                        );
-                      }
-
-                      if (event_name == 'PoolUnstakeEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'PoolUnstakeEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          tokenAddress: eventValues[1]?.toString(),
-                          callerAddress: eventValues[2]?.toString(),
-                          amount: eventValues[3]
-                            ? convertNumberWithoutCommas(
-                                eventValues[3].toString(),
-                              )
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                      } else if (event_name == 'PoolStakeEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'PoolStakeEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          tokenAddress: eventValues[1]?.toString(),
-                          callerAddress: eventValues[2]?.toString(),
-                          amount: eventValues[3]
-                            ? convertNumberWithoutCommas(
-                                eventValues[3].toString(),
-                              )
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                      } else if (event_name == 'PoolClaimEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'PoolClaimEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          tokenAddress: eventValues[1]?.toString(),
-                          callerAddress: eventValues[2]?.toString(),
-                          amount: eventValues[3]
-                            ? convertNumberWithoutCommas(
-                                eventValues[3].toString(),
-                              )
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                      }
-                      if (obj) {
-                        filter = {
-                          blockNumber: toScan,
-                          eventName: obj.eventName ? obj.eventName : '',
-                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                          tokenAddress: obj.tokenAddress
-                            ? obj.tokenAddress
-                            : '',
-                          callerAddress: obj.callerAddress
-                            ? obj.callerAddress
-                            : '',
-                          amount: obj.amount ? obj.amount : '',
-                        };
-                      }
-                    } else if (checkNftPool) {
-                      const abi_collection_contract = new Abi(
-                        nft_pool_contract.CONTRACT_ABI,
-                      );
-                      const decodedEvent =
-                        abi_collection_contract.decodeEvent(bytes);
-                      let event_name = decodedEvent.event.identifier;
-                      const eventValues = [];
-                      for (let i = 0; i < decodedEvent.args.length; i++) {
-                        const value = decodedEvent.args[i];
-                        eventValues.push(value.toString());
-                      }
-                      if (!isRescan)
-                        create_event_db(
-                          {
-                            ...checkNftPool,
-                            blockNumber: toScan,
-                            eventName: event_name,
-                            from: eventValues?.[2],
-                            amount: eventValues?.[3].toString(),
-                            tokenID: JSON.parse(eventValues[3])?.u64,
-                          },
-                          eventTeleCollection,
-                        );
-                      if (event_name == 'NFTPoolUnstakeEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'NFTPoolUnstakeEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          nftContractAddress: eventValues[1]?.toString(),
-                          callerAddress: eventValues[2]?.toString(),
-                          nftTokenId: eventValues[3]
-                            ? eventValues[3].toString()
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                        filter = {
-                          blockNumber: toScan,
-                          eventName: obj.eventName ? obj.eventName : '',
-                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                          nftContractAddress: obj.nftContractAddress
-                            ? obj.nftContractAddress
-                            : '',
-                          callerAddress: obj.callerAddress
-                            ? obj.callerAddress
-                            : '',
-                          nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
-                          amount: obj.amount
-                            ? convertNumberWithoutCommas(obj.amount)
-                            : '',
-                        };
-                      } else if (event_name == 'NFTPoolStakeEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'NFTPoolStakeEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          nftContractAddress: eventValues[1]?.toString(),
-                          callerAddress: eventValues[2]?.toString(),
-                          nftTokenId: eventValues[3]
-                            ? eventValues[3].toString()
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                        filter = {
-                          blockNumber: toScan,
-                          eventName: obj.eventName ? obj.eventName : '',
-                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                          nftContractAddress: obj.nftContractAddress
-                            ? obj.nftContractAddress
-                            : '',
-                          callerAddress: obj.callerAddress
-                            ? obj.callerAddress
-                            : '',
-                          nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
-                          amount: obj.amount
-                            ? convertNumberWithoutCommas(obj.amount)
-                            : '',
-                        };
-                      } else if (event_name == 'NFTPoolClaimEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'NFTPoolClaimEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          nftContractAddress: eventValues[1]?.toString(),
-                          callerAddress: eventValues[2]?.toString(),
-                          amount: eventValues[3]
-                            ? convertNumberWithoutCommas(
-                                eventValues[3].toString(),
-                              )
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                        filter = {
-                          blockNumber: toScan,
-                          eventName: obj.eventName ? obj.eventName : '',
-                          poolAddress: obj.poolAddress ? obj.poolAddress : '',
-                          nftContractAddress: obj.nftContractAddress
-                            ? obj.nftContractAddress
-                            : '',
-                          callerAddress: obj.callerAddress
-                            ? obj.callerAddress
-                            : '',
-                          amount: obj.amount ? obj.amount : '',
-                        };
-                      }
-                    } else if (checkLPPool) {
-                      const abi_collection_contract = new Abi(
-                        lp_pool_contract.CONTRACT_ABI,
-                      );
-                      const decodedEvent =
-                        abi_collection_contract.decodeEvent(bytes);
-                      let event_name = decodedEvent.event.identifier;
-                      const eventValues : any = [];
-                      for (let i = 0; i < decodedEvent.args.length; i++) {
-                        const value = decodedEvent.args[i];
-                        eventValues.push(value.toString());
-                      }
-                      if (!isRescan)
-                        create_event_db(
-                          {
-                            ...checkLPPool,
-                            blockNumber: toScan,
-                            eventName: event_name,
-                            from: eventValues?.[3],
-                            amount: eventValues?.[4],
-                          },
-                          eventTeleCollection,
-                        );
-                      if (event_name == 'LpPoolUnstakeEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'LpPoolUnstakeEvent',
-                          poolAddress: eventValues?.[0]?.toString(),
-                          lptokenContract: eventValues[1]?.toString(),
-                          tokenContract: eventValues[2]?.toString(),
-                          callerAddress: eventValues[3]?.toString(),
-                          amount: eventValues[4]
-                            ? convertNumberWithoutCommas(
-                                eventValues[4].toString(),
-                              )
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                        filter = {
-                          blockNumber: toScan,
-                          eventName: obj?.eventName || '',
-                          poolAddress: obj?.poolAddress || '',
-                          lptokenContract: obj?.lptokenContract || '',
-                          callerAddress: obj?.callerAddress || '',
-                          nftTokenId: obj?.nftTokenId || '',
-                          amount: obj?.amount
-                            ? convertNumberWithoutCommas(obj.amount)
-                            : '',
-                        };
-                      } else if (event_name == 'LpPoolStakeEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'LpPoolStakeEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          lptokenContract: eventValues[1]?.toString(),
-                          tokenContract: eventValues[2]?.toString(),
-                          callerAddress: eventValues[3]?.toString(),
-                          amount: eventValues[4]
-                            ? convertNumberWithoutCommas(
-                                eventValues[4].toString(),
-                              )
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                        filter = {
-                          blockNumber: toScan,
-                          eventName: obj?.eventName || '',
-                          poolAddress: obj?.poolAddress || '',
-                          lptokenContract: obj?.lptokenContract || '',
-                          callerAddress: obj?.callerAddress || '',
-                          nftTokenId: obj?.nftTokenId || '',
-                          amount: obj?.amount
-                            ? convertNumberWithoutCommas(obj.amount)
-                            : '',
-                        };
-                      } else if (event_name == 'LpPoolClaimEvent') {
-                        obj = new EventPool({
-                          blockNumber: toScan,
-                          eventName: 'LpPoolClaimEvent',
-                          poolAddress: eventValues[0]?.toString(),
-                          lptokenContract: eventValues[1]?.toString(),
-                          tokenContract: eventValues[2]?.toString(),
-                          callerAddress: eventValues[3]?.toString(),
-                          amount: eventValues[4]
-                            ? convertNumberWithoutCommas(
-                                eventValues[4].toString(),
-                              )
-                            : '',
-                          createdTime: new Date(),
-                          updatedTime: new Date(),
-                        });
-                        filter = {
-                          blockNumber: toScan,
-                          eventName: obj?.eventName || '',
-                          poolAddress: obj?.poolAddress || '',
-                          lptokenContract: obj?.lptokenContract || '',
-                          callerAddress: obj?.callerAddress || '',
-                          nftTokenId: obj?.nftTokenId || '',
-                          amount: obj?.amount
-                            ? convertNumberWithoutCommas(obj.amount)
-                            : '',
-                        };
-                      }
-                    }
-                    if (obj && filter) {
-                        const eventData = await eventPoolCollection.findOne(filter);
-                        if (!eventData) {
-                            await eventPoolCollection.insertOne({
-                                ...filter,
-                                data: data.toHuman(),
-                                createdTime: new Date(),
-                                updatedTime: new Date(),
-                            });
-                        } else {
-                            await eventPoolCollection.updateMany(filter,{
-                                    "$set": {
-                                        ...filter,
-                                        data: data.toHuman(),
-                                        createdTime: new Date(),
-                                        updatedTime: new Date(),
-                                    }
-                                },
-                                { upsert: true });
-                        }
-                    }
-                }
-
-                // if ((section == "balances" && (method == "Transfer" || method == "Deposit" || method == "Reserved"))
-                //     || (section == "treasury" && (method == "Deposit"))
-                // ) {
-                //     console.log(data.toHuman());
-                //     // const [from, to, bytes] = data.map((data: any, _: any) => data).slice(0, 2);
-                //     // const from_address = from.toString();
-                //     // const to_address = to.toString();
-                //     // console.log({
-                //     //     from_address: from_address,
-                //     //     to_address: to_address,
-                //     //     amount: bytes.toString(),
-                //     // })
-                //     // let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(bytes));
-                //     // if (decodedMessage?.args) {
-                //     //     for(const item of decodedMessage?.args) {
-                //     //         console.log(item.toHuman());
-                //     //     }
-                //     // }
-                // }
-            }
-        }
-
-        let index= 0;
-        for (const ex of signedBlock.block.extrinsics) {
-            index = index + 1;
-            let newData:{
-                ex?: any,
-                tokenContract?: string,
-                value?: string,
-                gas_limit?: object,
-                storage_deposit_limit?: any,
-                data?: any,
-                documentation?: any,
-                signer?: string,
-                signature?: string,
-                nonce?: string,
-                method?: string,
-                section?: string,
-                to?: any,
-                amount?: any,
-                args?: any,
-                decoded?: any,
-            } = {};
-            newData.ex = ex.toHuman();
-            const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
-
-            // if (isSigned) {
-            //     // console.log(ex.toHuman());
-            //     try {
-            //         let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
-            //         // console.log(decodedMessage);
-            //         // if (decodedMessage?.args) {
-            //         //     for(const item of decodedMessage?.args) {
-            //         //         console.log(item.toHuman());
-            //         //     }
-            //         // }
-            //     } catch (e) {
-            //         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
-            //     }
-            // }
-
-            if (isSigned) {
-                if (args) {
-                    newData.tokenContract = args.dest.Id;
-                    newData.value = args.value;
-                    newData.gas_limit = args.gas_limit;
-                    newData.storage_deposit_limit = args.storage_deposit_limit;
-                    newData.data = args.data;
-                }
-                if (meta?.documentation) {
-                    newData.documentation = meta.documentation;
-                }
-                newData.signer = ex.signer.toString();
-                newData.signature = ex.signature.toString();
-                newData.nonce = ex.nonce.toString();
-                newData.method = method;
-                newData.section = section;
-                if (
-                    method === `call`
-                    && section === `contracts`
-                    && args
-                    && args?.data
-                    || true
-                ) {
-                    let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
-                    const {identifier, method, path} = decodedMessage.message;
-                    if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
-                        continue;
-                    }
-                    if (decodedMessage?.args) {
-                        newData.to = decodedMessage.args[0].toHuman();
-                        newData.amount = decodedMessage.args[1].toHuman();
-                        newData.args = JSON.stringify(decodedMessage.args);
-                        newData.decoded = decodedMessage;
-                    }
-                }
-
-
-                // TODO: Switch to redis caching here
-                const filter = {
-                    blockNumber: toScan,
-                    eventIndex: index,
-                    fromAddress: newData.signer ? newData.signer.toString() : '',
-                    toAddress: newData.to ? newData.to.toString() : '',
-                    tokenAddress: newData.tokenContract ? newData.tokenContract.toString() : '',
-                    amount: newData.amount ? convertNumberWithoutCommas(newData.amount) : 0,
-                };
-                const eventData = await eventTransferCollection.findOne(filter);
-                if (!eventData) {
-                  await eventTransferCollection.insertOne({
-                    ...filter,
-                    data: newData,
-                    createdTime: new Date(),
-                    updatedTime: new Date(),
-                  });
-                } else {
-                  await eventTransferCollection.updateMany(
-                    filter,
-                    {
-                      $set: {
-                        ...filter,
-                        data: newData,
-                        createdTime: new Date(),
-                        updatedTime: new Date(),
-                      },
-                    },
-                    {upsert: true},
-                  );
-                }
+          let obj;
+          let filter;
+          if (checkPool) {
+            const abi_collection_contract = new Abi(
+              pool_contract.CONTRACT_ABI,
+            );
+            const decodedEvent =
+              abi_collection_contract.decodeEvent(bytes);
+            let event_name = decodedEvent.event.identifier;
+            const eventValues = [];
+            for (let i = 0; i < decodedEvent.args.length; i++) {
+              const value = decodedEvent.args[i];
+              eventValues.push(value.toString());
             }
 
-            // TODO: Process caching
-            // const newKey = `${toScan}_${index}`;
-            // const cacheResults = await newCache.get(newKey);
-            // console.log(cacheResults);
-            // if (cacheResults) {
-            //     console.log(`${newKey} is cached.`);
-            // } else {
-            //     await newCache.set(newKey, JSON.stringify(newData), {
-            //         EX: 180,
-            //         NX: true,
-            //     });
+            if (!isRescan) {
+              create_event_db(
+                {
+                  ...checkPool,
+                  blockNumber: toScan,
+                  eventName: event_name,
+                  from: eventValues?.[2],
+                  amount: eventValues?.[3].toString(),
+                },
+                eventTeleCollection,
+              );
+            }
+
+            if (event_name == 'PoolUnstakeEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'PoolUnstakeEvent',
+                poolAddress: eventValues[0]?.toString(),
+                tokenAddress: eventValues[1]?.toString(),
+                callerAddress: eventValues[2]?.toString(),
+                amount: eventValues[3]
+                  ? convertNumberWithoutCommas(
+                    eventValues[3].toString(),
+                  )
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+            } else if (event_name == 'PoolStakeEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'PoolStakeEvent',
+                poolAddress: eventValues[0]?.toString(),
+                tokenAddress: eventValues[1]?.toString(),
+                callerAddress: eventValues[2]?.toString(),
+                amount: eventValues[3]
+                  ? convertNumberWithoutCommas(
+                    eventValues[3].toString(),
+                  )
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+            } else if (event_name == 'PoolClaimEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'PoolClaimEvent',
+                poolAddress: eventValues[0]?.toString(),
+                tokenAddress: eventValues[1]?.toString(),
+                callerAddress: eventValues[2]?.toString(),
+                amount: eventValues[3]
+                  ? convertNumberWithoutCommas(
+                    eventValues[3].toString(),
+                  )
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+            }
+            if (obj) {
+              filter = {
+                blockNumber: toScan,
+                eventName: obj.eventName ? obj.eventName : '',
+                poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                tokenAddress: obj.tokenAddress
+                  ? obj.tokenAddress
+                  : '',
+                callerAddress: obj.callerAddress
+                  ? obj.callerAddress
+                  : '',
+                amount: obj.amount ? obj.amount : '',
+              };
+            }
+          } else if (checkNftPool) {
+            const abi_collection_contract = new Abi(
+              nft_pool_contract.CONTRACT_ABI,
+            );
+            const decodedEvent =
+              abi_collection_contract.decodeEvent(bytes);
+            let event_name = decodedEvent.event.identifier;
+            const eventValues = [];
+            for (let i = 0; i < decodedEvent.args.length; i++) {
+              const value = decodedEvent.args[i];
+              eventValues.push(value.toString());
+            }
+            if (!isRescan)
+              create_event_db(
+                {
+                  ...checkNftPool,
+                  blockNumber: toScan,
+                  eventName: event_name,
+                  from: eventValues?.[2],
+                  amount: eventValues?.[3].toString(),
+                  tokenID: JSON.parse(eventValues[3])?.u64,
+                },
+                eventTeleCollection,
+              );
+            if (event_name == 'NFTPoolUnstakeEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'NFTPoolUnstakeEvent',
+                poolAddress: eventValues[0]?.toString(),
+                nftContractAddress: eventValues[1]?.toString(),
+                callerAddress: eventValues[2]?.toString(),
+                nftTokenId: eventValues[3]
+                  ? eventValues[3].toString()
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+              filter = {
+                blockNumber: toScan,
+                eventName: obj.eventName ? obj.eventName : '',
+                poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                nftContractAddress: obj.nftContractAddress
+                  ? obj.nftContractAddress
+                  : '',
+                callerAddress: obj.callerAddress
+                  ? obj.callerAddress
+                  : '',
+                nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
+                amount: obj.amount
+                  ? convertNumberWithoutCommas(obj.amount)
+                  : '',
+              };
+            } else if (event_name == 'NFTPoolStakeEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'NFTPoolStakeEvent',
+                poolAddress: eventValues[0]?.toString(),
+                nftContractAddress: eventValues[1]?.toString(),
+                callerAddress: eventValues[2]?.toString(),
+                nftTokenId: eventValues[3]
+                  ? eventValues[3].toString()
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+              filter = {
+                blockNumber: toScan,
+                eventName: obj.eventName ? obj.eventName : '',
+                poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                nftContractAddress: obj.nftContractAddress
+                  ? obj.nftContractAddress
+                  : '',
+                callerAddress: obj.callerAddress
+                  ? obj.callerAddress
+                  : '',
+                nftTokenId: obj.nftTokenId ? obj.nftTokenId : '',
+                amount: obj.amount
+                  ? convertNumberWithoutCommas(obj.amount)
+                  : '',
+              };
+            } else if (event_name == 'NFTPoolClaimEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'NFTPoolClaimEvent',
+                poolAddress: eventValues[0]?.toString(),
+                nftContractAddress: eventValues[1]?.toString(),
+                callerAddress: eventValues[2]?.toString(),
+                amount: eventValues[3]
+                  ? convertNumberWithoutCommas(
+                    eventValues[3].toString(),
+                  )
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+              filter = {
+                blockNumber: toScan,
+                eventName: obj.eventName ? obj.eventName : '',
+                poolAddress: obj.poolAddress ? obj.poolAddress : '',
+                nftContractAddress: obj.nftContractAddress
+                  ? obj.nftContractAddress
+                  : '',
+                callerAddress: obj.callerAddress
+                  ? obj.callerAddress
+                  : '',
+                amount: obj.amount ? obj.amount : '',
+              };
+            }
+          } else if (checkLPPool) {
+            const abi_collection_contract = new Abi(
+              lp_pool_contract.CONTRACT_ABI,
+            );
+            const decodedEvent =
+              abi_collection_contract.decodeEvent(bytes);
+            let event_name = decodedEvent.event.identifier;
+            const eventValues : any = [];
+            for (let i = 0; i < decodedEvent.args.length; i++) {
+              const value = decodedEvent.args[i];
+              eventValues.push(value.toString());
+            }
+            if (!isRescan)
+              create_event_db(
+                {
+                  ...checkLPPool,
+                  blockNumber: toScan,
+                  eventName: event_name,
+                  from: eventValues?.[3],
+                  amount: eventValues?.[4],
+                },
+                eventTeleCollection,
+              );
+            if (event_name == 'LpPoolUnstakeEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'LpPoolUnstakeEvent',
+                poolAddress: eventValues?.[0]?.toString(),
+                lptokenContract: eventValues[1]?.toString(),
+                tokenContract: eventValues[2]?.toString(),
+                callerAddress: eventValues[3]?.toString(),
+                amount: eventValues[4]
+                  ? convertNumberWithoutCommas(
+                    eventValues[4].toString(),
+                  )
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+              filter = {
+                blockNumber: toScan,
+                eventName: obj?.eventName || '',
+                poolAddress: obj?.poolAddress || '',
+                lptokenContract: obj?.lptokenContract || '',
+                callerAddress: obj?.callerAddress || '',
+                nftTokenId: obj?.nftTokenId || '',
+                amount: obj?.amount
+                  ? convertNumberWithoutCommas(obj.amount)
+                  : '',
+              };
+            } else if (event_name == 'LpPoolStakeEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'LpPoolStakeEvent',
+                poolAddress: eventValues[0]?.toString(),
+                lptokenContract: eventValues[1]?.toString(),
+                tokenContract: eventValues[2]?.toString(),
+                callerAddress: eventValues[3]?.toString(),
+                amount: eventValues[4]
+                  ? convertNumberWithoutCommas(
+                    eventValues[4].toString(),
+                  )
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+              filter = {
+                blockNumber: toScan,
+                eventName: obj?.eventName || '',
+                poolAddress: obj?.poolAddress || '',
+                lptokenContract: obj?.lptokenContract || '',
+                callerAddress: obj?.callerAddress || '',
+                nftTokenId: obj?.nftTokenId || '',
+                amount: obj?.amount
+                  ? convertNumberWithoutCommas(obj.amount)
+                  : '',
+              };
+            } else if (event_name == 'LpPoolClaimEvent') {
+              obj = new EventPool({
+                blockNumber: toScan,
+                eventName: 'LpPoolClaimEvent',
+                poolAddress: eventValues[0]?.toString(),
+                lptokenContract: eventValues[1]?.toString(),
+                tokenContract: eventValues[2]?.toString(),
+                callerAddress: eventValues[3]?.toString(),
+                amount: eventValues[4]
+                  ? convertNumberWithoutCommas(
+                    eventValues[4].toString(),
+                  )
+                  : '',
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+              filter = {
+                blockNumber: toScan,
+                eventName: obj?.eventName || '',
+                poolAddress: obj?.poolAddress || '',
+                lptokenContract: obj?.lptokenContract || '',
+                callerAddress: obj?.callerAddress || '',
+                nftTokenId: obj?.nftTokenId || '',
+                amount: obj?.amount
+                  ? convertNumberWithoutCommas(obj.amount)
+                  : '',
+              };
+            }
+          } else if(accIdString == azero_staking.CONTRACT_ADDRESS) {
+            const { event_name, eventValues } = getEventValues(azero_staking.CONTRACT_ABI, bytes)
+            send_noti_azero_stacking(
+              {
+                blockNumber: toScan,
+                eventName: event_name,
+                eventValues
+              },
+              eventTeleCollection,
+            );
             // }
+          }
+          if (obj && filter) {
+            const eventData = await eventPoolCollection.findOne(filter);
+            if (!eventData) {
+              await eventPoolCollection.insertOne({
+                ...filter,
+                data: data.toHuman(),
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              });
+            } else {
+              await eventPoolCollection.updateMany(filter, {
+                "$set": {
+                  ...filter,
+                  data: data.toHuman(),
+                  createdTime: new Date(),
+                  updatedTime: new Date(),
+                }
+              },
+                { upsert: true });
+            }
+          }
         }
-        console.log(`====================================COMPLETED====================================================`);
-    } catch (e) {
-        console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+
+        // if ((section == "balances" && (method == "Transfer" || method == "Deposit" || method == "Reserved"))
+        //     || (section == "treasury" && (method == "Deposit"))
+        // ) {
+        //     console.log(data.toHuman());
+        //     // const [from, to, bytes] = data.map((data: any, _: any) => data).slice(0, 2);
+        //     // const from_address = from.toString();
+        //     // const to_address = to.toString();
+        //     // console.log({
+        //     //     from_address: from_address,
+        //     //     to_address: to_address,
+        //     //     amount: bytes.toString(),
+        //     // })
+        //     // let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(bytes));
+        //     // if (decodedMessage?.args) {
+        //     //     for(const item of decodedMessage?.args) {
+        //     //         console.log(item.toHuman());
+        //     //     }
+        //     // }
+        // }
+      }
     }
+
+    let index= 0;
+    for (const ex of signedBlock.block.extrinsics) {
+      index = index + 1;
+      let newData:{
+        ex?: any,
+        tokenContract?: string,
+        value?: string,
+        gas_limit?: object,
+        storage_deposit_limit?: any,
+        data?: any,
+        documentation?: any,
+        signer?: string,
+        signature?: string,
+        nonce?: string,
+        method?: string,
+        section?: string,
+        to?: any,
+        amount?: any,
+        args?: any,
+        decoded?: any,
+      } = {};
+      newData.ex = ex.toHuman();
+      const { isSigned, meta, method: { args, method, section } } = ex.toHuman();
+
+      // if (isSigned) {
+      //     // console.log(ex.toHuman());
+      //     try {
+      //         let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+      //         // console.log(decodedMessage);
+      //         // if (decodedMessage?.args) {
+      //         //     for(const item of decodedMessage?.args) {
+      //         //         console.log(item.toHuman());
+      //         //     }
+      //         // }
+      //     } catch (e) {
+      //         console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+      //     }
+      // }
+
+      if (isSigned) {
+        if (args) {
+          newData.tokenContract = args.dest.Id;
+          newData.value = args.value;
+          newData.gas_limit = args.gas_limit;
+          newData.storage_deposit_limit = args.storage_deposit_limit;
+          newData.data = args.data;
+        }
+        if (meta?.documentation) {
+          newData.documentation = meta.documentation;
+        }
+        newData.signer = ex.signer.toString();
+        newData.signature = ex.signature.toString();
+        newData.nonce = ex.nonce.toString();
+        newData.method = method;
+        newData.section = section;
+        if (
+          method === `call`
+          && section === `contracts`
+          && args
+          && args?.data
+          || true
+        ) {
+          let decodedMessage = inw_contract.abi.decodeMessage(compactAddLength(hexToU8a(args?.data)));
+          const {identifier, method, path} = decodedMessage.message;
+          if (!(identifier === 'PSP22::transfer' && method === 'psp22::transfer')) {
+            continue;
+          }
+          if (decodedMessage?.args) {
+            newData.to = decodedMessage.args[0].toHuman();
+            newData.amount = decodedMessage.args[1].toHuman();
+            newData.args = JSON.stringify(decodedMessage.args);
+            newData.decoded = decodedMessage;
+          }
+        }
+
+
+        // TODO: Switch to redis caching here
+        const filter = {
+          blockNumber: toScan,
+          eventIndex: index,
+          fromAddress: newData.signer ? newData.signer.toString() : '',
+          toAddress: newData.to ? newData.to.toString() : '',
+          tokenAddress: newData.tokenContract ? newData.tokenContract.toString() : '',
+          amount: newData.amount ? convertNumberWithoutCommas(newData.amount) : 0,
+        };
+        const eventData = await eventTransferCollection.findOne(filter);
+        if (!eventData) {
+          await eventTransferCollection.insertOne({
+            ...filter,
+            data: newData,
+            createdTime: new Date(),
+            updatedTime: new Date(),
+          });
+        } else {
+          await eventTransferCollection.updateMany(
+            filter,
+            {
+              $set: {
+                ...filter,
+                data: newData,
+                createdTime: new Date(),
+                updatedTime: new Date(),
+              },
+            },
+            {upsert: true},
+          );
+        }
+      }
+
+      // TODO: Process caching
+      // const newKey = `${toScan}_${index}`;
+      // const cacheResults = await newCache.get(newKey);
+      // console.log(cacheResults);
+      // if (cacheResults) {
+      //     console.log(`${newKey} is cached.`);
+      // } else {
+      //     await newCache.set(newKey, JSON.stringify(newData), {
+      //         EX: 180,
+      //         NX: true,
+      //     });
+      // }
+    }
+    console.log(`====================================COMPLETED====================================================`);
+  } catch (e) {
+    console.log(`${CONFIG_TYPE_NAME.INW_POOL_EVENT_SCANNED} - ERROR: ${e.message}`);
+  }
 }
 
 export async function processUpdateStats(
