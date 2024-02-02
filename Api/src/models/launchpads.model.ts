@@ -89,6 +89,11 @@ export class Launchpads extends Entity {
   })
   requireKyc?: Boolean;
 
+  @property({
+    type: 'boolean',
+  })
+  isDoxxed?: Boolean;
+
   constructor(data?: Partial<Launchpads>) {
     super(data);
   }

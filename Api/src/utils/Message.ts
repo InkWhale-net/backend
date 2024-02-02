@@ -103,6 +103,10 @@ export type ReqImportToken = {
     signature?: string,
     isNew?: string
 }
+export type ReqUpdateDoxxed = {
+    contractAddress?: string,
+    newValue?: Boolean,
+}
 
 export type ReqAddKycAddress = {
   clientId?: string;
@@ -163,6 +167,17 @@ const ReqImportTokenSchema: SchemaObject = {
         }
     },
 };
+const ReqUpdateDoxxedSchema: SchemaObject = {
+    type: 'object',
+    properties: {
+        contractAddress: {
+            type: 'string',
+        },
+        newValue: {
+            type: 'boolean',
+        },
+    },
+};
 const ReqAddKycAddressSchema: SchemaObject = {
   type: 'object',
   properties: {
@@ -213,6 +228,15 @@ export const ReqImportTokenBody = {
     content: {
         'application/json': {schema: ReqImportTokenSchema},
         'application/x-www-form-urlencoded': {schema: ReqImportTokenSchema},
+    },
+};
+
+export const ReqUpdateDoxxedBody = {
+    description: 'The input of importToken function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqUpdateDoxxedSchema},
+        'application/x-www-form-urlencoded': {schema: ReqUpdateDoxxedSchema},
     },
 };
 
