@@ -75,6 +75,7 @@ export const MESSAGE = {
   INVALID_TOKEN_OWNER: 'Invalid token owner',
   INVALID_SIGNATURE: 'Invalid token signature',
   IMPORT_TOKEN_SUCCESS: 'Import token success',
+  UPDATE_DOXXED_SUCCESS: 'Update Doxxed data',
   UNKNOW_ERROR: 'Unknow error',
   GET_INW_TOTAL_SUPPLY_FAIL: 'Get INW total supply fail',
   GET_INW_TOTAL_SUPPLY_SUCCESS: 'Get INW total supply success',

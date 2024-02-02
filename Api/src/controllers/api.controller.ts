@@ -64,6 +64,8 @@ import {
   ResponseBody,
   ReqAddKycAddressBody,
   ReqAddKycAddress,
+  ReqUpdateDoxxed,
+  ReqUpdateDoxxedBody,
 } from '../utils/Message';
 import {token_generator_contract} from '../contracts/token_generator';
 import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
@@ -428,6 +430,33 @@ export class ApiController {
     return {
       status: STATUS.OK,
       message: MESSAGE.IMPORT_TOKEN_SUCCESS,
+    };
+  }
+  @post('/updateDoxxed')
+  async updateDoxxed(@requestBody(ReqUpdateDoxxedBody) req: ReqUpdateDoxxed,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+
+    const launchpadData = await this.launchpadsSchemaRepository.findOne({
+      where: { launchpadContract: req.contractAddress },
+    });
+    if (launchpadData) {
+      launchpadData.isDoxxed = req?.newValue
+      await this.launchpadsSchemaRepository.update(launchpadData);
+    } else {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NOT_EXIST_COLLECTION_ADDRESS,
+      };
+    }
+    return {
+      status: STATUS.OK,
+      message: MESSAGE.UPDATE_DOXXED_SUCCESS,
     };
   }
 
