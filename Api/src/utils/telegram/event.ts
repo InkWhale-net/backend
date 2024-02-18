@@ -24,9 +24,15 @@ export const create_event_db = async (
   try {
     if (poolEvent.includes(data?.eventName)) {
       try {
+        const indexStr = `${data?.blockNumber}${data?.eventName
+          ?.replace('Pool', '')
+          ?.replace('Event', '')}${data?.from}${data?.poolContract}${
+          data?.amount
+        }`;
         const result = await eventTeleCollection.insertOne({
           ...data,
-          _id: `${data?.blockNumber}${data?.eventName}${data?.from}${data?.poolContract}${data?.amount}`,
+          _id: indexStr,
+          uniqueIndex: indexStr,
         });
 
         if (result) {
@@ -81,11 +87,15 @@ export const create_event_db = async (
 
       const callerAzeroID = await resolveDomain(data?.from);
       try {
+        const indexStr = `${data?.blockNumber}${data?.eventName
+          ?.replace('Pool', '')
+          ?.replace('Event', '')}${data?.poolContract}${
+          data?.amount?.u64 || '***'
+        }${data?.from}${data?.tokenID || '***'}`;
         const result = await eventTeleCollection.insertOne({
           ...data,
-          _id: `${data?.blockNumber}${data?.eventName}${data?.poolContract}${
-            data?.amount || '***'
-          }${data?.from}${data?.tokenID || '***'}`,
+          _id: indexStr,
+          uniqueIndex: indexStr,
         });
         if (result) {
           if (
@@ -160,9 +170,15 @@ Earn : <code>${data?.tokenName}</code>
     }
     if (farmingEvent.includes(data?.eventName)) {
       try {
+        const indexStr = `${data?.blockNumber}${data?.eventName
+          ?.replace('Pool', '')
+          ?.replace('Event', '')}${data?.from}${data?.poolContract}${
+          data?.amount
+        }`;
         const result = await eventTeleCollection.insertOne({
           ...data,
-          _id: `${data?.blockNumber}${data?.eventName}${data?.from}${data?.poolContract}${data?.amount}`,
+          _id: indexStr,
+          uniqueIndex: indexStr,
         });
 
         if (result) {

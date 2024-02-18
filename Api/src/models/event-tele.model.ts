@@ -10,6 +10,14 @@ export class EventTele extends Entity {
   _id?: string;
 
   @property({
+    type: 'string',
+    index: {
+      unique: true,
+    },
+  })
+  uniqueIndex: string;
+
+  @property({
     type: 'number',
     required: true,
   })

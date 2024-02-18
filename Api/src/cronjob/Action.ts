@@ -271,6 +271,7 @@ export async function processEventRecords(
                         poolContract: accIdString,
                         lpPoolGeneratorContractAddress: lp_pool_generator_contract.CONTRACT_ADDRESS
                     });
+                    console.log(`**********************\ncheckPool: ${checkPool}\ncheckNftPool: ${checkNftPool}\ncheckLPPool: ${checkLPPool}\n**********************`)
 
                     let obj;
                     let filter;
