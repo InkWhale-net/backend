@@ -80,7 +80,9 @@ export const create_event_db = async (
       try {
         const result = await eventTeleCollection.insertOne({
           ...data,
-          _id: `${data?.blockNumber}${data?.eventName}${data?.poolContract}${data?.amount || '***'
+          _id: `${data?.blockNumber}${data?.eventName
+            ?.replace('Pool', '')
+            ?.replace('Event', '')}${data?.poolContract}${data?.amount || '***'
             }${data?.from}${data?.tokenID || '***'}`,
         });
         if (result) {
@@ -229,56 +231,56 @@ Earn : <code>${data?.tokenName}</code>
   }
 };
 
-export const send_noti_azero_stacking = async (data: any, eventTeleCollection: mongoDB.Collection,) => {
+export const send_noti_azero_stacking = async (
+  data: any,
+  eventTeleCollection: mongoDB.Collection,
+) => {
   try {
     // console.log("******************************", data);
     switch (data?.eventName) {
-      case "StakeEvent":
+      case 'StakeEvent':
         send_telegram_message(
           `<b>🤑Azero Stake Event </b>
 <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[0])}</code>
 <b>Amount:</b> <code>${data?.eventValues?.[1]
             ? formatNumDynDecimal(
-              parseFloat(data?.eventValues?.[1]) /
-              Math.pow(10, 12),
+              parseFloat(data?.eventValues?.[1]) / Math.pow(10, 12),
             )
-            : ''}Azero</code>`,
+            : ''
+          }Azero</code>`,
           process.env.TELEGRAM_ID_CHAT || '',
-          process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+          process.env.TELEGRAM_AZERO_GROUP_FEED_THREAD_ID || '',
         );
-        break
-      case "ClaimEvent":
+        break;
+      case 'ClaimEvent':
         send_telegram_message(
           `<b>😮Azero UnStake Event </b>
 <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
 <b>Amount:</b> <code>${data?.eventValues?.[2]
             ? formatNumDynDecimal(
-              parseFloat(data?.eventValues?.[2]) /
-              Math.pow(10, 12),
+              parseFloat(data?.eventValues?.[2]) / Math.pow(10, 12),
             )
-            : ''}Azero</code>`,
+            : ''
+          }Azero</code>`,
           process.env.TELEGRAM_ID_CHAT || '',
-          process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+          process.env.TELEGRAM_AZERO_GROUP_FEED_THREAD_ID || '',
         );
-        break
-      case "ClaimRewardsEvent":
-//         send_telegram_message(
-//           `<b>😮Azero UnStake Event </b>
-// <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
-// <b>Amount:</b> <code>${data?.eventValues?.[2]
-//             ? formatNumDynDecimal(
-//               parseFloat(data?.eventValues?.[2]) /
-//               Math.pow(10, 12),
-//             )
-//             : ''} Azero</code>`,
-//           process.env.TELEGRAM_ID_CHAT || '',
-//           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
-//         );
         break;
-        
+      case 'ClaimRewardsEvent':
+        //         send_telegram_message(
+        //           `<b>😮Azero UnStake Event </b>
+        // <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
+        // <b>Amount:</b> <code>${data?.eventValues?.[2]
+        //             ? formatNumDynDecimal(
+        //               parseFloat(data?.eventValues?.[2]) /
+        //               Math.pow(10, 12),
+        //             )
+        //             : ''} Azero</code>`,
+        //           process.env.TELEGRAM_ID_CHAT || '',
+        //           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+        //         );
+        break;
     }
-
-
   } catch (error) {
     console.log('ERROR SEND TELE AZERO STACKING', error);
   }

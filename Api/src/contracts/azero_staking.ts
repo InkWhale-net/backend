@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const azero_staking = process.env.IS_MAINNET == 'true' ? {
-  CONTRACT_ADDRESS: "5GYmSZ8ZaLkyLEfX6YeBcxSGGgGyYTRsZ7iYVpfYYggo15tG",
+  CONTRACT_ADDRESS: "5GMGBBbBjaFKsP6KerX8y2y7zSAbKgPJJwsqi5RHPGL7yiVb",
   CONTRACT_ABI: {
     source: {
       hash: "0x835b8d7f73a4b3346c2a494e8c8642462fbd7804d3a0aa2d8ac419c6f833fea0",
@@ -5026,7 +5026,7 @@ export const azero_staking = process.env.IS_MAINNET == 'true' ? {
     version: "4",
   },
 } : {
-  CONTRACT_ADDRESS: "5GYmSZ8ZaLkyLEfX6YeBcxSGGgGyYTRsZ7iYVpfYYggo15tG",
+  CONTRACT_ADDRESS: "5GMGBBbBjaFKsP6KerX8y2y7zSAbKgPJJwsqi5RHPGL7yiVb",
   CONTRACT_ABI: {
     source: {
       hash: "0x835b8d7f73a4b3346c2a494e8c8642462fbd7804d3a0aa2d8ac419c6f833fea0",
