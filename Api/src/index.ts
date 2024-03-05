@@ -9,6 +9,7 @@ import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import {global_vars, SOCKET_STATUS} from "./cronjob/global";
 import { CronJobUpdateStats } from './cronjob/StatsJob';
 import './utils/telegram/bot'
+import { CronJobUpdateAzeroStacking } from './cronjob/AzeroStackingJob';
 dotenv.config();
 
 export let globalApi: ApiPromise;
@@ -26,6 +27,10 @@ export async function main(options: ApplicationConfig = {}) {
   const cronJobUpdateStats = createBindingFromClass(CronJobUpdateStats);
   app.add(cronJobUpdateStats);
   app.configure(cronJobUpdateStats.key);
+  
+  const cronJobAzeroStacking = createBindingFromClass(CronJobUpdateAzeroStacking);
+  app.add(cronJobAzeroStacking);
+  app.configure(cronJobAzeroStacking.key);
 
 
   await app.boot();

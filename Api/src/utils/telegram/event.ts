@@ -32,8 +32,8 @@ export const create_event_db = async (
         if (result) {
           send_telegram_message(
             `<b>${data?.eventName == 'PoolUnstakeEvent'
-              ? '😮Unstaking Event'
-              : data?.eventName == 'PoolStakeEvent'
+                ? '😮Unstaking Event'
+                : data?.eventName == 'PoolStakeEvent'
                 ? '🚀Staking Event'
                 : '🤑Reward Claim Event'
             }</b>
@@ -42,11 +42,11 @@ export const create_event_db = async (
             }</a>
 <b>From:</b> <code>${(await resolveDomain(data?.from)) || '***'}</code>
 <b>Amount: </b> <code>${data?.amount
-              ? formatNumDynDecimal(
-                parseFloat(convertNumberWithoutCommas(data?.amount)) /
-                Math.pow(10, parseInt(data?.tokenDecimal)),
-              )
-              : ''
+                ? formatNumDynDecimal(
+                    parseFloat(convertNumberWithoutCommas(data?.amount)) /
+                      Math.pow(10, parseInt(data?.tokenDecimal)),
+                  )
+                : ''
             } ${data?.tokenSymbol || '***'}</code>
 <b>Token contract:</b>
 <code>${data?.tokenContract}</code>`,
@@ -83,7 +83,7 @@ export const create_event_db = async (
           _id: `${data?.blockNumber}${data?.eventName
             ?.replace('Pool', '')
             ?.replace('Event', '')}${data?.poolContract}${data?.amount || '***'
-            }${data?.from}${data?.tokenID || '***'}`,
+          }${data?.from}${data?.tokenID || '***'}`,
         });
         if (result) {
           if (
@@ -93,19 +93,19 @@ export const create_event_db = async (
           ) {
             send_telegram_message(
               `<b>${data?.eventName == 'NFTPoolStakeEvent'
-                ? '🚀Staking Event'
-                : '😮Unstaking Event'
+                  ? '🚀Staking Event'
+                  : '😮Unstaking Event'
               }</b>
 <b>NFT Pool:</b>
 <a href="${process.env.FRONTEND_URL}/#/farms/${data?.poolContract || '***'}">${data?.poolContract || '***'
               }</a>
 ${nftData?.[0]?.name &&
-              data?.tokenName &&
-              `------------------------------
+  data?.tokenName &&
+  `------------------------------
 Stake: <code>${nftData?.[0]?.name}</code>
 Earn : <code>${data?.tokenName}</code>
 ------------------------------`
-              }
+}
 <b>From:</b>
 <code>${data?.from ? callerAzeroID : '***'}</code>
 <b>NFT TokenID: </b> <code>#${data?.tokenID || '***'}</code>
@@ -122,19 +122,19 @@ Earn : <code>${data?.tokenName}</code>
 <a href="${process.env.FRONTEND_URL}/#/farms/${data?.poolContract || '***'}">${data?.poolContract || '***'
               }</a>
 ${nftData?.[0]?.name &&
-              data?.tokenName &&
-              `------------------------------
+  data?.tokenName &&
+  `------------------------------
 Stake: <code>${nftData?.[0]?.name}</code>
 Earn : <code>${data?.tokenName}</code>
 ------------------------------`
-              }
+}
 <b>From:</b> <code>${callerAzeroID || '***'}</code>
 <b>Amount: </b> <code>${data?.amount
-                ? formatNumDynDecimal(
-                  parseFloat(convertNumberWithoutCommas(data?.amount)) /
-                  Math.pow(10, parseInt(data?.tokenDecimal)),
-                )
-                : ''
+                  ? formatNumDynDecimal(
+                      parseFloat(convertNumberWithoutCommas(data?.amount)) /
+                        Math.pow(10, parseInt(data?.tokenDecimal)),
+                    )
+                  : ''
               } ${data?.tokenSymbol || '***'}</code>
 <b>Token contract </b> <code>${data?.tokenContract}</code>`,
               process.env.TELEGRAM_ID_CHAT || '',
@@ -163,28 +163,28 @@ Earn : <code>${data?.tokenName}</code>
           ) {
             send_telegram_message(
               `<b>${data?.eventName == 'LpPoolStakeEvent'
-                ? '🚀Staking Event'
-                : '😮Unstaking Event'
+                  ? '🚀Staking Event'
+                  : '😮Unstaking Event'
               }</b>
 <b>Farming:</b>
 <a href="${process.env.FRONTEND_URL}/#/farming/${data?.poolContract || '***'
               }">${data?.poolContract || '***'}</a>
 ${data?.lptokenName &&
-              data?.tokenName &&
-              `------------------------------
+  data?.tokenName &&
+  `------------------------------
 Stake: <code>${data?.lptokenName}</code>
 <code>${data?.lptokenContract}</code>
 Earn : <code>${data?.tokenName}</code>
 <code>${data?.tokenContract}</code>
 ------------------------------`
-              }
+}
 <b>From:</b> <code>${await resolveDomain(data?.from)}</code>
 <b>Amount: </b> <code>${data?.amount
-                ? formatNumDynDecimal(
-                  parseFloat(data?.amount) /
-                  Math.pow(10, parseInt(data?.lptokenDecimal)),
-                )
-                : ''
+                  ? formatNumDynDecimal(
+                      parseFloat(data?.amount) /
+                        Math.pow(10, parseInt(data?.lptokenDecimal)),
+                    )
+                  : ''
               } ${data?.lptokenSymbol || '***'}</code>`,
               process.env.TELEGRAM_ID_CHAT || '',
               process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
@@ -197,21 +197,21 @@ Earn : <code>${data?.tokenName}</code>
 <a href="${process.env.FRONTEND_URL}/#/farming/${data?.poolContract || '***'
               }">${data?.poolContract || '***'}</a>
 ${data?.lptokenName &&
-              data?.tokenName &&
-              `------------------------------
+  data?.tokenName &&
+  `------------------------------
 Stake: <code>${data?.lptokenName}</code>
 <code>${data?.lptokenContract}</code>
 Earn : <code>${data?.tokenName}</code>
 <code>${data?.tokenContract}</code>
 ------------------------------`
-              }
+}
 <b>From:</b> <code>${await resolveDomain(data?.from)}</code>
 <b>Amount: </b> <code>${data?.amount
-                ? formatNumDynDecimal(
-                  parseFloat(data?.amount) /
-                  Math.pow(10, parseInt(data?.tokenDecimal)),
-                )
-                : ''
+                  ? formatNumDynDecimal(
+                      parseFloat(data?.amount) /
+                        Math.pow(10, parseInt(data?.tokenDecimal)),
+                    )
+                  : ''
               } ${data?.tokenSymbol || '***'}</code>`,
               process.env.TELEGRAM_ID_CHAT || '',
               process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
@@ -237,50 +237,50 @@ export const send_noti_azero_stacking = async (
 ) => {
   try {
     // console.log("******************************", data);
-    switch (data?.eventName) {
-      case 'StakeEvent':
-        send_telegram_message(
-          `<b>🤑Azero Stake Event </b>
-<b>From:</b> <code>${await resolveDomain(data?.eventValues?.[0])}</code>
-<b>Amount:</b> <code>${data?.eventValues?.[1]
-            ? formatNumDynDecimal(
-              parseFloat(data?.eventValues?.[1]) / Math.pow(10, 12),
-            )
-            : ''
-          }Azero</code>`,
-          process.env.TELEGRAM_ID_CHAT || '',
-          process.env.TELEGRAM_AZERO_GROUP_FEED_THREAD_ID || '',
-        );
-        break;
-      case 'ClaimEvent':
-        send_telegram_message(
-          `<b>😮Azero UnStake Event </b>
-<b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
-<b>Amount:</b> <code>${data?.eventValues?.[2]
-            ? formatNumDynDecimal(
-              parseFloat(data?.eventValues?.[2]) / Math.pow(10, 12),
-            )
-            : ''
-          }Azero</code>`,
-          process.env.TELEGRAM_ID_CHAT || '',
-          process.env.TELEGRAM_AZERO_GROUP_FEED_THREAD_ID || '',
-        );
-        break;
-      case 'ClaimRewardsEvent':
-        //         send_telegram_message(
-        //           `<b>😮Azero UnStake Event </b>
-        // <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
-        // <b>Amount:</b> <code>${data?.eventValues?.[2]
-        //             ? formatNumDynDecimal(
-        //               parseFloat(data?.eventValues?.[2]) /
-        //               Math.pow(10, 12),
-        //             )
-        //             : ''} Azero</code>`,
-        //           process.env.TELEGRAM_ID_CHAT || '',
-        //           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
-        //         );
-        break;
-    }
+        switch (data?.eventName) {
+          case 'StakeEvent':
+            send_telegram_message(
+              `<b>🤑Azero Stake Event </b>
+    <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[0])}</code>
+    <b>Amount:</b> <code>${data?.eventValues?.[1]
+                  ? formatNumDynDecimal(
+                      parseFloat(data?.eventValues?.[1]) / Math.pow(10, 12),
+                    )
+                  : ''
+              }Azero</code>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              process.env.TELEGRAM_AZERO_GROUP_FEED_THREAD_ID || '',
+            );
+            break;
+          case 'ClaimEvent':
+            send_telegram_message(
+              `<b>😮Azero UnStake Event </b>
+    <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
+    <b>Amount:</b> <code>${data?.eventValues?.[2]
+                  ? formatNumDynDecimal(
+                      parseFloat(data?.eventValues?.[2]) / Math.pow(10, 12),
+                    )
+                  : ''
+              }Azero</code>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              process.env.TELEGRAM_AZERO_GROUP_FEED_THREAD_ID || '',
+            );
+            break;
+          case 'ClaimRewardsEvent':
+            //         send_telegram_message(
+            //           `<b>😮Azero UnStake Event </b>
+            // <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
+            // <b>Amount:</b> <code>${data?.eventValues?.[2]
+            //             ? formatNumDynDecimal(
+            //               parseFloat(data?.eventValues?.[2]) /
+            //               Math.pow(10, 12),
+            //             )
+            //             : ''} Azero</code>`,
+            //           process.env.TELEGRAM_ID_CHAT || '',
+            //           process.env.TELEGRAM_GROUP_FEED_THREAD_ID || '',
+            //         );
+            break;
+        }
   } catch (error) {
     console.log('ERROR SEND TELE AZERO STACKING', error);
   }
