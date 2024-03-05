@@ -241,8 +241,8 @@ export const send_noti_azero_stacking = async (
           case 'StakeEvent':
             send_telegram_message(
               `<b>🤑Azero Stake Event </b>
-    <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[0])}</code>
-    <b>Amount:</b> <code>${data?.eventValues?.[1]
+<b>From:</b> <code>${await resolveDomain(data?.eventValues?.[0])}</code>
+<b>Amount:</b> <code>${data?.eventValues?.[1]
                   ? formatNumDynDecimal(
                       parseFloat(data?.eventValues?.[1]) / Math.pow(10, 12),
                     )
@@ -255,8 +255,8 @@ export const send_noti_azero_stacking = async (
           case 'ClaimEvent':
             send_telegram_message(
               `<b>😮Azero UnStake Event </b>
-    <b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
-    <b>Amount:</b> <code>${data?.eventValues?.[2]
+<b>From:</b> <code>${await resolveDomain(data?.eventValues?.[1])}</code>
+<b>Amount:</b> <code>${data?.eventValues?.[2]
                   ? formatNumDynDecimal(
                       parseFloat(data?.eventValues?.[2]) / Math.pow(10, 12),
                     )
