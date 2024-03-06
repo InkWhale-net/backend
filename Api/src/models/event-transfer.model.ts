@@ -56,11 +56,21 @@ export class EventTransfer extends Entity {
   amountOut: string;
 
   @property({
-    type: 'array',
-    itemType: 'string',
-    itemLength: 2,
+    type: 'string',
   })
-  tokenPath?: string[];
+  tokenPathIn?: string;
+
+  @property({
+    type: 'string',
+  })
+  tokenPathOut?: string;
+
+  // @property({
+  //   type: 'array',
+  //   itemType: 'string',
+  //   itemLength: 2,
+  // })
+  // tokenPath?: string[];
 
   @property({
     type: 'object',
