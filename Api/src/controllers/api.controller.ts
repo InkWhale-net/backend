@@ -924,7 +924,13 @@ export class ApiController {
 
     queryClause.and = [
       {
-        method: 'psp22::transfer',
+        method: {
+          nin: [
+            'router::swapExactTokensForNative',
+            'router::swapExactNativeForTokens',
+            'router::swapExactTokensForTokens',
+          ],
+        },
       },
     ];
 
