@@ -1284,6 +1284,24 @@ function extractMessageDecoded({
     decodedMessage.message.method === 'router::swapExactTokensForNative' ||
     decodedMessage.message.method === 'router::swapExactTokensForTokens'
   ) {
+    /*
+    filter value crape = 0
+    filter address crape not on the list
+    */
+    if (
+      decodedMessage.args[0].toHuman() === 0 ||
+      decodedMessage.args[1].toHuman() === 0 ||
+      !checkAllowedList(decodedMessage.args[2].toHuman()[0]) ||
+      !checkAllowedList(decodedMessage.args[2].toHuman()[1])
+    ) {
+      console.log(
+        'decodedMessage.args[0].toHuman()',
+        decodedMessage.args[0].toHuman(),
+      );
+      console.log('=========================== NOT SAVE DB !!!!!!!!!!!!');
+      return;
+    }
+
     document.amountIn = decodedMessage.args[0].toHuman()?.replaceAll(',', '');
     document.amountOut = decodedMessage.args[1].toHuman()?.replaceAll(',', '');
     // document.tokenPath = decodedMessage.args[2].toHuman();
@@ -1297,7 +1315,16 @@ function extractMessageDecoded({
   }
 
   if (decodedMessage.message.method === 'router::swapExactNativeForTokens') {
-    if (decodedMessage.args[0].toHuman() === 0) {
+    /*
+    filter value crape = 0
+    filter address crape not on the list
+    */
+
+    if (
+      decodedMessage.args[0].toHuman() === 0 ||
+      !checkAllowedList(decodedMessage.args[1].toHuman()[0]) ||
+      !checkAllowedList(decodedMessage.args[1].toHuman()[1])
+    ) {
       console.log(
         'decodedMessage.args[0].toHuman()',
         decodedMessage.args[0].toHuman(),
@@ -1345,4 +1372,77 @@ function extractMessageDecoded({
 
     handleAddMongoDb(document, dbCollection);
   }
+}
+
+const commonFiTokenList = [
+  {
+    tokenSymbol: 'TZERO',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5EFDb7mKbougLtr5dnwd5KDfZ3wK55JPGPLiryKq4uRMPR46',
+  },
+  {
+    tokenSymbol: 'FIR',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5CVGYujZnkBvNsUypdMuEYT2qRzFWhZHufteSfYguQMLkaE3',
+  },
+  {
+    tokenSymbol: 'PAP',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5FDkUXLExhgFT92UQvMQVG8H4Z4Ku4Mx9heUYpchxZMdY7LD',
+  },
+  {
+    tokenSymbol: 'PLA',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5DgnLZDNJ2bN4AcG4PzGMDdpL5ukd1kttmuMjXYNCG91vCkX',
+  },
+  {
+    tokenSymbol: 'WAT',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5GkV8efVcUhZ2PRkP6bNzJ9ATVh32uJMY89zMiK5rkA49yfU',
+  },
+  {
+    tokenSymbol: 'WIN',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5F84uFXvpEn4n6fAyRbP6mg32YHy8R4KEokZfFMW1svNTmbZ',
+  },
+  {
+    tokenSymbol: 'ELE',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5DuyRY19RZsxnyffwKRSox8rj5VUHf49fHLjUcZpfnwFrYGZ',
+  },
+  {
+    tokenSymbol: 'ICE',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5E3bkdogtK4ro2vC5vKP7QDJRzw38kHqXp5p5BiurQ9hBSbF',
+  },
+  {
+    tokenSymbol: 'STE',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5CnV23shYarqBGZVmzuCxJvbd2TwxvQsjgAxoeGnhu2Zkxkp',
+  },
+  {
+    tokenSymbol: 'STO',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5D5W2iUTvWs3mVSLDCdnNU3pTJyUHpiCeTEp9td4Hk3jwPqt',
+  },
+  {
+    tokenSymbol: 'WOO',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5H8UXMbPdVTCbsYQWBGuVj4k6XDo75wqQ8QdeRbwziQYcTdc',
+  },
+];
+
+function checkAllowedList(token: string) {
+  return !!commonFiTokenList.find(item => item.tokenAddress === token);
 }
