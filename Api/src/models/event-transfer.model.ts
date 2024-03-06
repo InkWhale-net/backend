@@ -18,7 +18,12 @@ export class EventTransfer extends Entity {
   @property({
     type: 'number',
   })
-  eventIndex: number;
+  eventIndex?: number;
+
+  @property({
+    type: 'string',
+  })
+  method?: string;
 
   @property({
     type: 'string',
@@ -41,6 +46,33 @@ export class EventTransfer extends Entity {
   amount: string;
 
   @property({
+    type: 'string',
+  })
+  amountIn: string;
+
+  @property({
+    type: 'string',
+  })
+  amountOut: string;
+
+  @property({
+    type: 'string',
+  })
+  tokenPathIn?: string;
+
+  @property({
+    type: 'string',
+  })
+  tokenPathOut?: string;
+
+  // @property({
+  //   type: 'array',
+  //   itemType: 'string',
+  //   itemLength: 2,
+  // })
+  // tokenPath?: string[];
+
+  @property({
     type: 'object',
   })
   data?: object;
@@ -54,7 +86,6 @@ export class EventTransfer extends Entity {
     type: 'date',
   })
   updatedTime?: Date;
-
 
   constructor(data?: Partial<EventTransfer>) {
     super(data);
