@@ -357,14 +357,14 @@ export class ApiController {
 
     const contract_to_call = new ContractPromise(
       globalApi,
-      req?.isNew == 'false'
+      req?.isNew == false
         ? psp22_contract_old.CONTRACT_ABI
         : psp22_contract.CONTRACT_ABI,
       req.tokenAddress || '',
     );
 
     const gasLimit = readOnlyGasLimit(globalApi);
-
+      
     const queryResult: any = await contract_to_call.query['ownable::owner'](
       process.env.CALLER_ACCOUNT ||
         '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
@@ -373,6 +373,7 @@ export class ApiController {
         gasLimit,
       },
     );
+
     if (!queryResult?.result.isOk)
       return {
         status: STATUS.FAILED,
@@ -390,7 +391,7 @@ export class ApiController {
         message: MESSAGE.INVALID_SIGNATURE,
       };
     const queryResult1: any = await contract_to_call.query[
-      'psp22::totalSupply'
+      'psp22Capped::cap'
     ](
       process.env.CALLER_ACCOUNT ||
         '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
@@ -420,7 +421,7 @@ export class ApiController {
         isManagedByTokenGenerator: false,
         createdTime: new Date(),
         updatedTime: new Date(),
-        isNew: req?.isNew == 'true',
+        isNew: req?.isNew,
       });
     } catch (e) {
       console.log(`ERROR: ProcessTokens create - ${e.message}`);

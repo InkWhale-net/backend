@@ -101,7 +101,7 @@ export type ReqImportToken = {
     decimal?: number,
     creator?: string,
     signature?: string,
-    isNew?: string
+    isNew?: boolean
 }
 export type ReqUpdateDoxxed = {
     contractAddress?: string,
