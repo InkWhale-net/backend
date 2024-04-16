@@ -1376,6 +1376,12 @@ function extractMessageDecoded({
 
 const commonFiTokenList = [
   {
+    tokenSymbol: 'INW',
+    tokenDecimals: 12,
+    icon: '',
+    tokenAddress: '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
+  },
+  {
     tokenSymbol: 'TZERO',
     tokenDecimals: 12,
     icon: '',
