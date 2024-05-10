@@ -2,13 +2,13 @@ export const factory_contract = {
   CONTRACT_ADDRESS: '',
   CONTRACT_ABI: {
     source: {
-      hash: '0xed5873279c85ecff7d7352d5e5a3baf326dfa6dd932e72823e33056b0fdb84d1',
+      hash: '0x84960ddc9fe051e5856ed781145abf08f320c005137563c8b80041f0efb8db03',
       language: 'ink! 4.3.0',
       compiler: 'rustc 1.72.1',
       build_info: {
         build_mode: 'Release',
         cargo_contract_version: '3.2.0',
-        rust_toolchain: 'stable-x86_64-unknown-linux-gnu',
+        rust_toolchain: 'stable-aarch64-apple-darwin',
         wasm_opt_settings: {
           keep_debug_symbols: false,
           optimization_passes: 'Z',

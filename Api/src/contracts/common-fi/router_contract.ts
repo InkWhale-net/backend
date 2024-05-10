@@ -2,13 +2,13 @@ export const router_contract = {
   CONTRACT_ADDRESS: '',
   CONTRACT_ABI: {
     source: {
-      hash: '0xa26faf0d55782969b84f4dce1cc60890e039e75954997ed48218d2e93ec4ff60',
+      hash: '0x18e08abacab54e990536538119f826cdb96d4a111d1f31eb2520c2df9aa7d3c0',
       language: 'ink! 4.3.0',
       compiler: 'rustc 1.72.1',
       build_info: {
         build_mode: 'Release',
         cargo_contract_version: '3.2.0',
-        rust_toolchain: 'stable-x86_64-unknown-linux-gnu',
+        rust_toolchain: 'stable-aarch64-apple-darwin',
         wasm_opt_settings: {
           keep_debug_symbols: false,
           optimization_passes: 'Z',

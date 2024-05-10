@@ -2,13 +2,13 @@ export const common_psp22 = {
   CONTRACT_ADDRESS: '',
   CONTRACT_ABI: {
     source: {
-      hash: '0xd685075d5eac3e1cd87ccf48acb36aecdffa0654d732b72caa1821643e1ad3bd',
+      hash: '0x29bfa68d88be38d3dce36bce8cdc65697481cddc6fa2a47ba3a8055ee2154d2c',
       language: 'ink! 4.3.0',
       compiler: 'rustc 1.72.1',
       build_info: {
         build_mode: 'Release',
         cargo_contract_version: '3.2.0',
-        rust_toolchain: 'stable-x86_64-unknown-linux-gnu',
+        rust_toolchain: 'stable-aarch64-apple-darwin',
         wasm_opt_settings: {
           keep_debug_symbols: false,
           optimization_passes: 'Z',
@@ -28,10 +28,34 @@ export const common_psp22 = {
       constructors: [
         {
           args: [
-            {label: 'supply', type: {displayName: ['u128'], type: 0}},
-            {label: 'name', type: {displayName: ['Option'], type: 3}},
-            {label: 'symbol', type: {displayName: ['Option'], type: 3}},
-            {label: 'decimals', type: {displayName: ['u8'], type: 2}},
+            {
+              label: 'supply',
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
+            },
+            {
+              label: 'name',
+              type: {
+                displayName: ['Option'],
+                type: 3,
+              },
+            },
+            {
+              label: 'symbol',
+              type: {
+                displayName: ['Option'],
+                type: 3,
+              },
+            },
+            {
+              label: 'decimals',
+              type: {
+                displayName: ['u8'],
+                type: 2,
+              },
+            },
           ],
           default: false,
           docs: [],
@@ -46,13 +70,31 @@ export const common_psp22 = {
       ],
       docs: [],
       environment: {
-        accountId: {displayName: ['AccountId'], type: 8},
-        balance: {displayName: ['Balance'], type: 0},
-        blockNumber: {displayName: ['BlockNumber'], type: 19},
-        chainExtension: {displayName: ['ChainExtension'], type: 20},
-        hash: {displayName: ['Hash'], type: 17},
+        accountId: {
+          displayName: ['AccountId'],
+          type: 8,
+        },
+        balance: {
+          displayName: ['Balance'],
+          type: 0,
+        },
+        blockNumber: {
+          displayName: ['BlockNumber'],
+          type: 19,
+        },
+        chainExtension: {
+          displayName: ['ChainExtension'],
+          type: 20,
+        },
+        hash: {
+          displayName: ['Hash'],
+          type: 17,
+        },
         maxEventTopics: 4,
-        timestamp: {displayName: ['Timestamp'], type: 18},
+        timestamp: {
+          displayName: ['Timestamp'],
+          type: 18,
+        },
       },
       events: [
         {
@@ -61,19 +103,28 @@ export const common_psp22 = {
               docs: [],
               indexed: true,
               label: 'owner',
-              type: {displayName: ['AccountId'], type: 8},
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
             },
             {
               docs: [],
               indexed: true,
               label: 'spender',
-              type: {displayName: ['AccountId'], type: 8},
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
             },
             {
               docs: [],
               indexed: false,
               label: 'amount',
-              type: {displayName: ['u128'], type: 0},
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
             },
           ],
           docs: [],
@@ -85,26 +136,38 @@ export const common_psp22 = {
               docs: [],
               indexed: true,
               label: 'from',
-              type: {displayName: ['Option'], type: 16},
+              type: {
+                displayName: ['Option'],
+                type: 16,
+              },
             },
             {
               docs: [],
               indexed: true,
               label: 'to',
-              type: {displayName: ['Option'], type: 16},
+              type: {
+                displayName: ['Option'],
+                type: 16,
+              },
             },
             {
               docs: [],
               indexed: false,
               label: 'value',
-              type: {displayName: ['u128'], type: 0},
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
             },
           ],
           docs: [],
           label: 'Transfer',
         },
       ],
-      lang_error: {displayName: ['ink', 'LangError'], type: 6},
+      lang_error: {
+        displayName: ['ink', 'LangError'],
+        type: 6,
+      },
       messages: [
         {
           args: [],
@@ -113,98 +176,220 @@ export const common_psp22 = {
           label: 'PSP22::total_supply',
           mutates: false,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 7},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 7,
+          },
           selector: '0x162df8c2',
         },
         {
-          args: [{label: 'owner', type: {displayName: ['AccountId'], type: 8}}],
+          args: [
+            {
+              label: 'owner',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+          ],
           default: false,
           docs: [],
           label: 'PSP22::balance_of',
           mutates: false,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 7},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 7,
+          },
           selector: '0x6568382f',
         },
         {
           args: [
-            {label: 'owner', type: {displayName: ['AccountId'], type: 8}},
-            {label: 'spender', type: {displayName: ['AccountId'], type: 8}},
+            {
+              label: 'owner',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+            {
+              label: 'spender',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
           ],
           default: false,
           docs: [],
           label: 'PSP22::allowance',
           mutates: false,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 7},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 7,
+          },
           selector: '0x4d47d921',
         },
         {
           args: [
-            {label: 'to', type: {displayName: ['AccountId'], type: 8}},
-            {label: 'value', type: {displayName: ['u128'], type: 0}},
-            {label: '_data', type: {displayName: ['Vec'], type: 10}},
+            {
+              label: 'to',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+            {
+              label: 'value',
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
+            },
+            {
+              label: '_data',
+              type: {
+                displayName: ['Vec'],
+                type: 10,
+              },
+            },
           ],
           default: false,
           docs: [],
           label: 'PSP22::transfer',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 11},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 11,
+          },
           selector: '0xdb20f9f5',
         },
         {
           args: [
-            {label: 'from', type: {displayName: ['AccountId'], type: 8}},
-            {label: 'to', type: {displayName: ['AccountId'], type: 8}},
-            {label: 'value', type: {displayName: ['u128'], type: 0}},
-            {label: '_data', type: {displayName: ['Vec'], type: 10}},
+            {
+              label: 'from',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+            {
+              label: 'to',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+            {
+              label: 'value',
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
+            },
+            {
+              label: '_data',
+              type: {
+                displayName: ['Vec'],
+                type: 10,
+              },
+            },
           ],
           default: false,
           docs: [],
           label: 'PSP22::transfer_from',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 11},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 11,
+          },
           selector: '0x54b3c76e',
         },
         {
           args: [
-            {label: 'spender', type: {displayName: ['AccountId'], type: 8}},
-            {label: 'value', type: {displayName: ['u128'], type: 0}},
+            {
+              label: 'spender',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+            {
+              label: 'value',
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
+            },
           ],
           default: false,
           docs: [],
           label: 'PSP22::approve',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 11},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 11,
+          },
           selector: '0xb20f1bbd',
         },
         {
           args: [
-            {label: 'spender', type: {displayName: ['AccountId'], type: 8}},
-            {label: 'delta_value', type: {displayName: ['u128'], type: 0}},
+            {
+              label: 'spender',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+            {
+              label: 'delta_value',
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
+            },
           ],
           default: false,
           docs: [],
           label: 'PSP22::increase_allowance',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 11},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 11,
+          },
           selector: '0x96d6b57a',
         },
         {
           args: [
-            {label: 'spender', type: {displayName: ['AccountId'], type: 8}},
-            {label: 'delta_value', type: {displayName: ['u128'], type: 0}},
+            {
+              label: 'spender',
+              type: {
+                displayName: ['AccountId'],
+                type: 8,
+              },
+            },
+            {
+              label: 'delta_value',
+              type: {
+                displayName: ['u128'],
+                type: 0,
+              },
+            },
           ],
           default: false,
           docs: [],
           label: 'PSP22::decrease_allowance',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 11},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 11,
+          },
           selector: '0xfecb57d5',
         },
         {
@@ -214,7 +399,10 @@ export const common_psp22 = {
           label: 'PSP22Metadata::token_name',
           mutates: false,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 14},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 14,
+          },
           selector: '0x3d261bd4',
         },
         {
@@ -224,7 +412,10 @@ export const common_psp22 = {
           label: 'PSP22Metadata::token_symbol',
           mutates: false,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 14},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 14,
+          },
           selector: '0x34205be5',
         },
         {
@@ -234,7 +425,10 @@ export const common_psp22 = {
           label: 'PSP22Metadata::token_decimals',
           mutates: false,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 15},
+          returnType: {
+            displayName: ['ink', 'MessageResult'],
+            type: 15,
+          },
           selector: '0x7271b782',
         },
       ],
@@ -249,13 +443,23 @@ export const common_psp22 = {
                   struct: {
                     fields: [
                       {
-                        layout: {leaf: {key: '0x00000000', ty: 0}},
+                        layout: {
+                          leaf: {
+                            key: '0x00000000',
+                            ty: 0,
+                          },
+                        },
                         name: 'total_supply',
                       },
                       {
                         layout: {
                           root: {
-                            layout: {leaf: {key: '0x45c746d4', ty: 0}},
+                            layout: {
+                              leaf: {
+                                key: '0x45c746d4',
+                                ty: 0,
+                              },
+                            },
                             root_key: '0x45c746d4',
                           },
                         },
@@ -264,7 +468,12 @@ export const common_psp22 = {
                       {
                         layout: {
                           root: {
-                            layout: {leaf: {key: '0x00efb3a1', ty: 0}},
+                            layout: {
+                              leaf: {
+                                key: '0x00efb3a1',
+                                ty: 0,
+                              },
+                            },
                             root_key: '0x00efb3a1',
                           },
                         },
@@ -282,11 +491,19 @@ export const common_psp22 = {
                     dispatchKey: '0x00000000',
                     name: 'Option',
                     variants: {
-                      '0': {fields: [], name: 'None'},
+                      '0': {
+                        fields: [],
+                        name: 'None',
+                      },
                       '1': {
                         fields: [
                           {
-                            layout: {leaf: {key: '0x00000000', ty: 1}},
+                            layout: {
+                              leaf: {
+                                key: '0x00000000',
+                                ty: 1,
+                              },
+                            },
                             name: '0',
                           },
                         ],
@@ -303,11 +520,19 @@ export const common_psp22 = {
                     dispatchKey: '0x00000000',
                     name: 'Option',
                     variants: {
-                      '0': {fields: [], name: 'None'},
+                      '0': {
+                        fields: [],
+                        name: 'None',
+                      },
                       '1': {
                         fields: [
                           {
-                            layout: {leaf: {key: '0x00000000', ty: 1}},
+                            layout: {
+                              leaf: {
+                                key: '0x00000000',
+                                ty: 1,
+                              },
+                            },
                             name: '0',
                           },
                         ],
@@ -318,7 +543,15 @@ export const common_psp22 = {
                 },
                 name: 'symbol',
               },
-              {layout: {leaf: {key: '0x00000000', ty: 2}}, name: 'decimals'},
+              {
+                layout: {
+                  leaf: {
+                    key: '0x00000000',
+                    ty: 2,
+                  },
+                },
+                name: 'decimals',
+              },
             ],
             name: 'Token',
           },
@@ -327,21 +560,58 @@ export const common_psp22 = {
       },
     },
     types: [
-      {id: 0, type: {def: {primitive: 'u128'}}},
-      {id: 1, type: {def: {primitive: 'str'}}},
-      {id: 2, type: {def: {primitive: 'u8'}}},
+      {
+        id: 0,
+        type: {
+          def: {
+            primitive: 'u128',
+          },
+        },
+      },
+      {
+        id: 1,
+        type: {
+          def: {
+            primitive: 'str',
+          },
+        },
+      },
+      {
+        id: 2,
+        type: {
+          def: {
+            primitive: 'u8',
+          },
+        },
+      },
       {
         id: 3,
         type: {
           def: {
             variant: {
               variants: [
-                {index: 0, name: 'None'},
-                {fields: [{type: 1}], index: 1, name: 'Some'},
+                {
+                  index: 0,
+                  name: 'None',
+                },
+                {
+                  fields: [
+                    {
+                      type: 1,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Some',
+                },
               ],
             },
           },
-          params: [{name: 'T', type: 1}],
+          params: [
+            {
+              name: 'T',
+              type: 1,
+            },
+          ],
           path: ['Option'],
         },
       },
@@ -351,23 +621,61 @@ export const common_psp22 = {
           def: {
             variant: {
               variants: [
-                {fields: [{type: 5}], index: 0, name: 'Ok'},
-                {fields: [{type: 6}], index: 1, name: 'Err'},
+                {
+                  fields: [
+                    {
+                      type: 5,
+                    },
+                  ],
+                  index: 0,
+                  name: 'Ok',
+                },
+                {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Err',
+                },
               ],
             },
           },
           params: [
-            {name: 'T', type: 5},
-            {name: 'E', type: 6},
+            {
+              name: 'T',
+              type: 5,
+            },
+            {
+              name: 'E',
+              type: 6,
+            },
           ],
           path: ['Result'],
         },
       },
-      {id: 5, type: {def: {tuple: []}}},
+      {
+        id: 5,
+        type: {
+          def: {
+            tuple: [],
+          },
+        },
+      },
       {
         id: 6,
         type: {
-          def: {variant: {variants: [{index: 1, name: 'CouldNotReadInput'}]}},
+          def: {
+            variant: {
+              variants: [
+                {
+                  index: 1,
+                  name: 'CouldNotReadInput',
+                },
+              ],
+            },
+          },
           path: ['ink_primitives', 'LangError'],
         },
       },
@@ -377,14 +685,36 @@ export const common_psp22 = {
           def: {
             variant: {
               variants: [
-                {fields: [{type: 0}], index: 0, name: 'Ok'},
-                {fields: [{type: 6}], index: 1, name: 'Err'},
+                {
+                  fields: [
+                    {
+                      type: 0,
+                    },
+                  ],
+                  index: 0,
+                  name: 'Ok',
+                },
+                {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Err',
+                },
               ],
             },
           },
           params: [
-            {name: 'T', type: 0},
-            {name: 'E', type: 6},
+            {
+              name: 'T',
+              type: 0,
+            },
+            {
+              name: 'E',
+              type: 6,
+            },
           ],
           path: ['Result'],
         },
@@ -392,26 +722,76 @@ export const common_psp22 = {
       {
         id: 8,
         type: {
-          def: {composite: {fields: [{type: 9, typeName: '[u8; 32]'}]}},
+          def: {
+            composite: {
+              fields: [
+                {
+                  type: 9,
+                  typeName: '[u8; 32]',
+                },
+              ],
+            },
+          },
           path: ['ink_primitives', 'types', 'AccountId'],
         },
       },
-      {id: 9, type: {def: {array: {len: 32, type: 2}}}},
-      {id: 10, type: {def: {sequence: {type: 2}}}},
+      {
+        id: 9,
+        type: {
+          def: {
+            array: {
+              len: 32,
+              type: 2,
+            },
+          },
+        },
+      },
+      {
+        id: 10,
+        type: {
+          def: {
+            sequence: {
+              type: 2,
+            },
+          },
+        },
+      },
       {
         id: 11,
         type: {
           def: {
             variant: {
               variants: [
-                {fields: [{type: 12}], index: 0, name: 'Ok'},
-                {fields: [{type: 6}], index: 1, name: 'Err'},
+                {
+                  fields: [
+                    {
+                      type: 12,
+                    },
+                  ],
+                  index: 0,
+                  name: 'Ok',
+                },
+                {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Err',
+                },
               ],
             },
           },
           params: [
-            {name: 'T', type: 12},
-            {name: 'E', type: 6},
+            {
+              name: 'T',
+              type: 12,
+            },
+            {
+              name: 'E',
+              type: 6,
+            },
           ],
           path: ['Result'],
         },
@@ -422,14 +802,36 @@ export const common_psp22 = {
           def: {
             variant: {
               variants: [
-                {fields: [{type: 5}], index: 0, name: 'Ok'},
-                {fields: [{type: 13}], index: 1, name: 'Err'},
+                {
+                  fields: [
+                    {
+                      type: 5,
+                    },
+                  ],
+                  index: 0,
+                  name: 'Ok',
+                },
+                {
+                  fields: [
+                    {
+                      type: 13,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Err',
+                },
               ],
             },
           },
           params: [
-            {name: 'T', type: 5},
-            {name: 'E', type: 13},
+            {
+              name: 'T',
+              type: 5,
+            },
+            {
+              name: 'E',
+              type: 13,
+            },
           ],
           path: ['Result'],
         },
@@ -441,16 +843,38 @@ export const common_psp22 = {
             variant: {
               variants: [
                 {
-                  fields: [{type: 1, typeName: 'String'}],
+                  fields: [
+                    {
+                      type: 1,
+                      typeName: 'String',
+                    },
+                  ],
                   index: 0,
                   name: 'Custom',
                 },
-                {index: 1, name: 'InsufficientBalance'},
-                {index: 2, name: 'InsufficientAllowance'},
-                {index: 3, name: 'ZeroRecipientAddress'},
-                {index: 4, name: 'ZeroSenderAddress'},
                 {
-                  fields: [{type: 1, typeName: 'String'}],
+                  index: 1,
+                  name: 'InsufficientBalance',
+                },
+                {
+                  index: 2,
+                  name: 'InsufficientAllowance',
+                },
+                {
+                  index: 3,
+                  name: 'ZeroRecipientAddress',
+                },
+                {
+                  index: 4,
+                  name: 'ZeroSenderAddress',
+                },
+                {
+                  fields: [
+                    {
+                      type: 1,
+                      typeName: 'String',
+                    },
+                  ],
                   index: 5,
                   name: 'SafeTransferCheckFailed',
                 },
@@ -466,14 +890,36 @@ export const common_psp22 = {
           def: {
             variant: {
               variants: [
-                {fields: [{type: 3}], index: 0, name: 'Ok'},
-                {fields: [{type: 6}], index: 1, name: 'Err'},
+                {
+                  fields: [
+                    {
+                      type: 3,
+                    },
+                  ],
+                  index: 0,
+                  name: 'Ok',
+                },
+                {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Err',
+                },
               ],
             },
           },
           params: [
-            {name: 'T', type: 3},
-            {name: 'E', type: 6},
+            {
+              name: 'T',
+              type: 3,
+            },
+            {
+              name: 'E',
+              type: 6,
+            },
           ],
           path: ['Result'],
         },
@@ -484,14 +930,36 @@ export const common_psp22 = {
           def: {
             variant: {
               variants: [
-                {fields: [{type: 2}], index: 0, name: 'Ok'},
-                {fields: [{type: 6}], index: 1, name: 'Err'},
+                {
+                  fields: [
+                    {
+                      type: 2,
+                    },
+                  ],
+                  index: 0,
+                  name: 'Ok',
+                },
+                {
+                  fields: [
+                    {
+                      type: 6,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Err',
+                },
               ],
             },
           },
           params: [
-            {name: 'T', type: 2},
-            {name: 'E', type: 6},
+            {
+              name: 'T',
+              type: 2,
+            },
+            {
+              name: 'E',
+              type: 6,
+            },
           ],
           path: ['Result'],
         },
@@ -502,28 +970,69 @@ export const common_psp22 = {
           def: {
             variant: {
               variants: [
-                {index: 0, name: 'None'},
-                {fields: [{type: 8}], index: 1, name: 'Some'},
+                {
+                  index: 0,
+                  name: 'None',
+                },
+                {
+                  fields: [
+                    {
+                      type: 8,
+                    },
+                  ],
+                  index: 1,
+                  name: 'Some',
+                },
               ],
             },
           },
-          params: [{name: 'T', type: 8}],
+          params: [
+            {
+              name: 'T',
+              type: 8,
+            },
+          ],
           path: ['Option'],
         },
       },
       {
         id: 17,
         type: {
-          def: {composite: {fields: [{type: 9, typeName: '[u8; 32]'}]}},
+          def: {
+            composite: {
+              fields: [
+                {
+                  type: 9,
+                  typeName: '[u8; 32]',
+                },
+              ],
+            },
+          },
           path: ['ink_primitives', 'types', 'Hash'],
         },
       },
-      {id: 18, type: {def: {primitive: 'u64'}}},
-      {id: 19, type: {def: {primitive: 'u32'}}},
+      {
+        id: 18,
+        type: {
+          def: {
+            primitive: 'u64',
+          },
+        },
+      },
+      {
+        id: 19,
+        type: {
+          def: {
+            primitive: 'u32',
+          },
+        },
+      },
       {
         id: 20,
         type: {
-          def: {variant: {}},
+          def: {
+            variant: {},
+          },
           path: ['ink_env', 'types', 'NoChainExtension'],
         },
       },

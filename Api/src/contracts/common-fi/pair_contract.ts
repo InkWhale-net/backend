@@ -2,13 +2,13 @@ export const pair_contract = {
   CONTRACT_ADDRESS: '',
   CONTRACT_ABI: {
     source: {
-      hash: '0x270061c0e21b87cacb19986af98d0ed0a83b5578072ca55062ae786306bda08b',
+      hash: '0x2b9ad738bb459828f33281fb67ce9bd1d83f252d6796b251ecc1c7963ba0d4f5',
       language: 'ink! 4.3.0',
       compiler: 'rustc 1.72.1',
       build_info: {
         build_mode: 'Release',
         cargo_contract_version: '3.2.0',
-        rust_toolchain: 'stable-x86_64-unknown-linux-gnu',
+        rust_toolchain: 'stable-aarch64-apple-darwin',
         wasm_opt_settings: {
           keep_debug_symbols: false,
           optimization_passes: 'Z',
@@ -43,8 +43,8 @@ export const pair_contract = {
         accountId: {displayName: ['AccountId'], type: 1},
         balance: {displayName: ['Balance'], type: 0},
         blockNumber: {displayName: ['BlockNumber'], type: 4},
-        chainExtension: {displayName: ['ChainExtension'], type: 34},
-        hash: {displayName: ['Hash'], type: 33},
+        chainExtension: {displayName: ['ChainExtension'], type: 37},
+        hash: {displayName: ['Hash'], type: 36},
         maxEventTopics: 4,
         timestamp: {displayName: ['Timestamp'], type: 8},
       },
@@ -169,13 +169,13 @@ export const pair_contract = {
               docs: [],
               indexed: true,
               label: 'from',
-              type: {displayName: ['Option'], type: 32},
+              type: {displayName: ['Option'], type: 35},
             },
             {
               docs: [],
               indexed: true,
               label: 'to',
-              type: {displayName: ['Option'], type: 32},
+              type: {displayName: ['Option'], type: 35},
             },
             {
               docs: [],
@@ -343,6 +343,36 @@ export const pair_contract = {
           args: [],
           default: false,
           docs: [],
+          label: 'PSP22Metadata::token_name',
+          mutates: false,
+          payable: false,
+          returnType: {displayName: ['ink', 'MessageResult'], type: 30},
+          selector: '0x3d261bd4',
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: 'PSP22Metadata::token_symbol',
+          mutates: false,
+          payable: false,
+          returnType: {displayName: ['ink', 'MessageResult'], type: 30},
+          selector: '0x34205be5',
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
+          label: 'PSP22Metadata::token_decimals',
+          mutates: false,
+          payable: false,
+          returnType: {displayName: ['ink', 'MessageResult'], type: 32},
+          selector: '0x7271b782',
+        },
+        {
+          args: [],
+          default: false,
+          docs: [],
           label: 'PSP22::total_supply',
           mutates: false,
           payable: false,
@@ -383,7 +413,7 @@ export const pair_contract = {
           label: 'PSP22::transfer',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 30},
+          returnType: {displayName: ['ink', 'MessageResult'], type: 33},
           selector: '0xdb20f9f5',
         },
         {
@@ -398,7 +428,7 @@ export const pair_contract = {
           label: 'PSP22::transfer_from',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 30},
+          returnType: {displayName: ['ink', 'MessageResult'], type: 33},
           selector: '0x54b3c76e',
         },
         {
@@ -411,7 +441,7 @@ export const pair_contract = {
           label: 'PSP22::approve',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 30},
+          returnType: {displayName: ['ink', 'MessageResult'], type: 33},
           selector: '0xb20f1bbd',
         },
         {
@@ -424,7 +454,7 @@ export const pair_contract = {
           label: 'PSP22::increase_allowance',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 30},
+          returnType: {displayName: ['ink', 'MessageResult'], type: 33},
           selector: '0x96d6b57a',
         },
         {
@@ -437,7 +467,7 @@ export const pair_contract = {
           label: 'PSP22::decrease_allowance',
           mutates: true,
           payable: false,
-          returnType: {displayName: ['ink', 'MessageResult'], type: 30},
+          returnType: {displayName: ['ink', 'MessageResult'], type: 33},
           selector: '0xfecb57d5',
         },
       ],
@@ -924,6 +954,57 @@ export const pair_contract = {
           def: {
             variant: {
               variants: [
+                {index: 0, name: 'None'},
+                {fields: [{type: 21}], index: 1, name: 'Some'},
+              ],
+            },
+          },
+          params: [{name: 'T', type: 21}],
+          path: ['Option'],
+        },
+      },
+      {
+        id: 32,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {fields: [{type: 3}], index: 0, name: 'Ok'},
+                {fields: [{type: 11}], index: 1, name: 'Err'},
+              ],
+            },
+          },
+          params: [
+            {name: 'T', type: 3},
+            {name: 'E', type: 11},
+          ],
+          path: ['Result'],
+        },
+      },
+      {
+        id: 33,
+        type: {
+          def: {
+            variant: {
+              variants: [
+                {fields: [{type: 34}], index: 0, name: 'Ok'},
+                {fields: [{type: 11}], index: 1, name: 'Err'},
+              ],
+            },
+          },
+          params: [
+            {name: 'T', type: 34},
+            {name: 'E', type: 11},
+          ],
+          path: ['Result'],
+        },
+      },
+      {
+        id: 34,
+        type: {
+          def: {
+            variant: {
+              variants: [
                 {fields: [{type: 10}], index: 0, name: 'Ok'},
                 {fields: [{type: 20}], index: 1, name: 'Err'},
               ],
@@ -937,7 +1018,7 @@ export const pair_contract = {
         },
       },
       {
-        id: 32,
+        id: 35,
         type: {
           def: {
             variant: {
@@ -952,14 +1033,14 @@ export const pair_contract = {
         },
       },
       {
-        id: 33,
+        id: 36,
         type: {
           def: {composite: {fields: [{type: 2, typeName: '[u8; 32]'}]}},
           path: ['ink_primitives', 'types', 'Hash'],
         },
       },
       {
-        id: 34,
+        id: 37,
         type: {
           def: {variant: {}},
           path: ['ink_env', 'types', 'NoChainExtension'],
