@@ -5,16 +5,12 @@ import {convertToUTCTime} from '../utils/Tools';
 import * as mongoDB from 'mongodb';
 import {
   convertNumberWithoutCommas,
-  formatNumDynDecimal,
   getAllFloorPriceArtZero,
   getAzeroPrice,
-  resolveDomain,
-  send_telegram_message,
 } from '../utils/utils';
 import {Abi, ContractPromise} from '@polkadot/api-contract';
 import {compactAddLength, hexToU8a} from '@polkadot/util';
 import {RedisCache} from './ScanBlockCaching';
-import {inw_token} from '../contracts/inw_token';
 import {pool_contract} from '../contracts/pool';
 import {nft_pool_contract} from '../contracts/nft_pool';
 import {EventPool} from '../models';
@@ -29,7 +25,6 @@ import {
 import prices from '../utils/prices.json';
 import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
 import {lp_pool_contract} from '../contracts/lp_pool';
-import axios from 'axios';
 import {
   create_event_db,
   send_noti_azero_stacking,
@@ -37,6 +32,7 @@ import {
 import {router_contract} from '../contracts/common-fi/router_contract';
 import {common_psp22} from '../contracts/common-fi/common-psp22';
 import azero_staking from '../contracts/azero_staking';
+import {psp22_contract} from '../contracts/psp22_contract';
 
 let inw_contract: ContractPromise;
 export function setContract(c: ContractPromise) {
@@ -342,6 +338,17 @@ export async function processEventRecords(
     const blockHash = await api.rpc.chain.getBlockHash(toScan);
     // @ts-ignore
     const eventRecords = await api.query.system.events.at(blockHash);
+
+    const extrinsicsCount = signedBlock.block.extrinsics?.length;
+    const lastExtrinsicsLen =
+      signedBlock.block.extrinsics.toHuman()[extrinsicsCount - 1];
+    const signerAddress = lastExtrinsicsLen?.signer?.Id;
+    // console.log('\n');
+    // console.log('\n');
+    // console.log('>>>>>>>>>>>>>>>>>>>>>signerAddress', signerAddress);
+
+    // console.log('\n');
+    // console.log('\n');
     if (eventRecords) {
       // @ts-ignore
       for (const record of eventRecords) {
@@ -349,15 +356,231 @@ export async function processEventRecords(
           phase,
           event: {data, method, section},
         } = record;
-        console.log(`section: ${section}, method: ${method}, phase: ${phase}`);
+
         if (section == 'contracts' && method == 'ContractEmitted') {
-          const contract_address = data.toHuman().contract;
-          const caller = data.toHuman().caller;
+          const contractAddress = data.toHuman().contract;
+          // const caller = data.toHuman().caller;
+          // console.log('\n=============================AAA');
+          // console.log('\n');
+          // console.log('\n');
           const [accId, bytes] = data
-            .map((data: any, _: any) => data)
+            .map((data: any, _: any) => {
+              return data;
+            })
             .slice(0, 2);
+          // console.log(
+          //   `section: ${section}, method: ${method}, phase: ${phase}`,
+          // );
+          // console.log('contract_address', contractAddress);
+          // console.log('caller', caller);
+          // console.log('accId', accId.toString());
+          // console.log('data.toHuman()', data.toHuman());
+          // console.log('\n');
+
+          {
+            try {
+              const {event_name, eventValues} = getEventValues(
+                psp22_contract.CONTRACT_ABI,
+                bytes,
+              );
+              psp22_contract.CONTRACT_ABI;
+              console.log('psp22_contract event_name', event_name);
+              console.log('psp22_contract eventValues', eventValues);
+
+              if (event_name === 'Transfer') {
+                // console.log('\n');
+                // console.log('\n psp22_contract ooo ========================');
+                // console.log(
+                //   'event_name === Transfer',
+                //   event_name === 'Transfer',
+                // );
+
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\ncaller', caller);
+                // console.log('blockHash', blockHash);
+                // console.log('toScan', toScan);
+                // console.log('eventValues[0]', eventValues[0]);
+                // console.log('eventValues[1]', eventValues[1]);
+                // console.log('eventValues[2]', eventValues[2]);
+                const document = {
+                  blockNumber: toScan,
+                  method: 'psp22::transfer',
+                  fromAddress:
+                    eventValues[0] === '' ? signerAddress : eventValues[0],
+                  toAddress:
+                    eventValues[1] === '' ? signerAddress : eventValues[1],
+                  tokenAddress: contractAddress,
+                  amount: eventValues[2],
+
+                  amountIn: '',
+                  amountOut: '',
+                  tokenPathIn: '',
+                  tokenPathOut: '',
+                  // tokenPath: [],
+
+                  createdTime: new Date(),
+                  updatedTime: new Date(),
+                };
+
+                if (
+                  document.fromAddress === signerAddress ||
+                  document.toAddress === signerAddress
+                ) {
+                  handleAddMongoDb(document, eventTransferCollection);
+                }
+
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('psp22_contract document', document);
+
+                // // ===================
+                // console.log(
+                //   '\npsp22_contract getEventValues Done===================',
+                // );
+              }
+              // }
+            } catch (error) {
+              console.log('psp22_contract getEventValues error', error);
+            }
+          }
+
+          try {
+            const {event_name, eventValues} = getEventValues(
+              common_psp22.CONTRACT_ABI,
+              bytes,
+            );
+            // console.log('common_psp22.CONTRACT_ABI ... first');
+            // console.log('common_psp22 event_name', event_name);
+            // console.log('common_psp22 eventValues', eventValues);
+
+            if (event_name === 'Transfer') {
+              // console.log('\n');
+              // console.log('\n common_psp22 ooo ====================');
+              // console.log('event_name === Transfer', event_name === 'Transfer');
+              // ===================
+              if (eventValues[0] === '' || eventValues[1] === '') {
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\ncaller', caller);
+                // console.log('toScan', toScan);
+                // console.log('eventValues[0]', eventValues[0]);
+                // console.log('eventValues[1]', eventValues[1]);
+                // console.log('eventValues[2]', eventValues[2]);
+                const document = {
+                  blockNumber: toScan,
+                  method: 'psp22::transfer',
+                  fromAddress:
+                    eventValues[0] === '' ? signerAddress : eventValues[0],
+                  toAddress:
+                    eventValues[1] === '' ? signerAddress : eventValues[1],
+                  tokenAddress: contractAddress,
+                  amount: eventValues[2],
+
+                  amountIn: '',
+                  amountOut: '',
+                  tokenPathIn: '',
+                  tokenPathOut: '',
+                  // tokenPath: [],
+
+                  createdTime: new Date(),
+                  updatedTime: new Date(),
+                };
+                if (
+                  document.fromAddress === signerAddress ||
+                  document.toAddress === signerAddress
+                ) {
+                  handleAddMongoDb(document, eventTransferCollection);
+                }
+
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('common_psp22 document', document);
+
+                // // ===================
+
+                // console.log('\n common_psp22 ===================');
+              }
+              // ===================
+              if (
+                eventValues[0] === signerAddress ||
+                eventValues[1] === signerAddress
+              ) {
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\ncaller', caller);
+                // console.log('blockHash', blockHash);
+                // console.log('toScan', toScan);
+                // console.log('eventValues[0]', eventValues[0]);
+                // console.log('eventValues[1]', eventValues[1]);
+                // console.log('eventValues[2]', eventValues[2]);
+                const document = {
+                  blockNumber: toScan,
+                  method: 'psp22::transfer',
+                  fromAddress:
+                    eventValues[0] === '' ? signerAddress : eventValues[0],
+                  toAddress:
+                    eventValues[1] === '' ? signerAddress : eventValues[1],
+                  tokenAddress: contractAddress,
+                  amount: eventValues[2],
+
+                  amountIn: '',
+                  amountOut: '',
+                  tokenPathIn: '',
+                  tokenPathOut: '',
+                  // tokenPath: [],
+
+                  createdTime: new Date(),
+                  updatedTime: new Date(),
+                };
+                if (
+                  document.fromAddress === signerAddress ||
+                  document.toAddress === signerAddress
+                ) {
+                  handleAddMongoDb(document, eventTransferCollection);
+                }
+
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('\n');
+                // console.log('common_psp22 document', document);
+
+                // // ===================
+
+                // console.log('\n common_psp22 ===================');
+              }
+            }
+          } catch (error) {
+            console.log('common_psp22 getEventValues error', error);
+          }
+
+          // console.log('\n=============================BBB');
+
           const accIdString = accId.toString();
-          console.log({accIdString: accIdString});
+
           const checkPool = await poolsCollection.findOne({
             poolContract: accIdString,
             poolGeneratorContractAddress:
@@ -1189,6 +1412,48 @@ function extractInfoFromCallArgs({
   } catch (error) {
     // console.log('NOT common_psp22_contract....................');
   }
+
+  try {
+    // const farm_contract_contract = new ContractPromise(
+    //   api,
+    //   farm_contract.CONTRACT_ABI,
+    //   farm_contract.CONTRACT_ADDRESS,
+    // );
+    // let decodedMessage = farm_contract_contract.abi.decodeMessage(
+    //   compactAddLength(hexToU8a(args.data)),
+    // );
+    // console.log(
+    //   '$$$$$$$$$$$$$$$$$$$$$$ farm_contract_contract....................',
+    // );
+    // console.log('$$$$$$$$$$$$$$$$$$$$$$ method', decodedMessage.message.method);
+    // console.log(
+    //   '$$$$$$$$$$$$$$$$$$$$$$ decodedMessage.args',
+    //   decodedMessage.args,
+    // );
+    // console.log(
+    //   '$$$$$$$$$$$$$$$$$$$$$$ decodedMessage.message',
+    //   decodedMessage.message,
+    // );
+    // console.log('|');
+    // console.log('|');
+    // console.log('factory_contract_contract....................');
+    // // console.log('decodedMessage', decodedMessage);
+    // // console.log('decodedMessage.message', decodedMessage.message);
+    // console.log(
+    //   'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    // );
+    // console.log('|');
+    // console.log('|');
+    // console.log('| method', decodedMessage.message.method);
+    // extractMessageDecoded(decodedMessage);
+    // console.log('|');
+    // console.log('|');
+    // console.log(
+    //   'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    // );
+  } catch (error) {
+    // console.log('NOT factory_contract_contract....................');
+  }
 }
 
 function handleAddMongoDb(document: any, dbCollection: any) {
@@ -1382,70 +1647,106 @@ const commonFiTokenList = [
     tokenAddress: '5FrXTf3NXRWZ1wzq9Aka7kTGCgGotf6wifzV7RzxoCYtrjiX',
   },
   {
-    tokenSymbol: 'TZERO',
+    tokenSymbol: 'INW2',
     tokenDecimals: 12,
     icon: '',
-    tokenAddress: '5EFDb7mKbougLtr5dnwd5KDfZ3wK55JPGPLiryKq4uRMPR46',
+    tokenAddress: '5HgJNiF2bJkjqZ8M7HRdSuJ9Ho5EJhnpipEtF69FTo2XX1Hu',
   },
   {
+    tokenAddress: '5CVGYujZnkBvNsUypdMuEYT2qRzFWhZHufteSfYguQMLkaE3',
+    tokenName: 'Fire',
     tokenSymbol: 'FIR',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5CVGYujZnkBvNsUypdMuEYT2qRzFWhZHufteSfYguQMLkaE3',
   },
   {
+    tokenAddress: '5FDkUXLExhgFT92UQvMQVG8H4Z4Ku4Mx9heUYpchxZMdY7LD',
+    tokenName: 'Paper',
     tokenSymbol: 'PAP',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5FDkUXLExhgFT92UQvMQVG8H4Z4Ku4Mx9heUYpchxZMdY7LD',
   },
   {
+    tokenAddress: '5DgnLZDNJ2bN4AcG4PzGMDdpL5ukd1kttmuMjXYNCG91vCkX',
+    tokenName: 'Plants',
     tokenSymbol: 'PLA',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5DgnLZDNJ2bN4AcG4PzGMDdpL5ukd1kttmuMjXYNCG91vCkX',
   },
   {
+    tokenAddress: '5GkV8efVcUhZ2PRkP6bNzJ9ATVh32uJMY89zMiK5rkA49yfU',
+    tokenName: 'Water',
     tokenSymbol: 'WAT',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5GkV8efVcUhZ2PRkP6bNzJ9ATVh32uJMY89zMiK5rkA49yfU',
   },
   {
+    tokenAddress: '5F84uFXvpEn4n6fAyRbP6mg32YHy8R4KEokZfFMW1svNTmbZ',
+    tokenName: 'Wind',
     tokenSymbol: 'WIN',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5F84uFXvpEn4n6fAyRbP6mg32YHy8R4KEokZfFMW1svNTmbZ',
   },
   {
+    tokenAddress: '5DuyRY19RZsxnyffwKRSox8rj5VUHf49fHLjUcZpfnwFrYGZ',
+    tokenName: 'Electricity',
     tokenSymbol: 'ELE',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5DuyRY19RZsxnyffwKRSox8rj5VUHf49fHLjUcZpfnwFrYGZ',
   },
   {
+    tokenAddress: '5E3bkdogtK4ro2vC5vKP7QDJRzw38kHqXp5p5BiurQ9hBSbF',
+    tokenName: 'Ice',
     tokenSymbol: 'ICE',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5E3bkdogtK4ro2vC5vKP7QDJRzw38kHqXp5p5BiurQ9hBSbF',
   },
   {
+    tokenAddress: '5CnV23shYarqBGZVmzuCxJvbd2TwxvQsjgAxoeGnhu2Zkxkp',
+    tokenName: 'Steam',
     tokenSymbol: 'STE',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5CnV23shYarqBGZVmzuCxJvbd2TwxvQsjgAxoeGnhu2Zkxkp',
   },
   {
+    tokenAddress: '5D5W2iUTvWs3mVSLDCdnNU3pTJyUHpiCeTEp9td4Hk3jwPqt',
+    tokenName: 'Stone',
     tokenSymbol: 'STO',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5D5W2iUTvWs3mVSLDCdnNU3pTJyUHpiCeTEp9td4Hk3jwPqt',
   },
   {
+    tokenAddress: '5H8UXMbPdVTCbsYQWBGuVj4k6XDo75wqQ8QdeRbwziQYcTdc',
+    tokenName: 'Wood',
     tokenSymbol: 'WOO',
     tokenDecimals: 12,
-    icon: '',
-    tokenAddress: '5H8UXMbPdVTCbsYQWBGuVj4k6XDo75wqQ8QdeRbwziQYcTdc',
+  },
+  {
+    tokenAddress: '5GCESNyxspadqV267XA1jr1dUs5gQpM5fK8vWf2mbUCHrNcX',
+    tokenName: 'wSepoliaETH',
+    tokenSymbol: 'wSETH',
+    tokenDecimals: 18,
+  },
+  {
+    tokenAddress: '5GbgQsUockA8cG6VV9AMesudFC5Z9HZBeGrgURsX2tarUynh',
+    tokenName: 'Magic',
+    tokenSymbol: 'MAG',
+    tokenDecimals: 6,
+  },
+  {
+    tokenAddress: '5EgZssw2zdRNd6ptEm5RMvh4aJebLhdfsdFPECUrCWRMB4bJ',
+    tokenName: 'Love',
+    tokenSymbol: 'LUV',
+    tokenDecimals: 6,
+  },
+  {
+    tokenAddress: '5F4baaKHqbP9D3pzL82T8ETG8p5iSojaPnuAJmNk5rh7tiKs',
+    tokenName: 'Luck',
+    tokenSymbol: 'LUC',
+    tokenDecimals: 6,
+  },
+  {
+    tokenAddress: '5F15fXseSeKtmjmUUrERV7rXwBQDmpS1RMepniiYLiMWEhkf',
+    tokenName: 'Knowledge',
+    tokenSymbol: 'KNO',
+    tokenDecimals: 6,
+  },
+  {
+    tokenAddress: '5EFDb7mKbougLtr5dnwd5KDfZ3wK55JPGPLiryKq4uRMPR46',
+    tokenName: 'Wrapped TZERO',
+    tokenSymbol: 'wTZERO',
+    tokenDecimals: 12,
   },
 ];
 
