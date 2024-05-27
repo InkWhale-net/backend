@@ -834,11 +834,13 @@ export async function processUpdateStats(
       await statsSchemaRepository.updateById(statsList[0]._id, {
         tvlInAzero,
         tvlInUSD,
+        azeroInUSD: priceA0
       });
     } else {
       await statsSchemaRepository.create({
         tvlInAzero,
         tvlInUSD,
+        azeroInUSD: priceA0
       });
     }
     return {tvlInAzero, tvlInUSD};

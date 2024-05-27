@@ -18,6 +18,11 @@ export class Stats extends Entity {
     type: 'number',
   })
   tvlInUSD?: string;
+
+  @property({
+    type: 'string',
+  })
+  azeroInUSD?: string;
 }
 export interface StatsSchemaRelations {
   // describe navigational properties here
