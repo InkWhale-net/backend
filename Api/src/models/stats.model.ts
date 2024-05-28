@@ -23,6 +23,11 @@ export class Stats extends Entity {
     type: 'string',
   })
   azeroInUSD?: string;
+
+  @property({
+    type: 'number',
+  })
+  inw2InAzero?: number;
 }
 export interface StatsSchemaRelations {
   // describe navigational properties here
