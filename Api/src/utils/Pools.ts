@@ -357,8 +357,6 @@ const ProcessLP = async (
             try {
                 await lpPoolsSchemaRepository.updateById(collection._id, {
                     lptokenContract: _lptokenContract,
-                    lptokenName: _lptokenName,
-                    lptokenSymbol: _lptokenSymbol,
                     lptokenDecimal: _lptokenDecimal,
                     tokenContract: _tokenContract,
                     tokenName: _tokenName,
