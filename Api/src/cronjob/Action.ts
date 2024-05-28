@@ -821,7 +821,10 @@ export async function processUpdateStats(
   poolsSchemaRepository: PoolsSchemaRepository,
   nftPoolsSchemaRepository: NftPoolsSchemaRepository,
   lpPoolsSchemaRepository: LpPoolsSchemaRepository,
-): Promise<{tvlInAzero: any; tvlInUSD: any} | undefined> {
+): Promise<
+  | {tvlInAzero: any; tvlInUSD: any; azeroInUSD: any; inw2InAzero: any}
+  | undefined
+> {
   try {
     const pools = await poolsSchemaRepository.find({});
     const totalLocked = pools.reduce(
@@ -919,7 +922,7 @@ export async function processUpdateStats(
       });
     }
 
-    return {tvlInAzero, tvlInUSD};
+    return {tvlInAzero, tvlInUSD, azeroInUSD: priceA0, inw2InAzero};
   } catch (e) {
     console.log(`${CONFIG_TYPE_NAME.STATS} - ERROR: ${e.message}`);
   }

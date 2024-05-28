@@ -86,10 +86,10 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
 
               const statsList = await statsRepo.find();
 
-              const {azeroInUSD, inw2InAzero} = statsList[0];
-              const inw2InUSD = Number(azeroInUSD) * Number(inw2InAzero || 0);
-
               if (statsList?.length > 0) {
+                const {azeroInUSD, inw2InAzero} = statsList[0];
+
+                const inw2InUSD = Number(azeroInUSD) * Number(inw2InAzero || 0);
                 send_telegram_message(
                   `<b>INW2 Price:</b> <b><i>${formatNumDynDecimal(
                     inw2InAzero,
@@ -106,15 +106,20 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
                   nftPoolsRepo,
                   lppoolRepo,
                 );
-                 send_telegram_message(
-                   `<b>INW2 Price:</b> <b><i>${formatNumDynDecimal(
-                     inw2InAzero,
-                   )}</i></b> AZERO ($ <b>${formatNumDynDecimal(
-                     inw2InUSD,
-                   )}</b>)`,
-                   process.env.TELEGRAM_ID_CHAT || '',
-                   threadId,
-                 );
+
+                const inw2InUSD =
+                  Number(TVLData?.azeroInUSD) *
+                  Number(TVLData?.inw2InAzero || 0);
+
+                send_telegram_message(
+                  `<b>INW2 Price:</b> <b><i>${formatNumDynDecimal(
+                    TVLData?.inw2InAzero,
+                  )}</i></b> AZERO ($ <b>${formatNumDynDecimal(
+                    inw2InUSD,
+                  )}</b>)`,
+                  process.env.TELEGRAM_ID_CHAT || '',
+                  threadId,
+                );
               }
             })();
             break;
