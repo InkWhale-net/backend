@@ -260,8 +260,6 @@ const ProcessLP = async (poolContract) => {
     //console.log('Already Exists, update',poolContract,_rewardPool);
     await database.LPPools.updateOne({poolContract},{
       lptokenContract: _lptokenContract,
-      lptokenName: _lptokenName,
-      lptokenSymbol: _lptokenSymbol,
       lptokenDecimal: _lptokenDecimal,
       tokenContract: _tokenContract,
       tokenName: _tokenName,
@@ -282,8 +280,6 @@ const ProcessLP = async (poolContract) => {
     let create_collection = await database.LPPools.create({
       poolContract,
       lptokenContract: _lptokenContract,
-      lptokenName: _lptokenName,
-      lptokenSymbol: _lptokenSymbol,
       lptokenDecimal: _lptokenDecimal,
       tokenContract: _tokenContract,
       tokenName: _tokenName,

@@ -384,8 +384,8 @@ const ProcessLP = async (
                     {
                         poolContract,
                         lptokenContract: _lptokenContract,
-                        lptokenName: _lptokenName,
-                        lptokenSymbol: _lptokenSymbol,
+                        // lptokenName: _lptokenName,
+                        // lptokenSymbol: _lptokenSymbol,
                         lptokenDecimal: _lptokenDecimal,
                         tokenContract: _tokenContract,
                         tokenName: _tokenName,
