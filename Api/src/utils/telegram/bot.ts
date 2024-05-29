@@ -42,13 +42,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               const statsList = await statsRepo.find();
               if (statsList?.length > 0) {
                 send_telegram_message(
-                  `<b>Platform TVL:<br /> <> ${formatNumDynDecimal(
+                  `Platform TVL: ${formatNumDynDecimal(
                     statsList[0]?.tvlInAzero || 0,
                     4,
-                  )} AZERO <br /> ($${formatNumDynDecimal(
+                  )} AZERO ($${formatNumDynDecimal(
                     statsList[0]?.tvlInUSD || 0,
                     4,
-                  )}</b>)`,
+                  )})`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -60,13 +60,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
                   lppoolRepo,
                 );
                 send_telegram_message(
-                  `<b>Platform TVL:<br /> ${formatNumDynDecimal(
+                  `Platform TVL: ${formatNumDynDecimal(
                     TVLData?.tvlInAzero || 0,
                     4,
-                  )} AZERO <br /> ($${formatNumDynDecimal(
+                  )} AZERO ($${formatNumDynDecimal(
                     TVLData?.tvlInUSD || 0,
                     4,
-                  )}</b>)`,
+                  )})`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -93,13 +93,14 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               if (statsList?.length > 0) {
                 const {azeroInUSD, inw2InAzero} = statsList[0];
 
-                const inw2InUSD = Number(azeroInUSD || 0) * Number(inw2InAzero || 0);
+                const inw2InUSD =
+                  Number(azeroInUSD || 0) * Number(inw2InAzero || 0);
 
                 send_telegram_message(
-                  `<b>INW2 Price:<br /> ${formatNumDynDecimal(
+                  `INW2 Price: ${formatNumDynDecimal(
                     inw2InAzero,
                     4,
-                  )} AZERO <br /> ($${formatNumDynDecimal(inw2InUSD, 6)}</b>)`,
+                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -116,10 +117,10 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
                   Number(TVLData?.inw2InAzero || 0);
 
                 send_telegram_message(
-                  `<b>INW2 Price:<br /> ${formatNumDynDecimal(
+                  `INW2 Price: ${formatNumDynDecimal(
                     TVLData?.inw2InAzero,
                     4,
-                  )} AZERO <br /> ($${formatNumDynDecimal(inw2InUSD, 6)}</b>)`,
+                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
