@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
-import {fetchInwPrice, processUpdateStats} from '../../cronjob/Action';
+import {fetchCommonPoolPrice, processUpdateStats} from '../../cronjob/Action';
 import {InkWhaleDbDataSource} from '../../datasources';
 import {
   LpPoolsSchemaRepository,
@@ -82,22 +82,8 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
           case '/price':
             (async () => {
               try {
-                let azeroInUSD = await getAzeroPrice('AZERO');
-                console.log('\n processUpdateStats... /price');
-                console.log('azeroInUSD', azeroInUSD);
-
-                const inw2InAzero = await fetchInwPrice(
-                  '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
-                );
-                console.log('inw2InAzero', inw2InAzero);
-                const inw2InUSD =
-                  Number(azeroInUSD || 0) * Number(inw2InAzero || 0);
-
                 send_telegram_message(
-                  `<b>INW2 Price: ${formatNumDynDecimal(
-                    inw2InAzero,
-                    4,
-                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})</b>`,
+                  `<b>Token list:\n /price_inw2 INW\n /price_iou IOU\n /price_imun IMUN\n /price_nuko NUKO\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -106,25 +92,67 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               }
             })();
             break;
+          case '/price_inw2':
+            getCommonPoolPrice(
+              threadId,
+              'INW2',
+              '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
+            )();
+            break;
           case '/price_iou':
+            getCommonPoolPrice(
+              threadId,
+              'IOU',
+              '5CcUwJACT8vcSXG9U4nNLiA6U2yohP8smgBUSMgymKUbe1Bg',
+            )();
+            break;
+          case '/price_imun':
+            getCommonPoolPrice(
+              threadId,
+              'IMUN',
+              '5Fyqc7v79MUiMPRqQswdrTU69W6jcEwTN3yxWh7EF9ZwP1tt',
+            )();
+            break;
+          case '/price_nuko':
+            getCommonPoolPrice(
+              threadId,
+              'NUKO',
+              '5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1',
+            )();
+            break;
+          case '/price_kebab':
+            getCommonPoolPrice(
+              threadId,
+              'KEBAB',
+              '5DtsqFdRgxkQDceKtmMPB6MeCfjJRpir9R2uPVKoojayj26h',
+            )();
+            break;
+          case '/price_balda':
+            getCommonPoolPrice(
+              threadId,
+              'BALDA',
+              '5EcFNb89oVXoz3Ria2bJus9TaKqsSxnXcqfUh5KCNpJxR526',
+            )();
+            break;
+          case '/price_sc':
+            getCommonPoolPrice(
+              threadId,
+              'SC',
+              '5Ef2cGhQJPjQuZxodyGM7QCheUSivdya2wLynG4pSHrjMfx6',
+            )();
+            break;
+          case '/price_zpf':
+            getCommonPoolPrice(
+              threadId,
+              'ZPF',
+              '5Fck3jA2UHqe1ktkMyeAe7w1eDJcf1QtADgQ6KShQEsgn1yc',
+            )();
+            break;
+          case '/pool':
             (async () => {
               try {
-                let azeroInUSD = await getAzeroPrice('AZERO');
-                console.log('\n processUpdateStats... /price');
-                console.log('azeroInUSD', azeroInUSD);
-
-                const iouInAzero = await fetchInwPrice(
-                  '5CcUwJACT8vcSXG9U4nNLiA6U2yohP8smgBUSMgymKUbe1Bg',
-                );
-                console.log('iouInAzero', iouInAzero);
-                const inw2InUSD =
-                  Number(azeroInUSD || 0) * Number(iouInAzero || 0);
-
                 send_telegram_message(
-                  `<b>IOU Price: ${formatNumDynDecimal(
-                    iouInAzero,
-                    4,
-                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})</b>`,
+                  `<b>Pool list:\n /pool_inw2 INW\n /pool_iou IOU\n /pool_imun IMUN\n /pool_nuko NUKO\n /pool_kebab KEBAB\n /pool_balda BALDA\n /pool_sc SC\n /pool_zpf ZPF</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -132,6 +160,62 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
                 console.log('priceA0 error', error);
               }
             })();
+            break;
+          case '/pool_inw2':
+            send_telegram_message(
+              `<b>AZERO-INW2 Pool: https://app.common.fi/pools/5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_iou':
+            send_telegram_message(
+              `<b>AZERO-IOU Pool: https://app.common.fi/pools/5CcUwJACT8vcSXG9U4nNLiA6U2yohP8smgBUSMgymKUbe1Bg</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_imun':
+            send_telegram_message(
+              `<b>AZERO-IMUN Pool: https://app.common.fi/pools/5Fyqc7v79MUiMPRqQswdrTU69W6jcEwTN3yxWh7EF9ZwP1tt</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_nuko':
+            send_telegram_message(
+              `<b>AZERO-NUKO Pool: https://app.common.fi/pools/5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_kebab':
+            send_telegram_message(
+              `<b>AZERO-KEBAB Pool: https://app.common.fi/pools/5DtsqFdRgxkQDceKtmMPB6MeCfjJRpir9R2uPVKoojayj26h</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_balda':
+            send_telegram_message(
+              `<b>AZERO-BALDA Pool: https://app.common.fi/pools/5EcFNb89oVXoz3Ria2bJus9TaKqsSxnXcqfUh5KCNpJxR526</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_sc':
+            send_telegram_message(
+              `<b>AZERO-SC Pool: https://app.common.fi/pools/5Ef2cGhQJPjQuZxodyGM7QCheUSivdya2wLynG4pSHrjMfx6</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_zpf':
+            send_telegram_message(
+              `<b>AZERO-ZPF Pool: https://app.common.fi/pools/5Fck3jA2UHqe1ktkMyeAe7w1eDJcf1QtADgQ6KShQEsgn1yc</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
             break;
           case '/testdd':
             break;
@@ -143,4 +227,27 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
   console.log(
     'Bot is not running. Set RUN_TELEGRAM_BOT=true to start the bot.',
   );
+}
+
+function getCommonPoolPrice(threadId: string, symbol: string, address: string) {
+  return async () => {
+    try {
+      let azeroInUSD = await getAzeroPrice('AZERO');
+
+      const poolPriceInAzero = await fetchCommonPoolPrice(address);
+
+      const inw2InUSD = Number(azeroInUSD || 0) * Number(poolPriceInAzero || 0);
+
+      send_telegram_message(
+        `<b>${symbol} Price: ${formatNumDynDecimal(
+          poolPriceInAzero,
+          4,
+        )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})</b>`,
+        process.env.TELEGRAM_ID_CHAT || '',
+        threadId,
+      );
+    } catch (error) {
+      console.log('pricePool error', error);
+    }
+  };
 }

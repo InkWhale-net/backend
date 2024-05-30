@@ -909,7 +909,7 @@ export async function processUpdateStats(
     try {
       inw2InAzero =
         globalApi &&
-        (await fetchInwPrice(
+        (await fetchCommonPoolPrice(
           '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
         ));
       console.log('inw2InAzero', inw2InAzero);
@@ -940,7 +940,7 @@ export async function processUpdateStats(
 }
 
 // '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
-export const fetchInwPrice = async (pairAddress: string) => {
+export const fetchCommonPoolPrice = async (pairAddress: string) => {
   const contract = new ContractPromise(
     globalApi,
     pair_contract.CONTRACT_ABI,
