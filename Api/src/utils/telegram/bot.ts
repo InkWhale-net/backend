@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
-import {processUpdateStats} from '../../cronjob/Action';
+import {fetchInwPrice, processUpdateStats} from '../../cronjob/Action';
 import {InkWhaleDbDataSource} from '../../datasources';
 import {
   LpPoolsSchemaRepository,
@@ -8,7 +8,12 @@ import {
   PoolsSchemaRepository,
   StatsSchemaRepository,
 } from '../../repositories';
-import {formatNumDynDecimal, send_telegram_message} from '../utils';
+import {
+  formatNumDynDecimal,
+  getAzeroPrice,
+  send_telegram_message,
+} from '../utils';
+import {globalApi} from '../..';
 dotenv.config();
 
 if (process.env.RUN_TELEGRAM_BOT == 'true') {
@@ -40,15 +45,16 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               );
 
               const statsList = await statsRepo.find();
+
               if (statsList?.length > 0) {
                 send_telegram_message(
-                  `Platform TVL: ${formatNumDynDecimal(
+                  `<b>Platform TVL: ${formatNumDynDecimal(
                     statsList[0]?.tvlInAzero || 0,
                     4,
                   )} AZERO ($${formatNumDynDecimal(
                     statsList[0]?.tvlInUSD || 0,
                     4,
-                  )})`,
+                  )})</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -60,13 +66,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
                   lppoolRepo,
                 );
                 send_telegram_message(
-                  `Platform TVL: ${formatNumDynDecimal(
+                  `<b>Platform TVL: ${formatNumDynDecimal(
                     TVLData?.tvlInAzero || 0,
                     4,
                   )} AZERO ($${formatNumDynDecimal(
                     TVLData?.tvlInUSD || 0,
                     4,
-                  )})`,
+                  )})</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -75,55 +81,31 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             break;
           case '/price':
             (async () => {
-              const poolsRepo = new PoolsSchemaRepository(
-                new InkWhaleDbDataSource(),
-              );
-              const nftPoolsRepo = new NftPoolsSchemaRepository(
-                new InkWhaleDbDataSource(),
-              );
-              const statsRepo = new StatsSchemaRepository(
-                new InkWhaleDbDataSource(),
-              );
-              const lppoolRepo = new LpPoolsSchemaRepository(
-                new InkWhaleDbDataSource(),
-              );
+              try {
+                let azeroInUSD = await getAzeroPrice('AZERO');
+                console.log('\n processUpdateStats... /price');
+                console.log('azeroInUSD', azeroInUSD);
 
-              const statsList = await statsRepo.find();
-
-              if (statsList?.length > 0) {
-                const {azeroInUSD, inw2InAzero} = statsList[0];
-
+                console.log('globalApi', globalApi);
+                const inw2InAzero =
+                  globalApi &&
+                  (await fetchInwPrice(
+                    '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
+                  ));
+                console.log('inw2InAzero', inw2InAzero);
                 const inw2InUSD =
                   Number(azeroInUSD || 0) * Number(inw2InAzero || 0);
 
                 send_telegram_message(
-                  `INW2 Price: ${formatNumDynDecimal(
+                  `<b>INW2 Price: ${formatNumDynDecimal(
                     inw2InAzero,
                     4,
-                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})`,
+                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
-              } else {
-                const TVLData = await processUpdateStats(
-                  statsRepo,
-                  poolsRepo,
-                  nftPoolsRepo,
-                  lppoolRepo,
-                );
-
-                const inw2InUSD =
-                  Number(TVLData?.azeroInUSD || 0) *
-                  Number(TVLData?.inw2InAzero || 0);
-
-                send_telegram_message(
-                  `INW2 Price: ${formatNumDynDecimal(
-                    TVLData?.inw2InAzero,
-                    4,
-                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})`,
-                  process.env.TELEGRAM_ID_CHAT || '',
-                  threadId,
-                );
+              } catch (error) {
+                console.log('priceA0 error', error);
               }
             })();
             break;

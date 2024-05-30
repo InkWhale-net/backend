@@ -896,16 +896,27 @@ export async function processUpdateStats(
 
     const sumNftValue = calculatedValues.reduce((acc, value) => acc + value, 0);
     const totalValue = sumNftValue + valueInAzero + valueLpInAzero;
-    const priceA0 = await getAzeroPrice('AZERO');
+    let priceA0 = await getAzeroPrice('AZERO');
     const statsList = await statsSchemaRepository.find();
+
     const tvlInAzero = Number(totalValue / 10 ** 12).toString();
     const tvlInUSD = Number(
       (priceA0 * totalValue || totalValue) / 10 ** 12,
     ).toString();
 
-    const inw2InAzero = await fetchInwPrice(
-      '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
-    );
+    let inw2InAzero;
+
+    try {
+      inw2InAzero =
+        globalApi &&
+        (await fetchInwPrice(
+          '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
+        ));
+      console.log('inw2InAzero', inw2InAzero);
+    } catch (error) {
+      console.log('priceA0 error', error);
+    }
+
     if (statsList?.length > 0) {
       await statsSchemaRepository.updateById(statsList[0]._id, {
         tvlInAzero,
@@ -929,7 +940,7 @@ export async function processUpdateStats(
 }
 
 // '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
-const fetchInwPrice = async (pairAddress: string) => {
+export const fetchInwPrice = async (pairAddress: string) => {
   const contract = new ContractPromise(
     globalApi,
     pair_contract.CONTRACT_ABI,
@@ -956,6 +967,7 @@ const fetchInwPrice = async (pairAddress: string) => {
         const inwAmount = ret[1]?.replace(/,/g, '') / Math.pow(10, 12);
 
         const inw2InAzero = azeroAmount / inwAmount;
+        console.log('fetchInwPrice inw2InAzero', inw2InAzero);
         return inw2InAzero;
       }
     } catch (error) {

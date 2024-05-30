@@ -395,20 +395,26 @@ export const getTokenOwner = async (api: any, contractAddress: any) => {
     return getOldTokenOwner(api, contractAddress);
   }
 };
+export function roundDown(number: number, decimals = 4) {
+  decimals = decimals || 0;
+  return Math.floor(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+
+export const formatTextAmount = (value: any) => value?.replaceAll(',', '');
 
 export const formatNumDynDecimal = (num: any = 0, dec: any = 4): string => {
-  const result = (num * 10 ** dec) / 10 ** dec;
-  const numStr = result.toString();
-  const dotIdx = numStr.indexOf('.');
-
-  if (dotIdx === -1) {
-    return numeral(numStr).format('0,0');
+  try {
+    const raw = formatTextAmount(num?.toString());
+    let parts = raw?.split('.');
+    if (parts?.length > 1 && +parts?.[1] > 0) {
+      parts[0] = parts[0]?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      parts[1] = roundDown(+`0.${parts[1]}`, dec).toString().split('.')[1];
+      return parts?.join('.');
+    } else return parts?.[0]?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  } catch (error) {
+    console.log(error);
+    return num?.toString();
   }
-
-  const intPart = numeral(numStr.slice(0, dotIdx)).format('0,0');
-  const decPart = numStr.slice(dotIdx + 1, numStr.length);
-
-  return intPart + `${dotIdx === -1 ? '' : `.${decPart}`}`;
 };
 
 export const resolveDomain = async (
