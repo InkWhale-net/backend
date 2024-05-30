@@ -86,12 +86,9 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
                 console.log('\n processUpdateStats... /price');
                 console.log('azeroInUSD', azeroInUSD);
 
-                console.log('globalApi', globalApi);
-                const inw2InAzero =
-                  globalApi &&
-                  (await fetchInwPrice(
-                    '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
-                  ));
+                const inw2InAzero = await fetchInwPrice(
+                  '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
+                );
                 console.log('inw2InAzero', inw2InAzero);
                 const inw2InUSD =
                   Number(azeroInUSD || 0) * Number(inw2InAzero || 0);
@@ -109,8 +106,34 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               }
             })();
             break;
+          case '/price_iou':
+            (async () => {
+              try {
+                let azeroInUSD = await getAzeroPrice('AZERO');
+                console.log('\n processUpdateStats... /price');
+                console.log('azeroInUSD', azeroInUSD);
+
+                const iouInAzero = await fetchInwPrice(
+                  '5CcUwJACT8vcSXG9U4nNLiA6U2yohP8smgBUSMgymKUbe1Bg',
+                );
+                console.log('iouInAzero', iouInAzero);
+                const inw2InUSD =
+                  Number(azeroInUSD || 0) * Number(iouInAzero || 0);
+
+                send_telegram_message(
+                  `<b>IOU Price: ${formatNumDynDecimal(
+                    iouInAzero,
+                    4,
+                  )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})</b>`,
+                  process.env.TELEGRAM_ID_CHAT || '',
+                  threadId,
+                );
+              } catch (error) {
+                console.log('priceA0 error', error);
+              }
+            })();
+            break;
           case '/testdd':
-            console.log(':dasd');
             break;
         }
       }

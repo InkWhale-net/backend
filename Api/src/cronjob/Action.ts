@@ -957,7 +957,6 @@ export const fetchInwPrice = async (pairAddress: string) => {
           gasLimit,
           value: 0,
         },
-        '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
       );
       if (result.isOk) {
         // @ts-ignore
@@ -968,11 +967,12 @@ export const fetchInwPrice = async (pairAddress: string) => {
 
         const inw2InAzero = azeroAmount / inwAmount;
         console.log('fetchInwPrice inw2InAzero', inw2InAzero);
+
         return inw2InAzero;
       }
     } catch (error) {
       // @ts-ignore
-      logger.error(`@_@ ${queryName} error >> ${error}`);
+      console.log(`@_@ error >> ${error}`);
       return 0;
     }
   }
