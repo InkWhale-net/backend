@@ -83,7 +83,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             (async () => {
               try {
                 send_telegram_message(
-                  `<b>Token list:\n /price_inw2 INW2\n /price_iou IOU\n /price_imun IMUN\n /price_nuko NUKO\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF</b>`,
+                  `<b>Token list:\n /price_inw2 INW2\n /price_iou IOU\n /price_imun IMUN\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -152,7 +152,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             (async () => {
               try {
                 send_telegram_message(
-                  `<b>Pool list:\n /pool_inw2 INW2\n /pool_iou IOU\n /pool_imun IMUN\n /pool_nuko NUKO\n /pool_kebab KEBAB\n /pool_balda BALDA\n /pool_sc SC\n /pool_zpf ZPF</b>`,
+                  `<b>Pool list:\n /pool_inw2 INW2\n /pool_iou IOU\n /pool_imun IMUN\n /pool_kebab KEBAB\n /pool_balda BALDA\n /pool_sc SC\n /pool_zpf ZPF</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -237,20 +237,21 @@ function getCommonPoolPrice(threadId: string, symbol: string, address: string) {
       const poolPriceInAzero = await fetchCommonPoolPrice(address);
 
       const inw2InUSD = Number(azeroInUSD || 0) * Number(poolPriceInAzero || 0);
-      console.log('\n');
-      console.log('\n');
-      console.log('\n');
-      console.log('\n===============================');
-      console.log('poolPriceInAzero', poolPriceInAzero);
-      console.log('inw2InUSD', inw2InUSD);
-      console.log('\n===============================');
-      console.log('azeroInUSD', azeroInUSD);
-      console.log('threadId', threadId);
-      console.log('process.env.TELEGRAM_ID_CHAT', process.env.TELEGRAM_ID_CHAT);
-      console.log('\n===============================');
-      console.log('\n');
-      console.log('\n');
-      console.log('\n');
+
+      console.log('\n')
+      console.log('\n')
+      console.log('\n')
+      console.log('\n===============================')
+      console.log('poolPriceInAzero', poolPriceInAzero)
+      console.log('inw2InUSD', inw2InUSD)
+      console.log('\n===============================')
+      console.log('azeroInUSD', azeroInUSD)
+      console.log('threadId', threadId)
+      console.log('process.env.TELEGRAM_ID_CHAT', process.env.TELEGRAM_ID_CHAT)
+      console.log('\n===============================')
+      console.log('\n')
+      console.log('\n')
+      console.log('\n')
       send_telegram_message(
         `<b>${symbol} Price: ${formatNumDynDecimal(
           poolPriceInAzero,
