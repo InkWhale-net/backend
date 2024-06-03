@@ -83,7 +83,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             (async () => {
               try {
                 send_telegram_message(
-                  `<b>Token list:\n /price_inw2 INW\n /price_iou IOU\n /price_imun IMUN\n /price_nuko NUKO\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF</b>`,
+                  `<b>Token list:\n /price_inw2 INW2\n /price_iou IOU\n /price_imun IMUN\n /price_nuko NUKO\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -113,13 +113,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               '5Fyqc7v79MUiMPRqQswdrTU69W6jcEwTN3yxWh7EF9ZwP1tt',
             )();
             break;
-          case '/price_nuko':
-            getCommonPoolPrice(
-              threadId,
-              'NUKO',
-              '5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1',
-            )();
-            break;
+          // case '/price_nuko':
+          //   getCommonPoolPrice(
+          //     threadId,
+          //     'NUKO',
+          //     '5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1',
+          //   )();
+          //   break;
           case '/price_kebab':
             getCommonPoolPrice(
               threadId,
@@ -152,7 +152,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             (async () => {
               try {
                 send_telegram_message(
-                  `<b>Pool list:\n /pool_inw2 INW\n /pool_iou IOU\n /pool_imun IMUN\n /pool_nuko NUKO\n /pool_kebab KEBAB\n /pool_balda BALDA\n /pool_sc SC\n /pool_zpf ZPF</b>`,
+                  `<b>Pool list:\n /pool_inw2 INW2\n /pool_iou IOU\n /pool_imun IMUN\n /pool_nuko NUKO\n /pool_kebab KEBAB\n /pool_balda BALDA\n /pool_sc SC\n /pool_zpf ZPF</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -182,13 +182,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               threadId,
             );
             break;
-          case '/pool_nuko':
-            send_telegram_message(
-              `<b>AZERO-NUKO Pool: https://app.common.fi/pools/5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1</b>`,
-              process.env.TELEGRAM_ID_CHAT || '',
-              threadId,
-            );
-            break;
+          // case '/pool_nuko':
+          //   send_telegram_message(
+          //     `<b>AZERO-NUKO Pool: https://app.common.fi/pools/5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1</b>`,
+          //     process.env.TELEGRAM_ID_CHAT || '',
+          //     threadId,
+          //   );
+          //   break;
           case '/pool_kebab':
             send_telegram_message(
               `<b>AZERO-KEBAB Pool: https://app.common.fi/pools/5DtsqFdRgxkQDceKtmMPB6MeCfjJRpir9R2uPVKoojayj26h</b>`,
@@ -237,12 +237,25 @@ function getCommonPoolPrice(threadId: string, symbol: string, address: string) {
       const poolPriceInAzero = await fetchCommonPoolPrice(address);
 
       const inw2InUSD = Number(azeroInUSD || 0) * Number(poolPriceInAzero || 0);
-
+      console.log('\n');
+      console.log('\n');
+      console.log('\n');
+      console.log('\n===============================');
+      console.log('poolPriceInAzero', poolPriceInAzero);
+      console.log('inw2InUSD', inw2InUSD);
+      console.log('\n===============================');
+      console.log('azeroInUSD', azeroInUSD);
+      console.log('threadId', threadId);
+      console.log('process.env.TELEGRAM_ID_CHAT', process.env.TELEGRAM_ID_CHAT);
+      console.log('\n===============================');
+      console.log('\n');
+      console.log('\n');
+      console.log('\n');
       send_telegram_message(
         `<b>${symbol} Price: ${formatNumDynDecimal(
           poolPriceInAzero,
-          4,
-        )} AZERO ($${formatNumDynDecimal(inw2InUSD, 6)})</b>`,
+          8,
+        )} AZERO ($${formatNumDynDecimal(inw2InUSD, 8)})</b>`,
         process.env.TELEGRAM_ID_CHAT || '',
         threadId,
       );
