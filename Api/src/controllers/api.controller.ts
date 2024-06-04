@@ -215,10 +215,6 @@ export class ApiController {
     if (!offset) offset = 0;
 
     let tokens = await this.tokensSchemaRepository.find({
-      where: {
-        tokenGeneratorContractAddress:
-          token_generator_contract.CONTRACT_ADDRESS
-      },
       order: [order],
       limit: limit,
       skip: offset
@@ -230,7 +226,7 @@ export class ApiController {
       ret: tokens
     };
   }
-
+  
   @post('/updateTokenUrl')
   async updateTokenUrl(
     @requestBody(ReqUpdateTokenIconBody) req: ReqUpdateTokenIconType
