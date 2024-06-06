@@ -238,20 +238,18 @@ function getCommonPoolPrice(threadId: string, symbol: string, address: string) {
 
       const inw2InUSD = Number(azeroInUSD || 0) * Number(poolPriceInAzero || 0);
 
-      console.log('\n')
-      console.log('\n')
-      console.log('\n')
-      console.log('\n===============================')
-      console.log('poolPriceInAzero', poolPriceInAzero)
-      console.log('inw2InUSD', inw2InUSD)
-      console.log('\n===============================')
-      console.log('azeroInUSD', azeroInUSD)
-      console.log('threadId', threadId)
-      console.log('process.env.TELEGRAM_ID_CHAT', process.env.TELEGRAM_ID_CHAT)
-      console.log('\n===============================')
-      console.log('\n')
-      console.log('\n')
-      console.log('\n')
+      console.log('\n');
+      console.log('\n');
+      console.log('\n===============================');
+      console.log('poolPriceInAzero', poolPriceInAzero);
+      console.log('inw2InUSD', inw2InUSD);
+      console.log('\n===============================');
+      console.log('azeroInUSD', azeroInUSD);
+      console.log('threadId', threadId);
+      console.log('process.env.TELEGRAM_ID_CHAT', process.env.TELEGRAM_ID_CHAT);
+      console.log('\n===============================');
+      console.log('\n');
+      console.log('\n');
       send_telegram_message(
         `<b>${symbol} Price: ${formatNumDynDecimal(
           poolPriceInAzero,

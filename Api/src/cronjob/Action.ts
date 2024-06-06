@@ -28,7 +28,7 @@ import {
   PoolsSchemaRepository,
   StatsSchemaRepository,
 } from '../repositories';
-import prices from '../utils/prices.json';
+
 import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
 import {lp_pool_contract} from '../contracts/lp_pool';
 import axios from 'axios';
@@ -826,7 +826,50 @@ export async function processUpdateStats(
   | undefined
 > {
   try {
+    const inw2PriceInAzero = await fetchCommonPoolPrice(
+      '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
+    );
+    console.log('inw2PriceInAzero', inw2PriceInAzero);
+    console.log('\n==========================================');
+
     const pools = await poolsSchemaRepository.find({});
+
+    const commonPoolsSum = await Promise.all(
+      pools.map(async pool => {
+        if (!!pool?.tokenContract) {
+          // get price for inw 1 by inw2 - rate 1:1
+          if (
+            pool.tokenContract ===
+            '5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST'
+          ) {
+            const editPool = {
+              ...pool,
+              tokenContract: '5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx',
+            };
+            const tvl = await fetchCommonPoolTVL(editPool);
+
+            return tvl;
+          } else {
+            const tvl = await fetchCommonPoolTVL(pool);
+
+            return tvl;
+          }
+        }
+
+        return 0;
+      }),
+    );
+
+    console.log('\ncommonPoolsSum==========');
+    console.log('\n');
+    console.log('commonPoolsSum', commonPoolsSum);
+
+    const commonPoolsSumAmount = commonPoolsSum.reduce(
+      (acc, curr) => acc + curr,
+      0,
+    );
+    console.log('commonPoolsSumAmount', commonPoolsSumAmount);
+
     const totalLocked = pools.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
@@ -849,8 +892,49 @@ export async function processUpdateStats(
       },
     );
     const valueInAzero =
-      prices.inw * totalLocked.totalInw + totalLocked.totalwAzero;
+      inw2PriceInAzero * totalLocked.totalInw +
+      totalLocked.totalwAzero +
+      inw2PriceInAzero * commonPoolsSumAmount * 10 ** 12;
+
+    console.log('valueInAzero', valueInAzero);
+
     const poolsLp = await lpPoolsSchemaRepository.find({});
+
+    const commonPoolsLpSum = await Promise.all(
+      poolsLp.map(async pool => {
+        if (!!pool?.lptokenContract) {
+          // get price for inw 1 by inw2 - rate 1:1
+          if (
+            pool.lptokenContract ===
+            '5H4aCwLKUpVpct6XGJzDGPPXFockNKQU2JUVNgUw6BXEPzST'
+          ) {
+            const editPool = {
+              ...pool,
+              lptokenContract:
+                '5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx',
+            };
+            const tvl = await fetchCommonLPPoolTVL(editPool);
+
+            return tvl;
+          } else {
+            const tvl = await fetchCommonLPPoolTVL(pool);
+
+            return tvl;
+          }
+        }
+
+        return 0;
+      }),
+    );
+
+    console.log('commonPoolsLpSum', commonPoolsLpSum);
+    const commonPoolsLpSumAmount = commonPoolsLpSum.reduce(
+      (acc, curr) => acc + curr,
+      0,
+    );
+
+    console.log({commonPoolsLpSumAmount});
+
     const totalLpLocked = poolsLp.reduce(
       (total, pool) => {
         if (pool.tokenContract === process.env.INW_ADDRESS) {
@@ -873,7 +957,12 @@ export async function processUpdateStats(
       },
     );
     const valueLpInAzero =
-      prices.inw * totalLpLocked.totalInw + totalLpLocked.totalwAzero;
+      inw2PriceInAzero * totalLpLocked.totalInw +
+      totalLpLocked.totalwAzero +
+      inw2PriceInAzero * commonPoolsLpSumAmount * 10 ** 12;
+
+    console.log({valueLpInAzero});
+
     const ret = await getAllFloorPriceArtZero();
     const calculatedValues = await Promise.all(
       ret.map(async (collection: any) => {
@@ -939,14 +1028,12 @@ export async function processUpdateStats(
   }
 }
 
-// '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
 export const fetchCommonPoolPrice = async (pairAddress: string) => {
   const contract = new ContractPromise(
     globalApi,
     pair_contract.CONTRACT_ABI,
     pairAddress,
   );
-
   const gasLimit = readOnlyGasLimit(globalApi);
 
   if (gasLimit) {
@@ -966,7 +1053,6 @@ export const fetchCommonPoolPrice = async (pairAddress: string) => {
         const inwAmount = ret[1]?.replace(/,/g, '') / Math.pow(10, 12);
 
         const inw2InAzero = azeroAmount / inwAmount;
-        console.log('fetchInwPrice inw2InAzero', inw2InAzero);
 
         return inw2InAzero;
       }
@@ -977,4 +1063,88 @@ export const fetchCommonPoolPrice = async (pairAddress: string) => {
     }
   }
   return 0;
+};
+
+export const fetchCommonPoolTVL = async (pool: any) => {
+  console.log('\n===================');
+  console.log('=');
+  console.log('=');
+  console.log('= pool.tokenName', pool.tokenName);
+  console.log('= pool.tokenSymbol', pool.tokenSymbol);
+  console.log('= pool.tokenContract', pool.tokenContract);
+  // @ts-ignore
+  const pairAddress = matchCommonPool[pool.tokenContract];
+  console.log('= pairAddress', pairAddress);
+
+  if (!pairAddress) return 0;
+
+  const tokenPrice = await fetchCommonPoolPrice(pairAddress);
+  console.log('= tokenPrice', tokenPrice);
+
+  if (!tokenPrice) return 0;
+
+  const stakedAmount =
+    Number(pool.totalStaked) / Math.pow(10, Number(pool.tokenDecimal));
+
+  console.log('= stakedAmount', stakedAmount);
+  
+  const tvlInAzero = stakedAmount * tokenPrice;
+  console.log('= tvlInAzero', tvlInAzero);
+
+  console.log('=');
+  console.log('=');
+  console.log('\n===================');
+  return tvlInAzero;
+};
+
+export const fetchCommonLPPoolTVL = async (pool: any) => {
+  console.log('\n===================');
+  console.log('=');
+  console.log('=');
+  console.log('= pool.lptokenName', pool.lptokenName);
+  console.log('= pool.lptokenSymbol', pool.lptokenSymbol);
+  console.log('= pool.lptokenContract', pool.lptokenContract);
+  // @ts-ignore
+  const pairAddress = matchCommonPool[pool.lptokenContract];
+  console.log('= pairAddress', pairAddress);
+
+  if (!pairAddress) return 0;
+
+  const tokenPrice = await fetchCommonPoolPrice(pairAddress);
+  console.log('= tokenPrice', tokenPrice);
+  const stakedAmount =
+    Number(pool.totalStaked) / Math.pow(10, Number(pool.lptokenDecimal));
+  console.log('= stakedAmount', stakedAmount);
+  const tvlInAzero = stakedAmount * tokenPrice;
+  console.log('= tvlInAzero', tvlInAzero);
+
+  console.log('=');
+  console.log('=');
+  console.log('\n===================');
+  return tvlInAzero;
+};
+
+const matchCommonPool = {
+  // INW2
+  '5EA7h2xCP9TkAwEQ8Km2b7aQChPKVCqcS2BJWqYavoXiEsfx':
+    '5Dr3N2eP41e3BTMi6rxCJYeLGSS7Ggnayarx9FqCPZdmnnNj',
+  // IOU
+  '5GYgJ1xBPtyUwbPVnDfbg9uRGWdGrcaM6y1TaftUMoxUHQh5':
+    '5CcUwJACT8vcSXG9U4nNLiA6U2yohP8smgBUSMgymKUbe1Bg',
+  // IMUN
+  '5HF21YapMFdWueDvfEEy2sAvVAvy12Qok2tiKjt6crae8Dod':
+    '5Fyqc7v79MUiMPRqQswdrTU69W6jcEwTN3yxWh7EF9ZwP1tt',
+  // NUKO
+  '5HZxA385SYeydqZUpTeKj7D37T1bL9N6JA7Xde5QMP8qiSym':
+    '5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1',
+  // KEBAB
+  '5GVjxVdUMr5dQX9TSvvwWq42jyRaXLN65MDh4A8jhdG4Rz1A':
+    '5DtsqFdRgxkQDceKtmMPB6MeCfjJRpir9R2uPVKoojayj26h',
+  // SC
+  '5G1LVy9K5uapJE9uzG1NbMN4bTKJEyKLMtKGAtqdgbLDegNF':
+    '5Ef2cGhQJPjQuZxodyGM7QCheUSivdya2wLynG4pSHrjMfx6',
+  // ZPF
+  '5ESKJbkpVa1ppUCmrkCmaZDHqm9SHihws9Uqqsoi4VrDCDLE':
+    '5Fck3jA2UHqe1ktkMyeAe7w1eDJcf1QtADgQ6KShQEsgn1yc',
+  // BALDA: '5EcFNb89oVXoz3Ria2bJus9TaKqsSxnXcqfUh5KCNpJxR526',
 };
