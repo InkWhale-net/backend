@@ -12,6 +12,7 @@ import {ApiPromise, WsProvider} from "@polkadot/api";
 import jsonrpc from "@polkadot/types/interfaces/jsonrpc";
 import {ContractPromise} from "@polkadot/api-contract";
 import {
+    LaunchpadsSchemaRepository,
     LpPoolsSchemaRepository, NftPoolsSchemaRepository,
     PoolsSchemaRepository,
     TokensSchemaRepository,
@@ -27,6 +28,7 @@ import { psp22_contract } from "../contracts/psp22";
 import { token_generator_contract } from "../contracts/token_generator";
 import {global_vars, SOCKET_STATUS} from "./global";
 import {globalApi} from "../index";
+import { launchpad_generator_contract } from "../contracts/launchpad_generator";
 
 @cronJob()
 export class CronJobUpdatePools implements Provider<CronJob> {
@@ -41,6 +43,8 @@ export class CronJobUpdatePools implements Provider<CronJob> {
         public lpPoolsSchemaRepository : LpPoolsSchemaRepository,
         @repository(NftPoolsSchemaRepository)
         public nftPoolsSchemaRepository : NftPoolsSchemaRepository,
+        @repository(LaunchpadsSchemaRepository)
+        public launchpadsSchemaRepository : LaunchpadsSchemaRepository,
     ) {
     }
 
@@ -58,6 +62,7 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                         const lpPoolsRepo = this.lpPoolsSchemaRepository;
                         const tokensRepo = this.tokensSchemaRepository;
                         const nftPoolsRepo = this.nftPoolsSchemaRepository;
+                        const launchpadsRepo = this.launchpadsSchemaRepository
 
                         if (!(global_vars.socketStatus == SOCKET_STATUS.CONNECTED && globalApi)) return;
                         console.log(`${CONFIG_TYPE_NAME.INW_POOL} - InkWhale CronJobUpdatePools is active!`);
@@ -96,6 +101,11 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                             globalApi,
                             token_generator_contract.CONTRACT_ABI,
                             token_generator_contract.CONTRACT_ADDRESS
+                        );
+                        const launchpad_generator_calls = new ContractPromise(
+                            globalApi,
+                            launchpad_generator_contract.CONTRACT_ABI,
+                            launchpad_generator_contract.CONTRACT_ADDRESS
                         );
 
 
@@ -168,11 +178,13 @@ export class CronJobUpdatePools implements Provider<CronJob> {
                             nft_pool_contract_calls,
                             lp_pool_contract_calls,
                             pool_contract_calls,
+                            launchpad_generator_calls,
                             updateQueueRepo,
                             nftPoolsRepo,
                             tokensRepo,
                             poolsRepo,
-                            lpPoolsRepo
+                            lpPoolsRepo,
+                            launchpadsRepo
                         );
                     }
                 } catch (e) {

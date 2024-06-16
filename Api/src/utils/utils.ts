@@ -16,9 +16,9 @@ import winston from 'winston';
 import {Abi, ContractPromise} from '@polkadot/api-contract';
 import {inw_token} from '../contracts/inw_token';
 import {ApiBase} from '@polkadot/api/base';
-import {psp22_contract_old} from '../contracts/psp22_old';
+import { psp22_contract_old } from '../contracts/psp22_old';
+import { psp22_contract } from '../contracts/psp22';
 import {owner} from './Pools';
-import {psp22_contract} from '../contracts/psp22';
 import numeral from 'numeral';
 import ex from '../../azns/index';
 
@@ -317,52 +317,57 @@ const toContractAbiMessage = (
   contractPromise: ContractPromise,
   message: string,
 ) => {
-  const abiMessages = contractPromise.abi.messages.find(
-    m => m.method === message,
-  );
-  // logger.info({abiMessages: abiMessages});
-  if (!abiMessages) {
-    const messages = contractPromise?.abi.messages
-      .map(m => m.method)
-      .join(', ');
-    const error = `"${message}" not found in metadata.spec.messages: [${messages}]`;
-    console.error(error);
-    return {ok: false, error};
+    const abiMessages = contractPromise.abi.messages.find((m) => m.method === message);
+    // logger.info({abiMessages: abiMessages});
+    if (!abiMessages) {
+        const messages = contractPromise?.abi.messages.map((m) => m.method).join(', ');
+        const error = `"${message}" not found in metadata.spec.messages: [${messages}]`;
+        console.error(error);
+        return {ok: false, error};
+    }
+    return {ok: true, value: abiMessages};
+};
+
+export const getIPFSData = async (uri: string) => {
+  const ret = `${process.env.IPFS_PUBLIC_URL}/${uri}`;
+
+  try {
+    const response = await axios.get(ret);
+    return response?.data;
+  } catch (error) {
+    console.error('get ipfs data error', error.message, `\n${ret}`);
   }
-  return {ok: true, value: abiMessages};
 };
-
 export const getAzeroPrice = async (symbol: string) => {
-  const {data} = await axios({
-    baseURL: 'https://pro-api.coinmarketcap.com/v2',
-    url: `/cryptocurrency/quotes/latest?symbol=${symbol}&convert=USD`,
-    method: 'get',
-    headers: {
-      Accept: 'application/json',
-      'X-CMC_PRO_API_KEY': process.env.X_CMC_PRO_API_KEY,
-    },
-  });
-
-  let obj = data.data;
-  let keys = Object.keys(obj);
-  let result = obj[keys[0]];
-
-  let price = result.filter((item: any) => item.symbol === symbol)[0].quote.USD
-    .price;
-  return price;
-};
-
+    const { data } = await axios({
+      baseURL: "https://pro-api.coinmarketcap.com/v2",
+      url: `/cryptocurrency/quotes/latest?symbol=${symbol}&convert=USD`,
+      method: "get",
+      headers: {
+        "Accept": "application/json",
+        "X-CMC_PRO_API_KEY": process.env.X_CMC_PRO_API_KEY
+      },
+    });
+  
+    let obj = data.data;
+    let keys = Object.keys(obj);
+    let result = obj[keys[0]];
+    
+    let price = result.filter((item: any) => item.symbol === symbol)[0].quote.USD.price;
+    return price
+  }
+  
 export const getAllFloorPriceArtZero = async () => {
-  const {data} = await axios({
-    baseURL: process.env.ARTZERO_API_BASE_URL,
-    url: `/getAllCollectionsFloorPrice`,
-    method: 'post',
-    headers: {
-      Accept: 'application/json',
-    },
-  });
-  return data?.ret?.filter((data: any) => data?.floorPrice);
-};
+    const { data } = await axios({
+      baseURL: process.env.ARTZERO_API_BASE_URL,
+      url: `/getAllCollectionsFloorPrice`,
+      method: "post",
+      headers: {
+        "Accept": "application/json",
+      },
+    });
+    return data?.ret?.filter((data: any) => data?.floorPrice)
+  }
 
 const getOldTokenOwner = async (api: any, contractAddress: any) => {
   try {

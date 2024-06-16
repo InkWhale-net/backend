@@ -1,15 +1,24 @@
 import {inject} from '@loopback/core';
-import {post, Request, requestBody, RestBindings} from '@loopback/rest';
-import {repository} from "@loopback/repository";
+import {
+  get,
+  post,
+  Request,
+  requestBody,
+  RestBindings,
+  param,
+} from '@loopback/rest';
+import {Filter, repository} from '@loopback/repository';
 import {
   EventTransferRepository,
+  LaunchpadsSchemaRepository,
   LpPoolsSchemaRepository,
   NftPoolsSchemaRepository,
   PoolsSchemaRepository,
   StatsSchemaRepository,
   TokensSchemaRepository,
-  UpdateQueueSchemaRepository
-} from "../repositories";
+  UpdateQueueSchemaRepository,
+  KycAddressSchemaRepository,
+} from '../repositories';
 import {
   ADDRESSES_INW,
   MESSAGE,
@@ -18,6 +27,8 @@ import {
   STATUS
 } from "../utils/constant";
 import {
+  ReqGetLaunchpadsByAddressType,
+  ReqGetLaunchpadsType,
   ReqGetLpPoolsByAddressType,
   ReqGetLpPoolsByOwnerType,
   ReqGetLpPoolsType,
@@ -32,6 +43,7 @@ import {
   ReqGetTransactionHistoryType,
   ReqImportToken,
   ReqImportTokenBody,
+  RequestGetLaunchpadsByAddressBody,
   RequestGetLpPoolsBody,
   RequestGetNftPoolsBody,
   RequestGetNftPoolsByAddressBody,
@@ -41,6 +53,7 @@ import {
   RequestGetTokenBody,
   RequestGetTokensBody,
   RequestGetTransactionHistoryBody,
+  RequestLaunchpadsBody,
   RequestLpPoolsByAddressBody,
   RequestLpPoolsByOwnerBody,
   RequestPoolsBody,
@@ -48,41 +61,59 @@ import {
   ReqUpdateTokenIconBody,
   ReqUpdateTokenIconType,
   ReqUpdateType,
-  ResponseBody
-} from "../utils/Message";
-import {token_generator_contract} from "../contracts/token_generator";
-import {lp_pool_generator_contract} from "../contracts/lp_pool_generator";
-import {nft_pool_generator_contract} from "../contracts/nft_pool_generator";
-import {pool_generator_contract} from "../contracts/pool_generator";
-import {UpdateQueue} from "../models";
+  ResponseBody,
+  ReqAddKycAddressBody,
+  ReqAddKycAddress,
+} from '../utils/Message';
+import {token_generator_contract} from '../contracts/token_generator';
+import {lp_pool_generator_contract} from '../contracts/lp_pool_generator';
+import {nft_pool_generator_contract} from '../contracts/nft_pool_generator';
+import {pool_generator_contract} from '../contracts/pool_generator';
+import {UpdateQueue, KycAddress} from '../models';
 import {globalApi} from '..';
 import {psp22_contract} from '../contracts/psp22';
-import {isValidSignature, readOnlyGasLimit, roundUp} from '../utils/utils';
+import {
+  getIPFSData,
+  isValidSignature,
+  readOnlyGasLimit,
+  roundUp,
+} from '../utils/utils';
 import {ContractPromise} from '@polkadot/api-contract';
-import {checkQueue} from "../utils/Pools";
-import {global_vars, SOCKET_STATUS} from "../cronjob/global";
-import {pool_contract} from "../contracts/pool";
-import {lp_pool_contract} from "../contracts/lp_pool";
-import {nft_pool_contract} from "../contracts/nft_pool";
-import { psp22_contract_old } from '../contracts/psp22_old';
+import {checkQueue} from '../utils/Pools';
+import {global_vars, SOCKET_STATUS} from '../cronjob/global';
+import {pool_contract} from '../contracts/pool';
+import {lp_pool_contract} from '../contracts/lp_pool';
+import {nft_pool_contract} from '../contracts/nft_pool';
+import {launchpad_generator_contract} from '../contracts/launchpad_generator';
+import {execContractQuery} from '../utils/Launchpads';
+import {launchpad_contract} from '../contracts/launchpad';
+import {psp22_contract_old} from '../contracts/psp22_old';
+
+import {Buffer} from 'buffer';
+// import { swap_inw2_contract } from '../contracts/swap_inw2_contract';
+const XHubSignature = require('x-hub-signature');
 
 export class ApiController {
   constructor(
-      @repository(PoolsSchemaRepository)
-      public poolsSchemaRepository : PoolsSchemaRepository,
-      @repository(UpdateQueueSchemaRepository)
-      public updateQueueSchemaRepository : UpdateQueueSchemaRepository,
-      @repository(TokensSchemaRepository)
-      public tokensSchemaRepository : TokensSchemaRepository,
-      @repository(LpPoolsSchemaRepository)
-      public lpPoolsSchemaRepository : LpPoolsSchemaRepository,
-      @repository(NftPoolsSchemaRepository)
-      public nftPoolsSchemaRepository : NftPoolsSchemaRepository,
-      @repository(EventTransferRepository)
-      public eventTransferRepository: EventTransferRepository,
-      @repository(StatsSchemaRepository)
-      public statsSchemaRepository : StatsSchemaRepository,
-      @inject(RestBindings.Http.REQUEST) private req: Request
+    @repository(PoolsSchemaRepository)
+    public poolsSchemaRepository: PoolsSchemaRepository,
+    @repository(UpdateQueueSchemaRepository)
+    public updateQueueSchemaRepository: UpdateQueueSchemaRepository,
+    @repository(TokensSchemaRepository)
+    public tokensSchemaRepository: TokensSchemaRepository,
+    @repository(LpPoolsSchemaRepository)
+    public lpPoolsSchemaRepository: LpPoolsSchemaRepository,
+    @repository(EventTransferRepository)
+    public eventTransferRepository: EventTransferRepository,
+    @repository(NftPoolsSchemaRepository)
+    public nftPoolsSchemaRepository: NftPoolsSchemaRepository,
+    @repository(LaunchpadsSchemaRepository)
+    public launchpadsSchemaRepository: LaunchpadsSchemaRepository,
+    @repository(StatsSchemaRepository)
+    public statsSchemaRepository: StatsSchemaRepository,
+    @inject(RestBindings.Http.REQUEST) private req: Request,
+    @repository(KycAddressSchemaRepository)
+    public kycAddressSchemaRepository: KycAddressSchemaRepository,
   ) {}
 
   @post('/update')
@@ -167,11 +198,17 @@ export class ApiController {
         token_generator_contract.CONTRACT_ABI,
         token_generator_contract.CONTRACT_ADDRESS
       );
+      const launchpad_generator_calls = new ContractPromise(
+        globalApi,
+        launchpad_generator_contract.CONTRACT_ABI,
+        launchpad_generator_contract.CONTRACT_ADDRESS,
+      );
       const updateQueueRepo = this.updateQueueSchemaRepository;
       const poolsRepo = this.poolsSchemaRepository;
       const lpPoolsRepo = this.lpPoolsSchemaRepository;
       const tokensRepo = this.tokensSchemaRepository;
       const nftPoolsRepo = this.nftPoolsSchemaRepository;
+      const launchpadsRepo = this.launchpadsSchemaRepository;
       checkQueue(
         isTrigger,
         globalApi,
@@ -182,11 +219,13 @@ export class ApiController {
         nft_pool_contract_calls,
         lp_pool_contract_calls,
         pool_contract_calls,
+        launchpad_generator_calls,
         updateQueueRepo,
         nftPoolsRepo,
         tokensRepo,
         poolsRepo,
-        lpPoolsRepo
+        lpPoolsRepo,
+        launchpadsRepo,
       );
     }
 
@@ -301,12 +340,14 @@ export class ApiController {
     const token = await this.tokensSchemaRepository.findOne({
       where: {contractAddress: req.tokenAddress},
     });
+
     if (token) {
       return {
         status: STATUS.FAILED,
         message: MESSAGE.DUPLICATED_TOKEN,
       };
     }
+
     const contract_to_call = new ContractPromise(
       globalApi,
       req?.isNew == 'false'
@@ -316,6 +357,7 @@ export class ApiController {
     );
 
     const gasLimit = readOnlyGasLimit(globalApi);
+
     const queryResult: any = await contract_to_call.query['ownable::owner'](
       process.env.CALLER_ACCOUNT ||
         '5CGUvruJMqB1VMkq14FC8QgR9t4qzjBGbY82tKVp2D6g9LQc',
@@ -369,7 +411,7 @@ export class ApiController {
         isManagedByTokenGenerator: false,
         createdTime: new Date(),
         updatedTime: new Date(),
-        isNew: req?.isNew == "true",
+        isNew: req?.isNew == "true"
       });
     } catch (e) {
       console.log(`ERROR: ProcessTokens create - ${e.message}`);
@@ -465,11 +507,12 @@ export class ApiController {
       );
       const sumBalance = balanceQrs.reduce(
         (accumulator, currentValue: any) =>
-          accumulator +
-          +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
+        accumulator +
+        +(currentValue?.output?.toHuman()?.Ok?.replaceAll(',', '') || 0),
         0,
       );
-      inCirculation = roundUp(totalSupply - sumBalance / 10 ** 12);
+      
+      inCirculation = roundUp(totalSupply - (sumBalance / 10 ** 12));
     } catch (error) {
       console.log(error);
       return {
@@ -860,14 +903,219 @@ export class ApiController {
       },
     };
   }
+
+  @post('/getLaunchpads')
+  async getLaunchpads(
+    @requestBody(RequestLaunchpadsBody) req: ReqGetLaunchpadsType,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+    let keyword =
+      req?.keyword != 'undefined' ? JSON.parse(req?.keyword || '') : {};
+    let projectInfoIpfs = keyword?.projectInfoIpfs;
+    // isActive
+    // 0: true
+    // 1: none
+    let isActive = req?.isActive;
+
+    if (projectInfoIpfs) {
+      const foundLaunchpadWithIPFSUri =
+        await this.launchpadsSchemaRepository.findOne({
+          where: {projectInfoUri: projectInfoIpfs},
+        });
+      return {
+        status: STATUS.OK,
+        message: STATUS.SUCCESS,
+        ret: foundLaunchpadWithIPFSUri,
+      };
+    }
+
+    let limit = req?.limit;
+    let offset = req?.offset;
+    if (!limit) limit = 100;
+    if (!offset) offset = 0;
+    const order = req?.sort ? 'createdTime ASC' : 'createdTime DESC';
+    let launchpads = [];
+
+    const unDecodeLaunchpads = (
+      await this.launchpadsSchemaRepository.find({
+        where: {
+          isDisabled: true,
+        },
+      })
+    )?.filter(e => e?.projectInfoUri?.length == 46);
+    for (const launchpad of unDecodeLaunchpads) {
+      try {
+        console.log(`getting ipfs data ${launchpad?.projectInfoUri}`);
+
+        const projectinfor = await getIPFSData(launchpad?.projectInfoUri || '');
+        if (projectinfor) {
+          launchpad.isDisabled = false;
+          launchpad.projectInfo = JSON.stringify(projectinfor);
+        } else {
+          launchpad.isDisabled = true;
+        }
+        await this.launchpadsSchemaRepository.update(launchpad);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    launchpads = await this.launchpadsSchemaRepository.find({
+      where:
+        isActive == 0
+          ? {isDisabled: false, isActive: true}
+          : {isDisabled: false},
+      order: [order],
+      limit: limit,
+      skip: offset,
+    });
+    let countDoc = await this.launchpadsSchemaRepository.count(
+      isActive == 0 ? {isDisabled: false, isActive: true} : {isDisabled: false},
+    );
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: {
+        dataArray: launchpads,
+        total: countDoc?.count,
+      },
+    };
+  }
+
+  @post('/getLaunchpadByAddress')
+  async getLaunchpadByAddress(
+    @requestBody(RequestGetLaunchpadsByAddressBody)
+    req: ReqGetLaunchpadsByAddressType,
+  ): Promise<ResponseBody> {
+    if (!req) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NO_INPUT,
+      };
+    }
+
+    let launchpadContract = req?.launchpadContract;
+    if (!launchpadContract) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.NOT_FOUND_POOL_CONTRACT,
+        ret: [],
+      };
+    }
+    let pool = await this.launchpadsSchemaRepository.find({
+      where: {
+        launchpadContract: launchpadContract,
+      },
+    });
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: pool,
+    };
+  }
+
   @post('/getTotalValueLocked')
   async getTotalValueLocked(): Promise<ResponseBody> {
-    const ret = await this.statsSchemaRepository.findOne()
-    
+    const ret = await this.statsSchemaRepository.findOne();
+
     return {
       status: STATUS.OK,
       message: STATUS.SUCCESS,
       ret: ret,
+    };
+  }
+
+  @post('/addKycAddress')
+  async addKycAddress(
+    @requestBody(ReqAddKycAddressBody) req: ReqAddKycAddress,
+  ): Promise<ResponseBody> {
+    console.log('>>> req', req);
+
+    const headers = this.req.headers;
+
+    console.log('>>> headers', headers);
+
+    const xHub = new XHubSignature('sha256', process.env.SECRECT_BLOCKPASS);
+    const signature = xHub.sign(Buffer.from(JSON.stringify(req)));
+
+    const hash = signature?.replace('sha256=', '');
+
+    if (headers['x-hub-signature'] !== hash) {
+      return {
+        status: STATUS.FAILED,
+        message: MESSAGE.INVALID_X_HUB_SIGNATURE,
+      };
+    }
+
+    const record = await this.kycAddressSchemaRepository.findOne({
+      where: {clientId: req?.clientId, refId: req?.refId},
+    });
+
+    console.log('>>> record', record);
+
+    const newRecord = {
+      clientId: req?.clientId,
+      event: req?.event,
+      recordId: req?.recordId,
+      status: req?.status,
+      refId: req?.refId,
+      submitCount: req?.submitCount,
+      blockPassID: req?.blockPassID,
+      inreviewDate: req?.inreviewDate,
+      waitingDate: req?.waitingDate,
+      approvedDate: req?.approvedDate,
+    };
+
+    if (record) {
+      try {
+        await this.kycAddressSchemaRepository.replaceById(
+          record._id,
+          newRecord,
+        );
+      } catch (e) {
+        console.log(`ERROR: ADD_KYC - ${e.message}`);
+        return {
+          status: STATUS.FAILED,
+          message: `${MESSAGE.UNKNOW_ERROR} when UPDATE_KYC`,
+        };
+      }
+    } else {
+      try {
+        await this.kycAddressSchemaRepository.create(newRecord);
+      } catch (e) {
+        console.log(`ERROR: ADD_KYC - ${e.message}`);
+        return {
+          status: STATUS.FAILED,
+          message: `${MESSAGE.UNKNOW_ERROR} when ADD_KYC`,
+        };
+      }
+    }
+
+    return {
+      status: STATUS.OK,
+      message: MESSAGE.ADD_KYC_ADDRESS,
+    };
+  }
+
+  @get('/getKycAddress')
+  async getKycAddress(
+    @param.filter(KycAddress) filter?: Filter<KycAddress>,
+  ): Promise<ResponseBody> {
+    console.log('>>> filter', filter);
+
+    const records = await this.kycAddressSchemaRepository.find({
+      ...filter,
+    });
+
+    return {
+      status: STATUS.OK,
+      message: STATUS.SUCCESS,
+      ret: records,
     };
   }
 }

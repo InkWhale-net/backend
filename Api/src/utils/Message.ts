@@ -103,6 +103,20 @@ export type ReqImportToken = {
     signature?: string,
     isNew?: string
 }
+
+export type ReqAddKycAddress = {
+  clientId?: string;
+  event?: string;
+  recordId?: string;
+  status?: string;
+  refId?: string;
+  submitCount?: number;
+  blockPassID?: string;
+  inreviewDate?: string;
+  waitingDate?: string;
+  approvedDate?: string;
+};
+
 const ReqUpdateTokenIconSchema: SchemaObject = {
     type: 'object',
     properties: {
@@ -144,7 +158,45 @@ const ReqImportTokenSchema: SchemaObject = {
         signature: {
             type: 'string',
         },
+        isNew: {
+            type: 'boolean'
+        }
     },
+};
+const ReqAddKycAddressSchema: SchemaObject = {
+  type: 'object',
+  properties: {
+    clientId: {
+      type: 'string',
+    },
+    event: {
+      type: 'string',
+    },
+    recordId: {
+      type: 'string',
+    },
+    status: {
+      type: 'string',
+    },
+    refId: {
+      type: 'string',
+    },
+    submitCount: {
+      type: 'number',
+    },
+    blockPassID: {
+      type: 'string',
+    },
+    inreviewDate: {
+      type: 'string',
+    },
+    waitingDate: {
+      type: 'string',
+    },
+    approvedDate: {
+      type: 'string',
+    },
+  },
 };
 export const ReqUpdateTokenIconBody = {
     description: 'The input of getTokens function',
@@ -162,6 +214,15 @@ export const ReqImportTokenBody = {
         'application/json': {schema: ReqImportTokenSchema},
         'application/x-www-form-urlencoded': {schema: ReqImportTokenSchema},
     },
+};
+
+export const ReqAddKycAddressBody = {
+  description: 'The input of addKycAddress function',
+  required: true,
+  content: {
+    'application/json': {schema: ReqAddKycAddressSchema},
+    'application/x-www-form-urlencoded': {schema: ReqAddKycAddressSchema},
+  },
 };
 
 // GET LP POOLS
@@ -440,5 +501,64 @@ export const RequestGetTransactionHistoryBody = {
     content: {
         'application/json': {schema: ReqGetTransactionHistorySchema},
         'application/x-www-form-urlencoded': {schema: ReqGetTransactionHistorySchema},
+    },
+};
+
+// GET Launchpads
+export type ReqGetLaunchpadsType = {
+    keyword?: string,
+    isActive: number,
+    limit?: number,
+    offset?: number,
+    sort?: number,
+};
+const ReqGetLaunchpadsSchema: SchemaObject = {
+    type: 'object',
+    required: [],
+    properties: {
+        limit: {
+            type: 'number',
+        },
+        isActive: {
+            type: 'number'
+        },
+        offset: {
+            type: 'number',
+        },
+        sort: {
+            type: 'number',
+        },
+    },
+};
+export const RequestLaunchpadsBody = {
+    description: 'The input of getPools function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqGetLaunchpadsSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetLaunchpadsSchema},
+    },
+};
+
+
+// GET LAUNCHPAD BY ADDRESS
+export type ReqGetLaunchpadsByAddressType = {
+    launchpadContract: string,
+    keyword: string
+};
+const ReqGetLaunchpadsByAddressSchema: SchemaObject = {
+    type: 'object',
+    required: ['launchpadContract'],
+    properties: {
+        launchpadContract: {
+            type: 'string',
+        }
+    },
+};
+export const RequestGetLaunchpadsByAddressBody = {
+    description: 'The input of getLaunchpadByAddress function',
+    required: true,
+    content: {
+        'application/json': {schema: ReqGetLaunchpadsByAddressSchema},
+        'application/x-www-form-urlencoded': {schema: ReqGetLaunchpadsByAddressSchema},
     },
 };
