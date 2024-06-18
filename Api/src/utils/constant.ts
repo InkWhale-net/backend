@@ -22,9 +22,11 @@ export const EACH_15_SECONDS = '*/15 * * * * *'; // Every 15 seconds
 export const EACH_30_SECONDS = '*/30 * * * * *'; // Every 30 seconds
 
 export const CRONJOB_TIME = {
-    INW_POOL: process.env.CRONJOB_TIME_INW_POOL ?? EACH_15_SECONDS,
-    INW_POOL_SCAN_ALL: process.env.CRONJOB_TIME_INW_POOL_SCAN_ALL ?? EACH_5_MINUTES,
-    STATS: process.env.CRONJOB_TIME_STATS ?? EACH_10_SECONDS,
+  INW_POOL: process.env.CRONJOB_TIME_INW_POOL ?? EACH_15_SECONDS,
+  INW_POOL_SCAN_ALL:
+    process.env.CRONJOB_TIME_INW_POOL_SCAN_ALL ?? EACH_5_MINUTES,
+  STATS: process.env.CRONJOB_TIME_STATS ?? EACH_10_SECONDS,
+  AZERO_STACKING_ADMIN: process.env.CRONJOB_TIME_AZERO_STACKING_ADMIN ?? EACH_30_MINUTES,
 };
 
 export const CRONJOB_ENABLE = {
@@ -74,6 +76,7 @@ export const MESSAGE = {
   INVALID_TOKEN_OWNER: 'Invalid token owner',
   INVALID_SIGNATURE: 'Invalid token signature',
   IMPORT_TOKEN_SUCCESS: 'Import token success',
+  UPDATE_DOXXED_SUCCESS: 'Update Doxxed data',
   UNKNOW_ERROR: 'Unknow error',
   GET_INW_TOTAL_SUPPLY_FAIL: 'Get INW total supply fail',
   GET_INW_TOTAL_SUPPLY_SUCCESS: 'Get INW total supply success',
