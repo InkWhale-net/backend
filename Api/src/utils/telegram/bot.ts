@@ -83,7 +83,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             (async () => {
               try {
                 send_telegram_message(
-                  `<b>Token list:\n /price_inw2 INW2\n /price_iou IOU\n /price_imun IMUN\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF\n /price_zpf MUGZ</b>`,
+                  `<b>Token list:\n /price_inw2 INW2\n /price_iou IOU\n /price_imun IMUN\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF\n /price_mugz MUGZ</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
