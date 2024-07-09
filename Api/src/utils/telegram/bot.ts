@@ -153,7 +153,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             (async () => {
               try {
                 send_telegram_message(
-                  `<b>Pool list:\n /pool_inw2 INW2\n /pool_iou IOU\n /pool_imun IMUN\n /pool_kebab KEBAB\n /pool_balda BALDA\n /pool_sc SC\n /pool_zpf ZPF</b>`,
+                  `<b>Pool list:\n /pool_inw2 INW2\n /pool_iou IOU\n /pool_imun IMUN\n /pool_kebab KEBAB\n /pool_balda BALDA\n /pool_sc SC\n /pool_zpf ZPF\n /pool_mugz MUGZ</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -214,7 +214,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             break;
           case '/pool_mugz':
             send_telegram_message(
-              `<b>AZERO-ZPF Pool: https://app.common.fi/pools/5GYjkQG8q1ASeZ8sgtTN1bVwfr6TCJwNhRmpR5Zx6bsUdfLz</b>`,
+              `<b>AZERO-MUGZ Pool: https://app.common.fi/pools/5GYjkQG8q1ASeZ8sgtTN1bVwfr6TCJwNhRmpR5Zx6bsUdfLz</b>`,
               process.env.TELEGRAM_ID_CHAT || '',
               threadId,
             );
