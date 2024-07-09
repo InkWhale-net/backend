@@ -83,7 +83,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
             (async () => {
               try {
                 send_telegram_message(
-                  `<b>Token list:\n /price_inw2 INW2\n /price_iou IOU\n /price_imun IMUN\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF</b>`,
+                  `<b>Token list:\n /price_inw2 INW2\n /price_iou IOU\n /price_imun IMUN\n /price_kebab KEBAB\n /price_balda BALDA\n /price_sc SC\n /price_zpf ZPF\n /price_zpf MUGZ</b>`,
                   process.env.TELEGRAM_ID_CHAT || '',
                   threadId,
                 );
@@ -113,13 +113,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               '5Fyqc7v79MUiMPRqQswdrTU69W6jcEwTN3yxWh7EF9ZwP1tt',
             )();
             break;
-          // case '/price_nuko':
-          //   getCommonPoolPrice(
-          //     threadId,
-          //     'NUKO',
-          //     '5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1',
-          //   )();
-          //   break;
+
           case '/price_kebab':
             getCommonPoolPrice(
               threadId,
@@ -146,6 +140,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               threadId,
               'ZPF',
               '5Fck3jA2UHqe1ktkMyeAe7w1eDJcf1QtADgQ6KShQEsgn1yc',
+            )();
+            break;
+          case '/price_mugz':
+            getCommonPoolPrice(
+              threadId,
+              'MUGZ',
+              '5GYjkQG8q1ASeZ8sgtTN1bVwfr6TCJwNhRmpR5Zx6bsUdfLz',
             )();
             break;
           case '/pool':
@@ -182,13 +183,7 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               threadId,
             );
             break;
-          // case '/pool_nuko':
-          //   send_telegram_message(
-          //     `<b>AZERO-NUKO Pool: https://app.common.fi/pools/5EtodHBxsuJPFZTnksBhfRQxbWtWk3WxLGvjsSyG6AyBaYr1</b>`,
-          //     process.env.TELEGRAM_ID_CHAT || '',
-          //     threadId,
-          //   );
-          //   break;
+
           case '/pool_kebab':
             send_telegram_message(
               `<b>AZERO-KEBAB Pool: https://app.common.fi/pools/5DtsqFdRgxkQDceKtmMPB6MeCfjJRpir9R2uPVKoojayj26h</b>`,
@@ -213,6 +208,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
           case '/pool_zpf':
             send_telegram_message(
               `<b>AZERO-ZPF Pool: https://app.common.fi/pools/5Fck3jA2UHqe1ktkMyeAe7w1eDJcf1QtADgQ6KShQEsgn1yc</b>`,
+              process.env.TELEGRAM_ID_CHAT || '',
+              threadId,
+            );
+            break;
+          case '/pool_mugz':
+            send_telegram_message(
+              `<b>AZERO-ZPF Pool: https://app.common.fi/pools/5GYjkQG8q1ASeZ8sgtTN1bVwfr6TCJwNhRmpR5Zx6bsUdfLz</b>`,
               process.env.TELEGRAM_ID_CHAT || '',
               threadId,
             );
