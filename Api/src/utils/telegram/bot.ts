@@ -219,13 +219,13 @@ if (process.env.RUN_TELEGRAM_BOT == 'true') {
               threadId,
             );
             break;
-          case '/pool_mugz':
-            send_telegram_message(
-              `<b>AZERO-MUGZ Pool: https://app.common.fi/pools/5GYjkQG8q1ASeZ8sgtTN1bVwfr6TCJwNhRmpR5Zx6bsUdfLz</b>`,
-              process.env.TELEGRAM_ID_CHAT || '',
-              threadId,
-            );
-            break;
+          // case '/pool_mugz':
+          //   send_telegram_message(
+          //     `<b>AZERO-MUGZ Pool: https://app.common.fi/pools/5GYjkQG8q1ASeZ8sgtTN1bVwfr6TCJwNhRmpR5Zx6bsUdfLz</b>`,
+          //     process.env.TELEGRAM_ID_CHAT || '',
+          //     threadId,
+          //   );
+          //   break;
           case '/pool_imun2':
             send_telegram_message(
               `<b>AZERO-IMUN2 Pool: https://app.common.fi/pools/5Cpq8frEQfyceRQeLfJqBqvg66k4YsGVSvSmzYwxx8Wv55ML</b>`,
